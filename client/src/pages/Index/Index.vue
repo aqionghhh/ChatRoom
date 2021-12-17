@@ -28,7 +28,7 @@
           <!-- 左边部分,即头像 -->
           <div class="friend-list-l">
             <span class="tip">1</span>
-            <img src="../../static/images/index/add.png" alt="" />
+            <img src="../../static/images/index/添加.png" alt="" />
           </div>
           <!-- 右边部分 -->
           <div class="friend-list-r">
@@ -41,20 +41,24 @@
         </div>
       </div>
       <div class="friends">
-        <div class="friend-list">
+        <div
+          class="friend-list"
+          v-for="(friend, index) in friends"
+          :key="index"
+        >
           <!-- 左边部分,即头像 -->
           <div class="friend-list-l">
-            <span class="tip">1</span>
-            <img src="../../static/images/img/one.jpg" alt="" />
+            <span class="tip">{{ friend.tip }}</span>
+            <img :src="friend.imgurl" alt="" />
           </div>
           <!-- 右边部分 -->
           <div class="friend-list-r">
             <div class="top">
-              <div class="name">xx</div>
-              <div class="time">20:57</div>
+              <div class="name">{{ friend.name }}</div>
+              <div class="time">{{ changeTime(friend.time) }}</div>
             </div>
             <div class="message">
-              xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+              {{ friend.message }}
             </div>
           </div>
         </div>
@@ -64,7 +68,29 @@
 </template>
 
 <script>
-export default {};
+import datas from "../../commons/js/datas.js";
+import myfun from "../../commons/js/myfun.js";
+export default {
+  data() {
+    return {
+      friends: [],
+    };
+  },
+  mounted() {
+    this.getFriends();
+  },
+  methods: {
+    //转换时间
+    changeTime(date) {
+      return myfun.dateTime(date);
+    },
+    //获取好友列表数据
+    getFriends() {
+      this.friends = datas.friends();
+      // console.log(this.friends);
+    },
+  },
+};
 </script>
 
 <style >
@@ -121,12 +147,15 @@ export default {};
   padding: 9px 0 0 9px;
 }
 .main {
-  padding: 44px 0 0;
+  padding: 52px 0 0;
   width: 100%;
 }
 .friend-list {
   height: 48px;
   padding: 8px 0;
+}
+.friend-list:active {
+  background-color: rgba(230, 230, 230, 0.4);
 }
 .friend-list .friend-list-l {
   position: relative;
