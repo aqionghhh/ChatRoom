@@ -48,7 +48,7 @@
         >
           <!-- 左边部分,即头像 -->
           <div class="friend-list-l">
-            <span class="tip">{{ friend.tip }}</span>
+            <span class="tip" v-if="friend.tip">{{ friend.tip }}</span>
             <img :src="friend.imgurl" alt="" />
           </div>
           <!-- 右边部分 -->
@@ -93,59 +93,15 @@ export default {
 };
 </script>
 
-<style >
+<style scoped>
+@import "../../commons/css/index.css";
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
-.top-bar {
-  z-index: 100;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 44px;
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 0.5px 0 0 rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
-}
-.top-bar-left {
-  float: left;
-  padding-left: 8px;
-}
-.top-bar-left img {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  padding-top: 5px;
-}
-.top-bar-center img {
-  width: 44px;
-  height: 21px;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-  margin: auto;
-}
-.add {
-  padding-right: 8px;
-}
-.search,
-.add {
-  float: right;
-  width: 44px;
-  height: 44px;
-}
-.search img,
-.add img {
-  width: 26px;
-  height: 26px;
-  padding: 9px 0 0 9px;
-}
+
 .main {
   padding: 52px 0 0;
   width: 100%;

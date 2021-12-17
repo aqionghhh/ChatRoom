@@ -5,7 +5,7 @@ export default {
         id: 1,
         imgurl: require('../../static/images/img/one.jpg'),
 
-        tip: 2,
+        tip: 0,
         name: 'sxq',
         time: new Date(),
         message: '嘻',
@@ -49,7 +49,7 @@ export default {
         id: 6,
         imgurl: require('../../static/images/img/one.jpg'),
 
-        tip: 2,
+        tip: 0,
         name: '呃呃',
         time: new Date(),
         message: '嘻嘻嘻',

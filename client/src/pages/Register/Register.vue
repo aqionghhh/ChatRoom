@@ -19,8 +19,13 @@
       <div class="title">注册</div>
       <div class="inputs">
         <div class="inputs-div">
-          <input class="user" type="text" placeholder="请取个名字" />
-          <div class="employ" v-if="employ">该用户名已注册</div>
+          <input
+            class="user"
+            @input="userRight"
+            type="text"
+            placeholder="请取个名字"
+          />
+          <div class="employ" v-if="useremploy">该用户名已注册</div>
           <img
             v-if="isuser"
             class="ok"
@@ -31,11 +36,11 @@
         <div class="inputs-div">
           <input
             class="email"
-            @blur="emailRight"
+            @input="emailRight"
             type="text"
             placeholder="请输入邮箱"
           />
-          <div class="employ" v-if="employ">邮箱已被占用</div>
+          <div class="employ" v-if="emailemploy">邮箱已被占用</div>
           <div class="invalid" v-if="invalid">邮箱无效</div>
           <img
             v-if="isemail"
@@ -50,9 +55,9 @@
             :type="type"
             name=""
             id=""
+            @input="pwdRight"
             placeholder="请输入密码"
           />
-          <div class="employ" v-if="employ">密码已被占用</div>
           <img
             v-if="!look"
             class="look"
@@ -70,7 +75,7 @@
         </div>
       </div>
     </div>
-    <div class="submit">注册</div>
+    <div :class="[{ submit: isok }, { submit1: !isok }]">注册</div>
   </div>
 </template>
 
@@ -80,11 +85,15 @@ export default {
     return {
       type: "password",
       isuser: true, //用户名是否可用 img
-      isemail: false, //邮箱是否可用 img
+      isemail: true, //邮箱是否可用 img
       look: false, //是否可以查看密码 img
       invalid: false, //邮箱是否符合规定格式
-      employ: false, //是否被占用
+      useremploy: false, //用户名是否被占用
+      emailemploy: false, //邮箱是否被占用
       email: "", //邮箱
+      isok: false,
+      user: "", //用户名
+      pwd: "", //密码
     };
   },
   methods: {
@@ -115,11 +124,31 @@ export default {
           this.invalid = true;
         }
       }
+      this.isOk();
       // console.log(e.target.value);//打印出input框的值
     },
     //跳转到的登录页面
     toLogin() {
       this.$router.replace("/login");
+    },
+    //获取用户名
+    userRight(e) {
+      this.user = e.target.value;
+      this.isOk();
+    },
+    //获取密码
+    pwdRight(e) {
+      this.pwd = e.target.value;
+      this.isOk();
+    },
+    //判断页面是否能够进行注册
+    isOk() {
+      if (this.isuser && this.isemail && this.pwd.length > 5) {
+        //邮箱是真的、用户名是真的、密码长度>6
+        this.isok = true;
+      } else {
+        this.isok = false;
+      }
     },
   },
 };
@@ -225,6 +254,19 @@ input {
   height: 48px;
   background: #ffe431;
   box-shadow: 0px 25px 16px -18px rgba(255, 228, 49, 0.4);
+  border-radius: 24px;
+  font-family: PingFangSC-Medium;
+  font-size: 16px;
+  color: #272832;
+  font-weight: 550;
+  line-height: 48px;
+  text-align: center;
+  margin: 0 auto;
+}
+.submit1 {
+  width: 260px;
+  height: 48px;
+  background: rgba(39, 40, 50, 0.2);
   border-radius: 24px;
   font-family: PingFangSC-Medium;
   font-size: 16px;

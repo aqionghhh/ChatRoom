@@ -43,6 +43,8 @@ npm install vue-router
 		<router-view></router-view>
 
 图标放在static/images文件夹中，图片按照组件来分类存放
+
+对于头像上的小红点，使用v-if判断其是否为真，为真就显示小红点，为假就不显示
 ```
 
 # 2021/12/17
@@ -75,6 +77,11 @@ npm install vue-router
 
 ###### Login组件页面搭建
 
+```
+用@blur事件获取两个输入框的value，并将其存入到变量user和pwd中
+给登录按钮绑定点击事件，if判断用户名和密码是否同时存在，同时存在则在控制台打印'已提交'
+```
+
 ###### Register组件页面搭建
 
 ```
@@ -93,6 +100,16 @@ npm install vue-router
       },
 添加点击事件looks，点击眼睛按钮切换眼睛的图片并且控制密码的显示和隐藏
 当邮箱input框失焦的时候判断邮箱是否符合格式
+
+给注册按钮动态添加样式
+	<div :class="[{submit:isok},{submit1:!isok}]">注册</div>
+	在data中定义	isok:false  //默认是灰色，即submit1样式
+	添加submit和submit1样式
+在所有的内容都填写正确后才会变成submit样式
+给三个input框添加@input事件，在data中定义三个变量保存值，然后在methods中获取input框的值
+要考虑用户输入了用户名或者邮箱但是被占用，需要进行样式的改变
+在获取完值之后，在isOk函数中进行样式的改变
+在获取密码和用户名和邮箱的时候调用isOk
 ```
 
 ###### 页面跳转
@@ -110,4 +127,8 @@ npm install vue-router
     this.$router.replace{path：‘/’ } //不带参数
     需要在模板中添加点击事件
 ```
+
+###### 把三个页面的头部的样式拆分出来 在commons/css/index.css。但是因为我太懒了，就只拆了Index组件
+
+
 

@@ -2,7 +2,7 @@
   <div class="contents">
     <!-- 头部 -->
     <div class="top">
-      <div class="toop-bar-right">
+      <div class="top-bar-right">
         <span class="text" @click="toRegister">注册</span>
       </div>
     </div>
@@ -26,7 +26,7 @@
       </div>
       <!-- 提示语 -->
     </div>
-    <div class="submit">登录</div>
+    <div class="submit" @click="login">登录</div>
   </div>
 </template>
 
@@ -52,11 +52,19 @@ export default {
       console.log(e.target.value);
       this.pwd = e.target.value;
     },
+    //登录提交
+    login() {
+      if (this.user && this.pwd) {
+        //用户名和密码都存在才提交给后台
+        console.log("提交");
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
+/* @import "../../commons/css/index.css"; */
 .contents {
   display: flex;
   flex-direction: column;
@@ -73,7 +81,7 @@ export default {
   background: rgba(255, 255, 255, 1);
   box-shadow: 0;
 }
-.toop-bar-right {
+.top-bar-right {
   float: right;
   padding-right: 16px;
 }
