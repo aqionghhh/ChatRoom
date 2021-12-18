@@ -4,6 +4,7 @@ import VueRouter from 'vue-router';
 import Index from '../pages/Index/Index';
 import Login from '../pages/Login/Login';
 import Register from '../pages/Register/Register';
+import Search from '../pages/Search/Search';
 
 //声明使用插件
 Vue.use(VueRouter)
@@ -26,6 +27,10 @@ export default new VueRouter({
     {
       path: '/register',
       component: Register,
+    },
+    {
+      path: '/search',
+      component: Search,
     }
   ]
 })

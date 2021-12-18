@@ -11,7 +11,7 @@
         <img src="../../static/images/index/logo.png" alt="" />
       </div>
       <!-- 搜索和创建的图标 -->
-      <div class="toop-bar-right">
+      <div class="top-bar-right">
         <div class="add">
           <img src="../../static/images/index/add.png" alt="" />
         </div>
