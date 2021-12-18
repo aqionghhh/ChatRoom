@@ -75,5 +75,27 @@ export default {
       },
     ];
     return friendarr
+  },
+  //好友关系
+  ifFriend() {
+    let isFriend = [
+      {
+        userid: 1,
+        friend: 2,//对应上面friendarr数组的id
+      },
+      {
+        userid: 1,
+        friend: 5,
+      },
+      {
+        userid: 1,
+        friend: 6,
+      },
+      {
+        userid: 1,
+        friend: 8,
+      },
+    ]
+    return isFriend;
   }
 }

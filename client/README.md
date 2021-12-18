@@ -142,6 +142,25 @@ npm install vue-router
 		并且两个按钮的样式不一样
 			给不同样式的按钮添加两个不一样类名来写它们单独的样式
 模拟数据渲染模板
-	在commons/js/datas.js中给用户数据新增email字段
+	在commons/js/datas.js中给friendarr数组新增email字段
+	在commons/js/datas.js中新建一个isFriend（好友关系）数组
+给input框增加@input事件，为search方法，获取输入值，在searchUser方法中获取datas.js中的friendarr数组，然后进行for循环，与input框中获取到的值进行对比
+	要用到js的字符串匹配，js的字符串匹配有很多种方法
+		search():用于检索字符串中指定的子字符串，或检索与正则表达式相匹配的子字符串。如果没有找到任何匹配的子串，则返回-1
+		即匹配邮箱又匹配名字，只要有个符合就进入if语句
+		if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
+          this.userarr.push(arr[i]);
+        }//在data中定义一个userarr数组变量装入符合的数组
+        因为在不停的输入内容，不停的进行匹配，所以需要在输入的同时，只要调用了serach方法，就要在search方法中清空userarr数组变量，并且调用searchUser方法进行输入字符串匹配
+    输入的字符串在渲染出来的用户列表中有高亮效果
+    	判断匹配的是名字还是邮箱，把匹配到的字符串用replace进行替换成高亮字符
+    	let exp = eval('/'+e+'g');//封装在正则里面
+    	arr[i].name=arr[i].name.replace(exp,'<span>style="color:#4aaaff">'+e+'</span>')
+        arr[i].email=arr[i].email.replace(exp,'<span style="color:#4aaaff">'+e+'</span>')
+
 ```
+
+###### 各种表的字段
+
+![image-20211218193629024](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211218193629024.png)
 
