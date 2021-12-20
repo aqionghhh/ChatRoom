@@ -21,6 +21,8 @@ css选择器通常都是父元素控制子元素的位置，css有什么办法�
 设置了scoped类名相同也还是会出现样式覆盖的原因
 浮动
 行和行高的关系
+z-index必须在定位元素（position:relative/absolute/fixed/sticky）上才有效
+transition
 ```
 
 ###### 绝对定位和相对定位

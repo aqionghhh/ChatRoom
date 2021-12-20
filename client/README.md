@@ -185,12 +185,37 @@ npm install vue-router
 	1.自己
 	2.好友
 	3.陌生人
-根据性别动态设置背景颜色
+根据性别动态设置背景颜色，所以需要动态绑定style	
+	<div class="sex" :style="{ background: sexBg }">
+	然后在data中定义sexBg	      sexBg: "rgb(255,93,91)",
+	
+发送好友请求按钮，在该页面下有"加好友"或"发消息"按钮，点击加好友按钮出现一个发送好友请求的弹窗。
+因为屏幕分辨率不同，所以弹窗的高度也不同，所以需要动态获取屏幕的高度（在页面渲染好之后获取）
+  created() {
+    window.addEventListener(".bg", this.getHeight); //注册监听器
+    this.getHeight(); //页面创建时调用
+  },
+  //动态获取元素的高度
+  getHeight() {
+  this.height = window.innerHeight; // 屏幕高-屏幕顶部到头像底部的高
+  console.log(this.height);//height在data中进行定义
+  },
+然后在模板中动态添加高度
+      <div class="add-misg" :style="{ height: height + 'px', bottom: '-' + height + 'px' }">
+      
+发送好友请求做成从底部滑出的效果		npm install animate.css --save
+	1.//引入animation动画//在main.js中引入
+      import animated from 'animate.css';
+      Vue.use(animated)
+    2.<transition
+        name="fade"
+        enter-active-class="animated fadeInUp"
+        leave-active-class="animated fadeOut"
+      >
+      <div v-show="animation" ...>...</div>
+      </transition>
+      3.需要添加点击事件，并且在data中定义一个变量animation，点击切换animation的值，当其为true时，动画进入，为false时，动画淡出
 ```
 
-###### 发送好友请求页组件
 
-```
-跳转到陌生人主页会有跳转到发送好友请求页的路由
-```
 
