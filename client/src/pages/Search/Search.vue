@@ -17,22 +17,23 @@
         />
       </div>
       <div class="top-bar-right">
-        <div class="text">取消</div>
+        <div class="text" @click="back">取消</div>
       </div>
     </div>
     <!-- 内容 -->
     <div class="main">
       <div class="search-user result">
-        <div class="title">用户</div>
+        <div class="title" v-if="userarr.length > 0">用户</div>
         <div class="list user" v-for="(user, index) in userarr" :key="index">
           <!-- 左边是头像、名字和用户 -->
           <img :src="user.imgurl" alt="" />
           <div class="names">
-            <div class="name">{{ user.name }}</div>
-            <div class="email">{{ user.email }}</div>
+            <div class="name" v-html="user.name"></div>
+            <div class="email" v-html="user.email"></div>
           </div>
           <!-- 右边是进行的操作 -->
-          <div class="right-btn adds">加好友</div>
+          <div class="right-btn adds" v-if="user.tip == 0">加好友</div>
+          <div class="right-btn send" v-if="user.tip == 1">发消息</div>
         </div>
       </div>
     </div>
@@ -48,6 +49,7 @@ export default {
     };
   },
   methods: {
+    //获取关键词
     search(e) {
       this.userarr = [];
       let searchVal = e.target.value;
@@ -56,17 +58,42 @@ export default {
         this.searchUser(searchVal);
       }
     },
+    //寻找关键词匹配的用户.
     searchUser(e) {
       let arr = datas.friends();
-      let exp = eval('/'+e+'g');//封装在正则里面
+      let exp = eval("/" + e + "/g"); //封装在正则里面
       for (let i = 0; i < arr.length; i++) {
         if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
-          arr[i].name=arr[i].name.replace(exp,'<span style="color:#4aaaff">'+e+'</span>')
-          arr[i].email=arr[i].email.replace(exp,'<span style="color:#4aaaff">'+e+'</span>')
+          this.isFriend(arr[i]);
+          arr[i].name = arr[i].name.replace(
+            exp,
+            '<span style="color:#4aaaff">' + e + "</span>"
+          );
+          arr[i].email = arr[i].email.replace(
+            exp,
+            '<span style="color:#4aaaff">' + e + "</span>"
+          );
           this.userarr.push(arr[i]);
         }
       }
       // console.log(this.userarr);
+    },
+    //判断是否为为好友
+    isFriend(e) {
+      let tip = 0; //先默认搜索出来的每个人都不是好友(0不是好友,1是好友)
+      let arr = datas.isFriend(); //获取好友列表
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].friend == e.id) {
+          //好友表中friend的id与搜索出来的用户id相同，则认为是好友关系
+          tip = 1; //是好友关系
+        }
+      }
+      e.tip = tip; //存入搜索出来的数组中
+      // console.log(e.tip);
+    },
+    //返回上一页
+    back() {
+      this.$router.back();
     },
   },
 };

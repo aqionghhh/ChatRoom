@@ -126,6 +126,9 @@ npm install vue-router
     2.直接替换
     this.$router.replace{path：‘/’ } //不带参数
     需要在模板中添加点击事件
+    
+    3.返回上一级
+    this.$router.back();
 ```
 
 ###### 把三个页面的头部的样式拆分出来 在commons/css/index.css。但是因为我太懒了，就只拆了Index组件
@@ -157,10 +160,37 @@ npm install vue-router
     	let exp = eval('/'+e+'g');//封装在正则里面
     	arr[i].name=arr[i].name.replace(exp,'<span>style="color:#4aaaff">'+e+'</span>')
         arr[i].email=arr[i].email.replace(exp,'<span style="color:#4aaaff">'+e+'</span>')
+	要渲染上述的带html标签的需要在模板里写成这样<div class="name" v-html="user.name"></div>
+	而不是<div class="name">{{ user.name }}</div>
+
+
+	搜索出用户后需要判断是"加好友"还是"发消息"：在输入框输入后，把值返回给后端，后端根据好友表判断该用户跟我是否是好友关系（在输入框输入的时候回访问两次数据库，一次访问用户表，一次访问好友表）。因为是一一对应的，所以也需要放在for循环里
+		isFriend方法中先设置变量tip=0，默认搜索出来的每个人都不是好友，然后再从commons/datas.js中获取好友列表，对好友表进行for循环，判断数组中的好友的id是否等于之前搜索胡来的用户id，如果是则tip=1，是好友关系。给传入进来的用户增加tip属性。并在searchUser方法中调用isFriend方法，把searchUser当前的循环项传给isFriend方法
+		在模板中使用v-if语句，如果tip=1则为发消息；tip=0为加好友
+	
+	用户一开始不显示，只有搜索的用户数组里有值时才开始显示<div class="title" v-if="userarr.length > 0">用户</div>
 
 ```
 
 ###### 各种表的字段
 
 ![image-20211218193629024](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211218193629024.png)
+
+# 2021/12/20
+
+###### 用户主页（详情页）组件Userhome.vue
+
+```
+只要点击头像就会跳转到该页面，所以有三种状态
+	1.自己
+	2.好友
+	3.陌生人
+根据性别动态设置背景颜色
+```
+
+###### 发送好友请求页组件
+
+```
+跳转到陌生人主页会有跳转到发送好友请求页的路由
+```
 

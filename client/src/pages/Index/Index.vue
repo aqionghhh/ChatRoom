@@ -15,7 +15,7 @@
         <div class="add">
           <img src="../../static/images/index/add.png" alt="" />
         </div>
-        <div class="search">
+        <div class="search" @click="toSearch">
           <img src="../../static/images/index/search.png" alt="" />
         </div>
       </div>
@@ -88,6 +88,10 @@ export default {
     getFriends() {
       this.friends = datas.friends();
       // console.log(this.friends);
+    },
+    //跳转到search页面
+    toSearch() {
+      this.$router.push("/search");
     },
   },
 };

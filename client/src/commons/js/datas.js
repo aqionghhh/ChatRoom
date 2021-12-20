@@ -77,7 +77,7 @@ export default {
     return friendarr
   },
   //好友关系
-  ifFriend() {
+  isFriend() {
     let isFriend = [
       {
         userid: 1,
