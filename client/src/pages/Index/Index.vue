@@ -2,10 +2,13 @@
   <div class="content">
     <!-- 头部 -->
     <div class="top-bar">
-      <div class="top-bar-left">
+      <router-link
+        class="top-bar-left"
+        :to="{ path: '/userhome', query: { id: 1 } }"
+      >
         <!-- 头像 -->
         <img src="../../static/images/img/one.jpg" alt="" />
-      </div>
+      </router-link>
       <!-- logo -->
       <div class="top-bar-center">
         <img src="../../static/images/index/logo.png" alt="" />
@@ -98,7 +101,65 @@ export default {
 </script>
 
 <style scoped>
-@import "../../commons/css/index.css";
+/* @import "../../commons/css/index.css"; */
+.top-bar {
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0.5px 0 0 rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+.top-bar-left {
+  float: left;
+  padding-left: 8px;
+}
+.top-bar-left img {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  padding-top: 5px;
+}
+.top-bar-center img {
+  width: 44px;
+  height: 21px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  margin: auto;
+}
+.add {
+  padding-right: 8px;
+}
+.search,
+.add {
+  float: right;
+  width: 44px;
+  height: 44px;
+}
+.search img,
+.add img {
+  width: 26px;
+  height: 26px;
+  padding: 9px 0 0 9px;
+}
+.main {
+  padding: 52px 0 0;
+  width: 100%;
+}
+.text {
+  font-size: 18px;
+  font-weight: 550;
+  font-family: PingFangSC-Medium;
+  color: black;
+  line-height: 44px;
+}
+
 .content {
   display: flex;
   flex-direction: column;

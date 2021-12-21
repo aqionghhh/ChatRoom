@@ -131,7 +131,9 @@ npm install vue-router
     this.$router.back();
 ```
 
-###### 把三个页面的头部的样式拆分出来 在commons/css/index.css。但是因为我太懒了，就只拆了Index组件
+```
+把三个页面的头部的样式拆分出来 在commons/css/index.css。但是因为我太懒了，就只拆了Index组件
+```
 
 # 2021/12/18
 
@@ -178,7 +180,7 @@ npm install vue-router
 
 # 2021/12/20
 
-###### 用户主页（详情页）组件Userhome.vue
+###### 用户主页组件Userhome.vue
 
 ```
 只要点击头像就会跳转到该页面，所以有三种状态
@@ -210,12 +212,58 @@ npm install vue-router
     2.<transition
         name="fade"
         enter-active-class="animated fadeInUp"
-        leave-active-class="animated fadeOut"
+        leave-active-class="animated fadeOutDown"
       >
       <div v-show="animation" ...>...</div>
       </transition>
       3.需要添加点击事件，并且在data中定义一个变量animation，点击切换animation的值，当其为true时，动画进入，为false时，动画淡出
 ```
 
+# 2021/12/21
 
+###### 进行页面的跳转
 
+```
+个人头像(Index.vue)和搜索出来的用户头像(Search.vue)可以跳转到用户主页(Userhome.vue)
+	1.点击个人头像和搜索出来的用户头像跳转到详情页
+		需要携带用户个人id到详情页
+		带参数的跳转可以使用属性query和params
+		<router-link :to="{ path: '/userhome', query: { id: 1 } }">...</router-link>
+```
+
+###### query和params区别
+
+```
+1.query类似 get, 跳转之后页面 url后面会拼接参数,类似?id=1, 非重要性的可以这样传,
+2.密码之类还是用params刷新页面id还在
+3.params类似 post, 跳转之后页面 url后面不会拼接参数 , 但是刷新页面id 会消失。
+4.当query传递的是一个对象时,需要这样传，否则刷新页面。会发现对象完全变了。成了一个"[object Object]"
+```
+
+###### 用户详情页组件Userdetail.vue
+
+```
+如何进入用户详情页
+	1.点击自己的头像，点击更多，可以修改头像、签名、昵称电话、邮箱等信息，和一个"退出应用"的按钮
+	2.如果是自己的好友，可以修改其昵称，和一个"删除好友"的按钮
+	3.如果是陌生人，只能进行查看
+	
+表单中用到了选择器，使用vant组件(用到Picker选择器、DatetimePicker时间选择)
+	1.npm i vant@2
+	2.安装插件：npm i babel-plugin-import -D
+	3.配置插件：在.babelrc 或 babel.config.js 中添加配置：
+		{
+          "plugins": [
+            [
+              "import",
+              {
+                "libraryName": "vant",
+                "libraryDirectory": "es",
+                "style": true
+              }
+            ]
+          ]
+        }
+    4.引入组件
+    import { Button } from 'vant';
+```

@@ -6,6 +6,7 @@ import Login from '../pages/Login/Login';
 import Register from '../pages/Register/Register';
 import Search from '../pages/Search/Search';
 import Userhome from '../pages/Userhome/Userhome';
+import Userdetail from '../pages/Userdetail/Userdetail';
 
 //声明使用插件
 Vue.use(VueRouter)
@@ -36,6 +37,10 @@ export default new VueRouter({
     {
       path: '/userhome',
       component: Userhome,
+    },
+    {
+      path: '/userdetail',
+      component: Userdetail,
     }
   ]
 })

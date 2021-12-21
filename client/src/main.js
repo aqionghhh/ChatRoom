@@ -6,7 +6,12 @@ import router from './router';
 //引入animation动画
 import animated from 'animate.css';
 Vue.use(animated)
+//使用vant组件
+import { Picker, Popup, Cell } from 'vant';
 
+Vue.use(Picker);
+Vue.use(Popup);
+Vue.use(Cell);
 Vue.config.productionTip = false
 
 

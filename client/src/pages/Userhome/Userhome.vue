@@ -58,11 +58,11 @@
     <transition
       name="fade"
       enter-active-class="animated fadeInUp"
-      leave-active-class="animated fadeOut"
+      leave-active-class="animated fadeOutDown"
     >
       <!-- 按钮 -->
       <div class="add-bt" v-show="animation">
-        <div class="close">取消</div>
+        <div class="close" @click="addFriendAnimate">取消</div>
         <div class="send">发送</div>
       </div>
     </transition>
@@ -182,11 +182,14 @@ export default {
   width: 32px;
   height: 32px;
   border-radius: 18px;
+  z-index: 11;
 }
 .sex img {
   width: 20px;
   height: 20px;
   padding: 5px;
+  position: relative;
+  z-index: 12;
 }
 .user-img {
   height: 200px;
@@ -195,6 +198,7 @@ export default {
   border: 3px solid rgb(255, 255, 255);
   z-index: 10;
   position: relative;
+  box-shadow: 0 18px 20px 0 rgba(39, 40, 50, 0.1);
 }
 .user-info {
   padding-top: 21px;
@@ -224,11 +228,13 @@ export default {
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 52px;
+  height: 45px;
   box-sizing: border-box;
-  padding: 6px 16px;
+  padding-top: 5px;
+  padding-bottom: 64px;
 }
 .bottom-btn {
+  margin: 0 16px;
   text-align: center;
   line-height: 40px;
   height: 40px;
@@ -251,7 +257,7 @@ export default {
   line-height: 37px;
 }
 .add-main {
-  height: 180px;
+  height: 160px;
   background: rgb(243, 244, 246);
   border-radius: 10px;
   padding: 9px 11px;
@@ -270,7 +276,7 @@ export default {
   width: 100%;
   height: 52px;
   box-sizing: border-box;
-  padding: 6px 16px;
+  padding: 5px 16px 64px;
   height: 52px;
   display: flex;
   z-index: 100;

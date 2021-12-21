@@ -23,6 +23,7 @@ css选择器通常都是父元素控制子元素的位置，css有什么办法�
 行和行高的关系
 z-index必须在定位元素（position:relative/absolute/fixed/sticky）上才有效
 transition
+text-overflow: ellipsis;不生效的原因
 ```
 
 ###### 绝对定位和相对定位

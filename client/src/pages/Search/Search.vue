@@ -26,7 +26,9 @@
         <div class="title" v-if="userarr.length > 0">用户</div>
         <div class="list user" v-for="(user, index) in userarr" :key="index">
           <!-- 左边是头像、名字和用户 -->
-          <img :src="user.imgurl" alt="" />
+          <router-link :to="{ path: '/userhome', query: { id: 1 } }">
+            <img :src="user.imgurl" alt="" />
+          </router-link>
           <div class="names">
             <div class="name" v-html="user.name"></div>
             <div class="email" v-html="user.email"></div>
