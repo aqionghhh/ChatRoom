@@ -16,6 +16,10 @@ Vue.use(Button);
 //引入vue-cropper
 import VueCropper from 'vue-cropper';
 Vue.use(VueCropper);
+//引入axios
+import axios from 'axios';
+Vue.prototype.$axios = axios
+
 Vue.config.productionTip = false
 
 

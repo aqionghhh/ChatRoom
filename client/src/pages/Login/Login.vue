@@ -57,6 +57,14 @@ export default {
       if (this.user && this.pwd) {
         //用户名和密码都存在才提交给后台
         console.log("提交");
+        this.$axios
+          .get("/api/test")
+          .then((res) => {
+            //获取response，里面包含了表格数据
+            console.log(res);
+            //设置分页数据
+          })
+          .catch((err) => console.log(err));
       }
     },
   },
