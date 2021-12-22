@@ -248,7 +248,7 @@ npm install vue-router
 	2.如果是自己的好友，可以修改其昵称，和一个"删除好友"的按钮
 	3.如果是陌生人，只能进行查看
 	
-表单中用到了选择器，使用vant组件(用到Picker选择器、DatetimePicker时间选择)
+表单中用到了选择器，使用vant组件(用到性别选择器、日期选择)
 	1.npm i vant@2
 	2.安装插件：npm i babel-plugin-import -D
 	3.配置插件：在.babelrc 或 babel.config.js 中添加配置：
@@ -264,6 +264,48 @@ npm install vue-router
             ]
           ]
         }
-    4.引入组件
-    import { Button } from 'vant';
+    4.引入组件（全局注册）（需要Picker和Popup一起使用）
+    import { Picker, Popup, DatetimePicker } from 'vant';
+    Vue.use(Picker);
+    Vue.use(Popup);
+    Vue.use(DatetimePicker);
+    
+头像部分用到了图片裁剪，npm install vue-cropper
+	1.//引入vue-cropper
+      import VueCropper from 'vue-cropper';
+      Vue.use(VueCropper);
+    2.https://blog.csdn.net/Jackson991/article/details/107344345?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164008476116780261971860%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=164008476116780261971860&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-5-107344345.pc_search_insert_es_download_v2&utm_term=vue-cropper%E7%A7%BB%E5%8A%A8%E7%AB%AF&spm=1018.2226.3001.4187
+    
+对于可以修改的地方，点击后会从底部弹出一个弹窗进行修改
+	在修改邮箱和密码时需要先输入一遍原始密码才能进行修改
 ```
+
+# 2021/12/22
+
+###### 用户详情页组件Userdetail.vue
+
+```
+底部的修改弹窗需要用到animate.css
+	<transition
+        name="fade"
+        enter-active-class="animated fadeInUp"
+        leave-active-class="animated fadeOutDown"
+    >
+    	<div v-show="animation" ...>...</div>
+    </transition>
+    需要添加点击事件animationChange，并且在data中定义一个变量animation，点击切换animation的值，当其为true时，动画进入，为false时，动画淡出
+
+弹框点击的确定按钮为单独的点击事件，触发改点击事件后调用animationChange()，并对数据做进一步处理
+定义一个dataarr变量对象，在里面存放需要在页面上显示的个人信息，然后根据点击的内容不同，把要修改的个人信息渲染到修改弹窗中
+	其中需要进行转换时间，在commons/js/myfun.js中新增一个日期处理函数detailTime()
+	在dataarr中new Date()，并赋值给time，最后渲染在模板上
+        <div class="cont">{{ timeChange(dataarr.time) }}</div>
+	点击内容时，会进行弹窗，并把要修改的内容渲染到弹窗的input框中
+		在data中定义一个空字符串变量modifyTitle用来存放弹窗的标题 data: "修改的内容", //弹窗的内容  		 ispwd: true, //是否需要psw显示在修改弹窗上		
+		修改弹窗的方法需要接收三个参数，一个是修改的标题，一个是修改的内容，一个是是否展示animationChange(type,data,ispwd){}
+		在弹窗的输入密码模板中加上v-show=ispwd，当为true时才显示该input框
+		在点击事件中传参@click="animationChange(type,data,true or false)"
+			ey:点击签名栏
+			@click="animationChange('签名',dataarr.sign ,false)"
+```
+

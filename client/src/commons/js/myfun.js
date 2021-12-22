@@ -46,5 +46,35 @@ export default {
     else {
       return oY + '/' + oM + '/' + oD
     }
+  },
+
+  //详细时间转换
+  detailTime(d) {//接收一个传入的时间
+    //把存进来的时间和现在的时间做对比
+    let old = new Date(d);//存进来的时间
+
+    //获取old具体时间
+    // let od = old.getTime();//
+    let h = old.getHours();//小时
+    let m = old.getMinutes();//分钟
+    let Y = old.getFullYear();//年
+    let M = old.getMonth() + 1;//月//因为月份会自动减一，所以需要手动加一
+    let D = old.getDate();//日
+
+    //处理时间
+    if (M < 10) {
+      M = '0' + M;//如果月份小于10，则在其前面加一个0
+    }
+    if (D < 10) {
+      D = '0' + D;//如果日期小于10，则在其前面加一个0
+    }
+    if (h < 0) {
+      oh = '0' + oh;//如果小时数小于10，则在其前面加一个0
+    }
+    if (m < 0) {
+      om = '0' + om;//如果小时数小于10，则在其前面加一个0
+    }
+    return Y + '-' + M + '-' + D + ' ' + h + ':' + m
+
   }
 }

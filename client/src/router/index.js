@@ -7,6 +7,7 @@ import Register from '../pages/Register/Register';
 import Search from '../pages/Search/Search';
 import Userhome from '../pages/Userhome/Userhome';
 import Userdetail from '../pages/Userdetail/Userdetail';
+import Cropper from '../pages/Cropper/Cropper';
 
 //声明使用插件
 Vue.use(VueRouter)
@@ -41,6 +42,10 @@ export default new VueRouter({
     {
       path: '/userdetail',
       component: Userdetail,
+    },
+    {
+      path: '/cropper',
+      component: Cropper,
     }
   ]
 })

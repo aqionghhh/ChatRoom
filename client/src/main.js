@@ -7,11 +7,15 @@ import router from './router';
 import animated from 'animate.css';
 Vue.use(animated)
 //使用vant组件
-import { Picker, Popup, Cell } from 'vant';
-
+import { Picker, Popup, DatetimePicker, Uploader, Button } from 'vant';
 Vue.use(Picker);
 Vue.use(Popup);
-Vue.use(Cell);
+Vue.use(DatetimePicker);
+Vue.use(Uploader);
+Vue.use(Button);
+//引入vue-cropper
+import VueCropper from 'vue-cropper';
+Vue.use(VueCropper);
 Vue.config.productionTip = false
 
 
