@@ -57,8 +57,13 @@ export default {
       if (this.user && this.pwd) {
         //用户名和密码都存在才提交给后台
         console.log("提交");
-        this.$axios
-          .get("/api/test")
+        this.$axios({
+          data: {
+            email: "111111",
+          },
+          url: "api/mail",
+          method: "post",
+        })
           .then((res) => {
             //获取response，里面包含了表格数据
             console.log(res);

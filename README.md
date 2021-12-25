@@ -125,9 +125,64 @@ app.use((req, res, next) => {
 		app.get('/test', (req, res) => {
           dbserver.findUser(res)
         });
+    4.在前端的Login组件中进行前后端联调测试
 ```
 
 ###### 数据库的所有表及其关联
 
 ![image-20211218193629024](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211218193629024.png)
 
+# 2021/12/25
+
+###### 把所有表写入服务器
+
+```
+1.在model/User.js中创建用户表
+2.在model/Friend.js中创建好友表
+	其中要用到用户表中的用户id作为外键
+	userID: {//用户id
+        type: Schema.Types.ObjectId,
+        ref:'User'
+      },
+3.在model/Message.js中创建一对一消息表
+4.在model/Group.js中创建群表
+5.在model/Member.js中创建群成员表（每个群对应的每个成员都有一张这个表）
+6.在model/Member.js中创建群消息表
+```
+
+###### 链接邮箱(插件：nodemailer)
+
+```
+1.qq邮箱开启SMTP服务(授权码(链接邮箱的时候要用)：sfnfgqfcebmydgee)
+2.在config/credentials.js中写链接qq邮箱配置(证书文件)
+3.在dao/emailserver.js中写链接qq邮箱的页面
+    1.npm install nodemailer --save
+    2.引入证书文件
+    3.创建传输方式(官方文档有写)
+    4.暴露方法
+    	1.注册发送邮件给用户的方法
+    5.在routes/index.js中给注册发送邮件给用户的方法配置路由
+    	1.引入dao/emailserver.js
+    	2.app.post('/mail',(req,res)=>{})
+    	3.在Login.vue中进行测试，方式改为post，并向其传递假写参数
+    	4.如果这样写状态码会是500，需要用到body-parser(解析req.body)
+    		1.npm install body-parser --save
+    		2.在server.js中引入body-parser
+    			const bodyParser = require('body-parser');
+    		3.解析前端数据
+    			app.use(bodyParser.json());
+                app.use(bodyParser.urlencoded({ extended: false }))
+```
+
+注意：因为解析顺序是从上到下，所以引入body-parser和使用必须要放在引入的路由下，即顺序是先从body-parser开始，再轮到路由页面
+
+###### 获取前端数据(插件：body-parser)
+
+```
+Express中间件body-parser
+处理程序之前，在中间件中对传入的请求体进行解析（response body）
+在http请求中，POST、PUT、PATCH三种请求方法中包含着请求体，也就是所谓的request，在Nodejs原生的http模块中，请求体是要基于流的方式来接受和解析。
+body-parser是一个HTTP请求体解析的中间件，使用这个模块可以解析JSON、Raw、文本、URL-encoded格式的请求体，
+```
+
+###### 发邮件测试
