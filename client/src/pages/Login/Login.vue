@@ -59,9 +59,11 @@ export default {
         console.log("提交");
         this.$axios({
           data: {
-            email: "111111",
+            email: "sxq@qq.com",
+            name: "sxq",
+            pwd: "123",
           },
-          url: "api/mail",
+          url: "api/register/add",
           method: "post",
         })
           .then((res) => {

@@ -16,6 +16,10 @@ const FriendSchema = new Schema({
   state: {//通过状态(0：已为好友，1申请中，2：申请发送方，对方还未同意)
     type: String
   },
+  markname: {//好友昵称
+    type: String,
+
+  },
   time: {//生成时间
     type: Date,
     // default: new Date()

@@ -27,10 +27,12 @@ exports.emailRegister = function (email, res) {
   };
 
   //发送邮件
-  transporter.sendMail(options,function(err,msg){
-    if(err){
+  transporter.sendMail(options, function (err, msg) {
+    if (err) {
+      res.send('邮箱发送失败！');//返回给前端
       console.log(err);
-    }else{
+    } else {
+      res.send('邮箱发送成功！');//返回给前端
       console.log('邮箱发送成功!')
     }
   })

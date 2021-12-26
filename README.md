@@ -3,13 +3,21 @@
 ```
 |--------------------config文件夹(mongodb连接配置)
     |--------------------db.js(用于连接数据库)
+    |--------------------credentials.js(用于连接邮箱)
 |--------------------dao文件夹(对数据库增删改查)
-	|--------------------dbserver.js(处理数据库)
+	|--------------------dbserver.js(处理数据库，对数据库的所有操作都在这里面)
+	|--------------------emailserver.js(处理邮箱)
+	|--------------------bcrypt.js(生成加密文件，即对传入的数据进行加密和解密)
 |--------------------model文件夹
-    |--------------------User.js(用于创建数据库模型，即创建多个用户表)
+    |--------------------User.js(用于创建数据库模型，即创建用户表)
+    |--------------------Friend.js(用于创建数据库模型，即创建好友表)
+    |--------------------Message.js(用于创建数据库模型，即创建一对一消息表)
+    |--------------------Group.js(用于创建数据库模型，即创建多个群表)
+    |--------------------Groupmessage.js(用于创建数据库模型，即创建群消息表)
+    |--------------------Groupmember.js(用于创建数据库模型，即创建群成员表)
 |--------------------routes文件夹(存放路由文件)
     |--------------------index.js
-|--------------------server文件夹
+|--------------------server文件夹(处理函数的文件夹)
 ```
 
 # 2021/12/16
@@ -130,7 +138,7 @@ app.use((req, res, next) => {
 
 ###### 数据库的所有表及其关联
 
-![image-20211218193629024](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211218193629024.png)
+![image-20211225155517995](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225155517995.png)
 
 # 2021/12/25
 
@@ -172,6 +180,10 @@ app.use((req, res, next) => {
     		3.解析前端数据
     			app.use(bodyParser.json());
                 app.use(bodyParser.urlencoded({ extended: false }))
+        5.在mail的路由下使用给注册发送邮件给用户的方法
+        	emailserver.emailRegister(mail,res)
+        	
+最后可以在Login.vue中让传输过去的email=this.user
 ```
 
 注意：因为解析顺序是从上到下，所以引入body-parser和使用必须要放在引入的路由下，即顺序是先从body-parser开始，再轮到路由页面
@@ -185,4 +197,94 @@ Express中间件body-parser
 body-parser是一个HTTP请求体解析的中间件，使用这个模块可以解析JSON、Raw、文本、URL-encoded格式的请求体，
 ```
 
-###### 发邮件测试
+###### 涉及到的数据库操作
+
+![image-20211225153045443](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225153045443.png)
+
+![image-20211225153158784](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225160837693.png)
+
+![image-20211225153313440](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225153313440.png)
+
+![image-20211225153402900](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225153402900.png)
+
+![image-20211225153507140](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225153507140.png)
+
+![image-20211225153812160](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225153812160.png)
+
+![image-20211225155408692](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225155408692.png)
+
+![image-20211225155733508](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225155733508.png)
+
+![image-20211225155916812](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225155916812.png)
+
+![image-20211225155951783](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225155951783.png)
+
+###### 密码加密bcryptjs
+
+```
+1.npm install bcryptjs --save
+2.在dao文件夹中创建bcrypt.js文件并引入bcryptjs
+3.生成hash密码的方法
+4.解密的方法
+```
+
+###### 流程
+
+![image-20211225161921598](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20211225161921598.png)
+
+###### 注册页面(有两个方法，用户注册，判断用户是否已经注册)
+
+```
+在dao/dbserver.js中写注册方法
+1.引入加密文件bcrypt.js
+2.'新建用户'方法
+	1.对传进来的密码进行加密
+	2.把要插入到表中的数据做成一个json对象格式
+	3.new一条数据
+		let user = new User(data);
+	4.把数据插入到User表中，并作出响应
+		user.save((err,res)=>{})
+
+在dao/dbserver.js中写匹配用户表元素个数方法
+1.mongoose提供了countDocuments的方法来匹配数据库中元素的个数，根据匹配到用户表中对应用户的个数来判断用户是否已经注册
+```
+
+在dao/dbserver.js中写完注册页面的方法后，在server/register.js中引入dao/dbserver.js并为注册方法编写注册方法，然后在routes/index.js中配置路由。（因为dao/server.js单纯只对数据库进行增删改查 的操作，不涉及任何的逻辑处理，所以需要有单独的函数调用操作数据库的方法，然后再为该方法配置路由）
+
+###### 关于解构赋值
+
+```
+同名的数据up可以用结构赋值，
+let { name, mail, pwd } = req.body;
+```
+
+###### 后端接口总结
+
+```
+梳理一下：在前端组件中获取到后端配置的路由，然后执行路由里面的方法，例如：注册页面的/register/add路由，该路由调用server/register.js中的页面注册服务；而在server/register.js中的用户注册的方法中，又调用了dao/dbserver.js中的buildUser方法，在buildUser方法中获取了传入的数据并将其插入到了用户表中。（即routes/index.js中的/register/add路由-----调用----->server/register.js的register方法-----调用----->dao/dbserver.js中的bindUser方法）
+
+因为dao/server.js单纯只对数据库进行增删改查 的操作，不涉及任何的逻辑处理，所以需要有单独的函数调用操作数据库的方法，然后再为该方法配置路由
+```
+
+###### 前后端链接
+
+```
+        this.$axios({
+          data: {
+            email: "1111@qq.com",
+            name: "sxq",
+            pwd: "123",
+          },
+          url: "api/register/add",
+          method: "post",
+        })
+          .then((res) => {
+            //获取response，里面包含了表格数据
+            console.log(res);
+            //设置分页数据
+          })
+          .catch((err) => console.log(err));
+
+需要传输数据的就在$axios中写data对象，把data传到后台，后台接收的是req，传输的数据就是req.body
+```
+
