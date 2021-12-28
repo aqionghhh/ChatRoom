@@ -288,3 +288,40 @@ let { name, mail, pwd } = req.body;
 需要传输数据的就在$axios中写data对象，把data传到后台，后台接收的是req，传输的数据就是req.body
 ```
 
+# 2021/12/28
+
+###### 登录页面后端(前后端通讯验证：token)
+
+```
+1. npm install jsonwebtoken --save
+2.新建文件	dao/jwt.js
+3.引入token
+4.使用token
+5.解析token
+
+在dao/dbserver.js中写用户验证方法
+	1.// User.find(wherestr,out,function)//参数1：要找什么；参数2：找完之后返回什么；参数3：回调函数
+	2.在回调函数中进行判断：出错、没有匹配到、匹配到之后遍历找到的结果(比对密码)
+	3.对找出来的密码进行解码(bcrypt)，如果数据库中解密成功的密码与传进来的密码比对成功则返回数据。
+	4.在返回的数据中把token返回给前端
+		1.在dbserver.js中引入token (const jwt = require('../dao/jwt');//引入token)
+		2.let token = jwt.generateToken(e._id);
+```
+
+###### 基于token的验证原理
+
+```
+基于token的身份验证是无状态的，我们不用将信息存储在服务器或者session中
+token通过请求头传输，而不是把认证信息存储在服务器或者sessiob中，就意味着可以从任意一种可以发送HTTP请求的终端向服务器发送请求
+```
+
+###### 基于token的身份验证的过程
+
+```
+1.登录时，客户端发送用户名密码
+2.服务端验证用户名密码是否正确，校验通过就会生成一个有时效的token串，发送给哭护短
+3.客户端储存token，一般都会储存在localStorage或者cookie里面
+4.客户端每次请求时都带有token，可以将其放在请求头里，每次请求都携带token
+5.服务点验证token，所有需要校验身份的接口都会被校验token，若token解析后的数据包含用户身份信息，即身份验证通过，返回数据
+```
+

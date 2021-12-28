@@ -3,6 +3,7 @@
 const bcrypt = require('./bcrypt');
 const db = require('../model/User');
 const User = db.model('User');
+const jwt = require('../dao/jwt');//引入token
 
 //新建用户
 exports.buildUser = function (name, mail, pwd, res) {
@@ -44,16 +45,33 @@ exports.countUserValue = function (data, type, res) {//根据匹配到用户表�
 }
 
 
-
-
-//测试的代码
-// exports.findUser = (res) => {
-//   User.find((err, val) => {
-//     if (err) {
-//       console.log('用户数据查找失败' + err);
-//     } else {
-//       res.send(val)
-//       // console.log('11')
-//     }
-//   })
-// }
+//用户验证
+exports.userMatch = (data, pwd, res) => {//data表示用户名/邮箱
+  // User.find(wherestr,out,function)//参数1：要找什么；参数2：找完之后返回什么；参数3：回调函数
+  let wherestr = { $or: [{ 'name': data }, { 'email': data }] }//传入进来的或者是名字，或者是邮箱
+  let out = { 'name': 1, 'imgurl': 1, 'pwd': 1 }//1代表输出，0代表不输出(id默认输出，所以不需要写)
+  User.find(wherestr, out, (err, result) => {
+    if (err) {
+      res.send({ status: 500 })
+    } else {
+      if (result == '') {//没有匹配到
+        res.send({ status: 400 });
+      }
+      result.map(function (e) {//遍历匹配到的结果，参数e是每一条数据
+        const pwdMatch = bcrypt.verification(pwd, e.pwd);
+        if (pwdMatch) {//匹配成功
+          let token = jwt.generateToken(e._id);
+          let back = {
+            id: e_id,
+            name: e.name,
+            imgurl: e.imgurl,
+            token: token,
+          }
+          res.send({ status: 200, back });
+        } else {
+          res.send({ status: 300 });
+        }
+      })
+    }
+  })
+}
