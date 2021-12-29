@@ -62,30 +62,37 @@ POST
 |result		|int	|0为不存在，大于0为存在	|是
 ```
 
-### 3.
+### 3.登录
 
 ###### 请求地址：
 
 ```
-
+/login/match
 ```
 
 ###### 请求方式：
 
 ```
-
+POST
 ```
 
 ###### 参数：
 
 ```
-
+|字段		|类型		|说明		|是否必须
+|data	 |string	|用户名/邮箱		|是
+|pwd	 |string	|密码		|是
 ```
 
 ###### 返回值
 
 ```
-
+|字段		|类型		|说明		|是否必须
+|status		|int	|返回的状态码		|是
+|name		|string		|用户名		|是
+|imgurl		|string		|头像地址		|是
+|token		|string		|token		|是
+|id			|string		|用户id		|是
 ```
 
 ### 4.

@@ -62,7 +62,7 @@ exports.userMatch = (data, pwd, res) => {//data表示用户名/邮箱
         if (pwdMatch) {//匹配成功
           let token = jwt.generateToken(e._id);
           let back = {
-            id: e_id,
+            id: e._id,
             name: e.name,
             imgurl: e.imgurl,
             token: token,

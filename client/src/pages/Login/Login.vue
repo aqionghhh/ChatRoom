@@ -8,7 +8,7 @@
     </div>
     <!-- logo -->
     <div class="logo">
-      <img src="../../static/images/login/logo.png" alt="" />
+      <img @click="testToken" src="../../static/images/login/logo.png" alt="" />
     </div>
     <!-- 主体部分 -->
     <div class="main">
@@ -36,6 +36,7 @@ export default {
     return {
       user: "",
       pwd: "",
+      token: "",
     };
   },
   methods: {
@@ -59,15 +60,35 @@ export default {
         console.log("提交");
         this.$axios({
           data: {
-            email: "sxq@qq.com",
-            name: "sxq",
+            data: "sxq",
             pwd: "123",
           },
-          url: "api/register/add",
+          url: "api/login/match",
           method: "post",
         })
           .then((res) => {
             //获取response，里面包含了表格数据
+            console.log(res);
+            this.token = res.data.back.token;
+            console.log(this.token);
+            //设置分页数据
+          })
+          .catch((err) => console.log(err));
+      }
+    },
+    //测试token
+    testToken() {
+      if (this.user && this.pwd) {
+        //用户名和密码都存在才提交给后台
+        console.log("提交");
+        this.$axios({
+          data: {
+            token: this.token,
+          },
+          url: "api/login/token",
+          method: "post",
+        })
+          .then((res) => {
             console.log(res);
             //设置分页数据
           })

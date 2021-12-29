@@ -305,7 +305,14 @@ let { name, mail, pwd } = req.body;
 	3.对找出来的密码进行解码(bcrypt)，如果数据库中解密成功的密码与传进来的密码比对成功则返回数据。
 	4.在返回的数据中把token返回给前端
 		1.在dbserver.js中引入token (const jwt = require('../dao/jwt');//引入token)
-		2.let token = jwt.generateToken(e._id);
+		2.在匹配成功后生成该用户id的token(let token = jwt.generateToken(e._id);)
+		3.作为后端输出项进行输出
+		4.res.send({status:200},back);//back为输出对象
+		
+在server/login.js中写登录的接口函数
+	1.引入dbserver.js(因为要用到用户验证方法)
+	2.暴露一个登录函数logIn，接收传过来的req，并且解构赋值，获取到data和pwd；再调用dbserver.js中的userMatch用户验证方法，把data和pwd传过去，在数据库中进行匹配。
+	3.引入登录页面服务(const login = require('../server/login');)，在routes/index.js中为登录函数logIn配置路由
 ```
 
 ###### 基于token的验证原理
@@ -323,5 +330,21 @@ token通过请求头传输，而不是把认证信息存储在服务器或者ses
 3.客户端储存token，一般都会储存在localStorage或者cookie里面
 4.客户端每次请求时都带有token，可以将其放在请求头里，每次请求都携带token
 5.服务点验证token，所有需要校验身份的接口都会被校验token，若token解析后的数据包含用户身份信息，即身份验证通过，返回数据
+```
+
+# 2021/12/29
+
+###### 后端接口编写顺序
+
+```
+dao文件夹(数据库的增删改查)---->server文件夹(接收传过来的数据，并且调用dao文件夹中的数据库js文件，把接收的数据传到dao文件夹中)---->routes文件夹(配置路由，调用server文件夹中的js文件)
+```
+
+###### token匹配
+
+```
+点击login页面的logo，返回该用户的token
+1.在server/login.js中暴露test方法，调用jwt.js中的verifyToken方法，获取前端传回的token，传入token并解析，然后在routes/index.js中为test方法配置路由
+2.在前端页面中的Login.vue组件中，给logo添加点击事件，先在data中添加token变量，点击登录按钮获取token值，存到this.token中；点击logo后，把this.token传递到后端进行解码，并返回res
 ```
 

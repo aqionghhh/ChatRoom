@@ -2,7 +2,9 @@ const dbserver = require('../dao/dbserver');
 const emailserver = require('../dao/emailserver');
 
 //注册页面服务
-const register = require('../server/register')
+const register = require('../server/register');
+//登录页面服务
+const login = require('../server/login');
 
 module.exports = function (app) {
   app.post('/test', (req, res) => {
@@ -29,4 +31,13 @@ module.exports = function (app) {
     register.judgeValue(req, res);
   })
 
+  //登录页面
+  //登录
+  app.post('/login/match', (req, res) => {
+    login.logIn(req, res);
+  })
+  //token匹配
+  app.post('/login/token', (req, res) => {
+    login.test(req, res);
+  })
 } 
