@@ -11,14 +11,13 @@
         />
         <input
           type="search"
+          :style="{ width: width + 'px' }"
           placeholder="搜索用户/群"
           class="search"
           @input="search"
         />
       </div>
-      <div class="top-bar-right">
-        <div class="text" @click="back">取消</div>
-      </div>
+      <div class="top-bar-right" @click="back">取消</div>
     </div>
     <!-- 内容 -->
     <div class="main">
@@ -47,10 +46,19 @@ import datas from "../../commons/js/datas.js";
 export default {
   data() {
     return {
+      width: 0,
       userarr: [],
     };
   },
+  created() {
+    this.getWidth(); //页面创建时调用
+  },
   methods: {
+    //动态获取元素的宽度
+    getWidth() {
+      this.width = window.innerWidth - 73; // 宽
+      console.log(this.width);
+    },
     //获取关键词
     search(e) {
       this.userarr = [];
@@ -113,20 +121,17 @@ export default {
   box-shadow: 0 0.5px 0 0 rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
 }
-.text {
+
+.top-bar-right {
+  padding-right: 16px;
   font-size: 18px;
   font-weight: 550;
   font-family: PingFangSC-Medium;
   color: black;
   line-height: 44px;
 }
-.top-bar-right {
-  float: right;
-  padding-right: 16px;
-}
 .search {
   float: none;
-  width: 300px;
   height: 30px;
   background: rgb(243, 244, 246);
   border-radius: 5px;
@@ -134,7 +139,7 @@ export default {
 }
 .search-div {
   float: left;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;

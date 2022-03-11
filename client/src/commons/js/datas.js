@@ -14,7 +14,7 @@ export default {
         id: 2,
         imgurl: require('../../static/images/img/one.jpg'),
         email: '266@qq.com',
-        tip: 2,
+        tip: 200,
         name: '呃呃',
         time: new Date(),
         message: '嘻嘻嘻',

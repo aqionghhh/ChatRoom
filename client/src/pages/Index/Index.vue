@@ -2,10 +2,7 @@
   <div class="content">
     <!-- 头部 -->
     <div class="top-bar">
-      <router-link
-        class="top-bar-left"
-        :to="{ path: '/userhome', query: { id: 1 } }"
-      >
+      <router-link class="top-bar-left" to="/userdetail">
         <!-- 头像 -->
         <img src="../../static/images/img/one.jpg" alt="" />
       </router-link>
@@ -81,6 +78,7 @@ export default {
   },
   mounted() {
     this.getFriends();
+    this.tips();
   },
   methods: {
     //转换时间
@@ -95,6 +93,14 @@ export default {
     //跳转到search页面
     toSearch() {
       this.$router.push("/search");
+    },
+    // 判断信息tip是否大于99条
+    tips() {
+      for (let i = 0; i < this.friends.length; i++) {
+        if (this.friends[i].tip > 99) {
+          this.friends[i].tip = "99";
+        }
+      }
     },
   },
 };
@@ -202,6 +208,7 @@ export default {
   font-size: 15px;
   line-height: 18px;
   text-align: center;
+  padding: 1px;
 }
 .friend-list-r {
   padding-left: 64px;

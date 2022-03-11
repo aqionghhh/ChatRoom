@@ -75,7 +75,9 @@
         </div>
       </div>
     </div>
-    <div :class="[{ submit: isok }, { submit1: !isok }]">注册</div>
+    <div :class="[{ submit: isok }, { submit1: !isok }]" @click="register">
+      注册
+    </div>
   </div>
 </template>
 
@@ -84,9 +86,9 @@ export default {
   data() {
     return {
       type: "password",
-      isuser: true, //用户名是否可用 img
-      isemail: true, //邮箱是否可用 img
-      look: false, //是否可以查看密码 img
+      isuser: false, //用户名是否可用 img
+      isemail: false, //邮箱是否可用 img
+      look: true, //是否可以查看密码 img
       invalid: false, //邮箱是否符合规定格式
       useremploy: false, //用户名是否被占用
       emailemploy: false, //邮箱是否被占用
@@ -118,10 +120,12 @@ export default {
         if (reg.test(this.email)) {
           //如果为真就是匹配通过
           this.invalid = false;
+          this.isemail = true;
           // console.log("正确");
         } else {
           // console.log("不正确");
           this.invalid = true;
+          this.isemail = false;
         }
       }
       this.isOk();
@@ -133,8 +137,11 @@ export default {
     },
     //获取用户名
     userRight(e) {
-      this.user = e.target.value;
-      this.isOk();
+      if (e.target.value) {
+        this.user = e.target.value;
+        this.isuser = true;
+        this.isOk();
+      }
     },
     //获取密码
     pwdRight(e) {
@@ -148,6 +155,25 @@ export default {
         this.isok = true;
       } else {
         this.isok = false;
+      }
+    },
+    register() {
+      if (this.isok === true) {
+        this.$axios({
+          data: {
+            data: "sxq",
+            email: "111@qq.com",
+            pwd: "123",
+          },
+          url: "api/register/add",
+          method: "post",
+        }).then((res) => {
+          if (res.data) {
+            this.emailemploy = true;
+          } else {
+            this.$router.replace("/register");
+          }
+        });
       }
     },
   },

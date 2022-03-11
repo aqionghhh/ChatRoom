@@ -3,7 +3,7 @@
 const bcrypt = require('./bcrypt');
 const db = require('../model/User');
 const User = db.model('User');
-const jwt = require('../dao/jwt');//引入token
+const jwt = require('./jwt');//引入token
 
 //新建用户
 exports.buildUser = function (name, mail, pwd, res) {

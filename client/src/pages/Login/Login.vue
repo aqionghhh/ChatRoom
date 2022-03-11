@@ -22,7 +22,7 @@
           placeholder="用户名/邮箱"
         />
         <input class="pwd" @blur="getPwd" type="password" placeholder="密码" />
-        <div class="tips">输入用户名或密码错误！</div>
+        <div class="tips" v-show="compare">输入用户名或密码错误！</div>
       </div>
       <!-- 提示语 -->
     </div>
@@ -37,6 +37,7 @@ export default {
       user: "",
       pwd: "",
       token: "",
+      compare: false,
     };
   },
   methods: {
@@ -68,10 +69,20 @@ export default {
         })
           .then((res) => {
             //获取response，里面包含了表格数据
-            console.log(res);
-            this.token = res.data.back.token;
-            console.log(this.token);
-            //设置分页数据
+            if (res.data.back.name === "sxq") {
+              this.compare = true;
+              console.log("用户名或密码错误");
+            } else {
+              console.log(res);
+              this.token = res.data.back.token;
+              console.log(this.token);
+
+              // 把token存储到localstorage
+
+              // 页面跳转
+              this.$router.push("/index");
+              //设置分页数据
+            }
           })
           .catch((err) => console.log(err));
       }

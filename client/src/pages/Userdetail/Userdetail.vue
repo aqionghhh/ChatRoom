@@ -397,6 +397,9 @@ export default {
 <style scoped>
 @import "../../commons/css/index.css";
 /* @import "../../commons/css/headimg.css"; */
+.content {
+  box-sizing: border-box;
+}
 .height100 {
   height: 80%;
 }
@@ -485,7 +488,7 @@ van-popup {
   color: #ff5d5b;
   font-weight: 400;
   text-align: center;
-  margin-top: 80px;
+  margin: 80px 0 20px 0;
   line-height: 44px;
 }
 

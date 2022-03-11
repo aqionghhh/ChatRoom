@@ -2,10 +2,10 @@
   <div>
     <!-- 头部 -->
     <div class="top">
-      <div class="top-left">
+      <div class="top-left" @click="back">
         <img
-          src="../../static/images/Userhome/左箭头.png"
           @click="back"
+          src="../../static/images/Userhome/左箭头.png"
           alt=""
         />
       </div>
@@ -146,7 +146,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  /* z-index: -2; */
+  z-index: -2;
 }
 .bg-img {
   width: 100%;
