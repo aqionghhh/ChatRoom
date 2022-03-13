@@ -144,14 +144,6 @@
             <img src="../../static/images/Userdetail/右箭头.png" alt="" />
           </div>
         </div>
-        <!-- 电话 -->
-        <div class="row">
-          <div class="title">电话</div>
-          <div class="cont">{{ dataarr.phone }}</div>
-          <div class="more">
-            <img src="../../static/images/Userdetail/右箭头.png" alt="" />
-          </div>
-        </div>
         <!-- 邮箱 -->
         <div class="column row">
           <div class="title">邮箱</div>
@@ -161,14 +153,6 @@
           >
             {{ dataarr.email }}
           </div>
-          <div class="more">
-            <img src="../../static/images/Userdetail/右箭头.png" alt="" />
-          </div>
-        </div>
-        <!-- 密码 -->
-        <div class="row">
-          <div class="title">密码</div>
-          <div class="cont">{{ dataarr.pwd }}</div>
           <div class="more">
             <img src="../../static/images/Userdetail/右箭头.png" alt="" />
           </div>
@@ -212,15 +196,15 @@ export default {
   data() {
     return {
       dataarr: {
-        name: "aqionghhh", //昵称
-        sign: "呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃", //签名
-        time: new Date(), //注册时间
-        sex: "女", //性别input框内显示的值
-        birthday: "2001-07-25", //日期input框内显示的时间
-        phone: "15289857572", //电话
-        email: "2667183507@qq.com", //邮箱
-        pwd: "sun131313", //密码
+        name: "", //昵称
+        sign: "", //签名
+        time: "", //注册时间
+        sex: "", //性别input框内显示的值
+        birthday: "", //日期input框内显示的时间
+        email: "", //邮箱
+        pwd: "", // 传进来的pwd
       },
+      id: "",
       ispwd: true, //是否需要psw显示在修改弹窗上
       pwd: "", //在修改弹窗中用户需要输入的原密码
       animation: false, //弹窗是否显示
@@ -259,6 +243,36 @@ export default {
       maxDate: new Date(2025, 10, 1), //最大日期
       currentDate: new Date(), //当前日期
     };
+  },
+  created() {
+    this.id = localStorage.getItem("id");
+    console.log(this.id);
+    this.$axios({
+      method: "post",
+      data: {
+        id: this.id, // 把id作为索引传给后端
+      },
+      url: "api/user/detail",
+    }).then((res) => {
+      console.log(res.data);
+      if (res.data.sex === "asexual") {
+        this.dataarr.sex = this.projectListArr[2];
+      } else {
+        this.dataarr.sex = res.data.sex;
+      }
+      if (res.data.sign) {
+        // 当签名不为空时
+        this.dataarr.sign = res.data.sign;
+      }
+      if (res.data.birthday) {
+        // 当生日不为空时
+        this.dataarr.birthday = res.data.birthday;
+      }
+      this.dataarr.name = res.data.name;
+      this.dataarr.email = res.data.email;
+      this.dataarr.pwd = res.data.pwd;
+      this.dataarr.time = res.data.time;
+    });
   },
   methods: {
     imageToBase64(file) {
@@ -388,6 +402,17 @@ export default {
 
     //点击弹窗的确定按钮
     determine() {
+      console.log(this.data);
+      // 先发送请求再关闭弹窗
+      this.$axios({
+        method: "post",
+        data: {
+          arr: this.dataarr,
+          data: this.data,
+        },
+        url: "api/user/update",
+      });
+
       this.animationChange();
     },
   },

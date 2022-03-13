@@ -37,5 +37,4 @@ const UserSchema = new Schema({
   },
 });
 
-
 module.exports = db.model('User', UserSchema);//暴露用户表

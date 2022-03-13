@@ -61,15 +61,16 @@ export default {
         console.log("提交");
         this.$axios({
           data: {
-            data: "sxq",
-            pwd: "123",
+            data: this.user,
+            pwd: this.pwd,
           },
           url: "api/login/match",
           method: "post",
         })
           .then((res) => {
+            console.log(res);
             //获取response，里面包含了表格数据
-            if (res.data.back.name === "sxq") {
+            if (res.data.status === 300 || res.data.status === 400) {
               this.compare = true;
               console.log("用户名或密码错误");
             } else {
@@ -78,7 +79,11 @@ export default {
               console.log(this.token);
 
               // 把token存储到localstorage
-
+              localStorage.setItem("token", this.token);
+              localStorage.setItem("id", res.data.back.id);
+              console.log(this.$store.state);
+              // 把用户信息存到vuex中
+              this.$store.commit("setInfo", res.data.back);
               // 页面跳转
               this.$router.push("/index");
               //设置分页数据

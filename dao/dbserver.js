@@ -10,36 +10,31 @@ exports.buildUser = function (name, mail, pwd, res) {
   //密码加密
   let password = bcrypt.encryption(pwd);//把传入的pwd进行加密
 
-  let data = {//要插入到User表中的数据
+  const user = new User({//要插入到User表中的数据
     name: name,
     email: mail,
     pwd: password,
     time: new Date(),
-  }
-  let user = new User(data);
+  })
 
   //把数据插入到User表中
-  user.save(function (err, res) {
-    if (err) {
-      res.send({ status: 500 });//错误的话状态码返回500
-    } else {
-      res.send({ status: 200 });
-    }
-  })
+  user.save()
+    .then(res => console.log(res))
+    .catch(err => console.log(err));
 }
 
 //匹配用户表元素个数
-exports.countUserValue = function (data, type, res) {//根据匹配到用户表中对应用户的个数来判断用户是否已经注册
-  let wherestr = {};
-
-  wherestr[type] = data;  //相当于wherestr = {'type':data};
-  //mongoose中提供的匹配元素个数的方法
-
-  User.countDocuments(wherestr, function (err, result) {
+exports.countUserValue = function (email, res) {//根据匹配到用户表中对应用户的个数来判断用户是否已经注册
+  User.find({ email }, (err, data) => {
     if (err) {
-      res.send({ status: 500 });
+      res.send({ status: 400 });
     } else {
-      res.send({ status: 200, result });
+      console.log(data[0]);
+      if (data[0]) {  // 找到了：代表用户邮箱已经注册，就返回400
+        res.send({ status: 400 });
+      } else {
+        res.send({ status: 501 });  // 没找到：返回501
+      }
     }
   })
 }

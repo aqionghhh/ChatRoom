@@ -37,10 +37,11 @@
           <input
             class="email"
             @input="emailRight"
+            @blur="emailIsOk"
             type="text"
             placeholder="请输入邮箱"
           />
-          <div class="employ" v-if="emailemploy">邮箱已被占用</div>
+          <div class="emailisok" v-if="emailemploy">邮箱已被占用</div>
           <div class="invalid" v-if="invalid">邮箱无效</div>
           <img
             v-if="isemail"
@@ -121,11 +122,13 @@ export default {
           //如果为真就是匹配通过
           this.invalid = false;
           this.isemail = true;
+          this.emailemploy = false;
           // console.log("正确");
         } else {
           // console.log("不正确");
           this.invalid = true;
           this.isemail = false;
+          this.emailemploy = false;
         }
       }
       this.isOk();
@@ -157,21 +160,43 @@ export default {
         this.isok = false;
       }
     },
+    emailIsOk() {
+      if (this.isemail) {
+        this.$axios({
+          data: {
+            email: this.email,
+          },
+          url: "api/register/judge",
+          method: "post",
+        }).then((res) => {
+          console.log(this.email);
+          if (res.data.status === 400) {
+            // 该邮箱已经注册
+            this.emailemploy = true;
+            this.invalid = false;
+            this.isemail = false;
+            console.log(res);
+          } else {
+            // this.$router.replace("/register");
+          }
+        });
+      }
+    },
     register() {
       if (this.isok === true) {
         this.$axios({
           data: {
-            data: "sxq",
-            email: "111@qq.com",
-            pwd: "123",
+            name: this.user,
+            email: this.email,
+            pwd: this.pwd,
           },
           url: "api/register/add",
           method: "post",
         }).then((res) => {
           if (res.data) {
-            this.emailemploy = true;
-          } else {
-            this.$router.replace("/register");
+            // this.emailemploy = true;
+            console.log(res.data);
+            this.$router.replace("/login");
           }
         });
       }
@@ -254,6 +279,14 @@ input {
 }
 .employ,
 .invalid {
+  position: absolute;
+  right: 30px;
+  top: 3px;
+  line-height: 44px;
+  font-weight: 500;
+  color: rgb(255, 93, 91);
+}
+.emailisok {
   position: absolute;
   right: 30px;
   top: 3px;

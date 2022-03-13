@@ -7,6 +7,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
 require('./routes/index')(app);//引入index.js//后面的括号是要传过去的东西
+require('./routes/user')(app);//引入index.js//后面的括号是要传过去的东西
 
 
 
