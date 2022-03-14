@@ -8,6 +8,7 @@ import Search from '../pages/Search/Search';
 import Userhome from '../pages/Userhome/Userhome';
 import Userdetail from '../pages/Userdetail/Userdetail';
 import Cropper from '../pages/Cropper/Cropper';
+import FriendRequest from '../pages/FriendRequest/FriendRequest';
 
 //声明使用插件
 Vue.use(VueRouter)
@@ -46,6 +47,10 @@ const router = new VueRouter({
     {
       path: '/cropper',
       component: Cropper,
+    },
+    {
+      path: '/friendrequest',
+      component: FriendRequest,
     }
   ]
 });
