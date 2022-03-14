@@ -14,10 +14,14 @@ module.exports = function (app) {
       res.send(data);  // 把查询到的用户信息传回去
     })
   }),
+
     // 修改用户信息
     app.post('/user/update', (req, res) => {
-      console.log(req.body)
-      // User.updateOne()
+      let data = req.body.arr;
+      // console.log('插入', data);
+
+      User.findOneAndUpdate({ pwd: data.pwd }, { $set: data })
+        .then(res => console.log('ok', res));
     })
 }
 

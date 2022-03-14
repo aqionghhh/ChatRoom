@@ -74,7 +74,7 @@
           <div class="title">签名</div>
           <div
             class="cont"
-            @click="animationChange('签名', dataarr.sign, false)"
+            @click="animationChange('签名', dataarr.sign, !isName)"
           >
             {{ dataarr.sign }}
           </div>
@@ -92,7 +92,7 @@
           <div class="title">昵称</div>
           <div
             class="cont"
-            @click="animationChange('昵称', dataarr.name, false)"
+            @click="animationChange('昵称', dataarr.name, isName)"
           >
             {{ dataarr.name }}
           </div>
@@ -144,21 +144,8 @@
             <img src="../../static/images/Userdetail/右箭头.png" alt="" />
           </div>
         </div>
-        <!-- 邮箱 -->
-        <div class="column row">
-          <div class="title">邮箱</div>
-          <div
-            class="cont"
-            @click="animationChange('邮箱', dataarr.email, true)"
-          >
-            {{ dataarr.email }}
-          </div>
-          <div class="more">
-            <img src="../../static/images/Userdetail/右箭头.png" alt="" />
-          </div>
-        </div>
       </div>
-      <div class="btn2">退出登录</div>
+      <div class="btn2" @click="logout">退出登录</div>
     </div>
 
     <!-- 修改的弹出层 -->
@@ -176,13 +163,6 @@
         </div>
         <!-- 弹窗的内容 -->
         <div class="modify-main">
-          <input
-            type="text"
-            v-model="pwd"
-            class="modify-pwd"
-            placeholder="请输入原密码"
-            v-show="ispwd"
-          />
           <textarea v-model="data" class="modify-content"></textarea>
         </div>
       </div>
@@ -191,7 +171,6 @@
 </template>
 
 <script>
-import myfun from "../../commons/js/myfun";
 export default {
   data() {
     return {
@@ -201,12 +180,9 @@ export default {
         time: "", //注册时间
         sex: "", //性别input框内显示的值
         birthday: "", //日期input框内显示的时间
-        email: "", //邮箱
-        pwd: "", // 传进来的pwd
       },
       id: "",
-      ispwd: true, //是否需要psw显示在修改弹窗上
-      pwd: "", //在修改弹窗中用户需要输入的原密码
+      isName: true, // 需要修改 名字
       animation: false, //弹窗是否显示
       data: "修改的内容", //弹窗的内容
       option: {
@@ -266,10 +242,9 @@ export default {
       }
       if (res.data.birthday) {
         // 当生日不为空时
-        this.dataarr.birthday = res.data.birthday;
+        this.dataarr.birthday = res.data.birthday.slice(0, 10);
       }
       this.dataarr.name = res.data.name;
-      this.dataarr.email = res.data.email;
       this.dataarr.pwd = res.data.pwd;
       this.dataarr.time = res.data.time;
     });
@@ -323,14 +298,22 @@ export default {
     back() {
       this.$router.back();
     },
-    //时间处理
+    // 注册时间处理
     timeChange(date) {
-      return myfun.detailTime(date);
+      return date.slice(0, 10);
     },
     //性别选择器
     changeConfirm(val, index) {
       this.dataarr.sex = val; //传值
-      console.log(index);
+      console.log(val);
+      this.$axios({
+        method: "post",
+        data: {
+          arr: this.dataarr,
+          // data: this.data,
+        },
+        url: "api/user/update",
+      });
       this.showPicker = false;
     },
     //日期选择器
@@ -356,7 +339,15 @@ export default {
       this.dataarr.birthday = `${year}-${month}-${day}`;
 
       this.timePop = false; //隐藏弹出层
-      // console.log(this.time);
+      console.log(this.dataarr.birthday);
+      this.$axios({
+        method: "post",
+        data: {
+          arr: this.dataarr,
+          // data: this.data,
+        },
+        url: "api/user/update",
+      });
     },
     finish2() {
       this.$refs.cropper2.getCropData((data) => {
@@ -393,27 +384,37 @@ export default {
     },
 
     //修改弹窗
-    animationChange(type, data, ispwd) {
+    animationChange(type, data) {
+      this.data = data; // 在文本框中显示内容
       this.animation = !this.animation;
-      this.modifyTitle = type;
-      this.data = data;
-      this.ispwd = ispwd;
+      this.modifyTitle = type; // 弹窗的标题
     },
 
     //点击弹窗的确定按钮
     determine() {
-      console.log(this.data);
+      if (this.modifyTitle === "昵称") {
+        // 要修改的是昵称
+        this.dataarr.name = this.data;
+        console.log("name", this.dataarr.name);
+      } else {
+        this.dataarr.sign = this.data;
+        console.log("sign", this.dataarr.sign);
+      }
+
       // 先发送请求再关闭弹窗
       this.$axios({
         method: "post",
         data: {
           arr: this.dataarr,
-          data: this.data,
         },
         url: "api/user/update",
       });
-
       this.animationChange();
+    },
+    // 退出登录
+    logout() {
+      localStorage.clear();
+      this.$router.replace("/login");
     },
   },
 };

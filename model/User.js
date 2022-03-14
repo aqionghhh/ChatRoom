@@ -21,11 +21,9 @@ const UserSchema = new Schema({
   birthday: {//生日
     type: Date
   },
-  phone: {//电话
-    type: String
-  },
-  explain: {//介绍(签名)
-    type: String
+  sign: {//介绍(签名)
+    type: String,
+    default: '编辑你的个人签名'
   },
   imgurl: {//头像链接
     type: String,

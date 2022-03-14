@@ -309,3 +309,15 @@ npm install vue-router
 			@click="animationChange('签名',dataarr.sign ,false)"
 ```
 
+
+
+
+
+
+
+### 我觉得的难点：
+
+1. 页面刷新就丢失用户数据：
+   1. 可以把用户的id存在localStorage中，在页面created的时候就向后端发送请求获取与用户信息
+2. 把用户的token存在localStorage中，并且设置axios响应拦截器和请求拦截器，判断当前的token是否存在，如果存在就设置统一的请求头header；响应拦截时判断token是否失效，token失效的话就清除localStorage中的token并跳转到登录页面。
+3. 进行全局前置路由守卫，如果是跳转到登录或注册页面就正常进行；如果不是就判断localStorage中是否存有token，如果有就next()，正常访问页面；如果没有，就跳转到登录页面。
