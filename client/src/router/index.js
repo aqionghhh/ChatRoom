@@ -9,6 +9,7 @@ import Userhome from '../pages/Userhome/Userhome';
 import Userdetail from '../pages/Userdetail/Userdetail';
 import Cropper from '../pages/Cropper/Cropper';
 import FriendRequest from '../pages/FriendRequest/FriendRequest';
+import ChatRoom from '../pages/ChatRoom/ChatRoom';
 
 //声明使用插件
 Vue.use(VueRouter)
@@ -51,6 +52,10 @@ const router = new VueRouter({
     {
       path: '/friendrequest',
       component: FriendRequest,
+    },
+    {
+      path: '/chatroom',
+      component: ChatRoom,
     }
   ]
 });
