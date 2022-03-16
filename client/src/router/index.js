@@ -10,6 +10,7 @@ import Userdetail from '../pages/Userdetail/Userdetail';
 import Cropper from '../pages/Cropper/Cropper';
 import FriendRequest from '../pages/FriendRequest/FriendRequest';
 import ChatRoom from '../pages/ChatRoom/ChatRoom';
+import Test from '../pages/Test/Test';
 
 //声明使用插件
 Vue.use(VueRouter)
@@ -17,6 +18,10 @@ Vue.use(VueRouter)
 const router = new VueRouter({
   //所有路由
   routes: [
+    {
+      path: '/test',
+      component: Test,
+    },
     {
       path: '/',
       redirect: '/index',

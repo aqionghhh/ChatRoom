@@ -8,7 +8,7 @@
       </router-link>
       <!-- logo -->
       <div class="top-bar-center">
-        <img src="../../static/images/index/logo.png" alt="" />
+        <img src="../../static/images/index/logo.gif" alt="" />
       </div>
       <!-- 搜索和创建的图标 -->
       <div class="toop-bar-right">
@@ -130,8 +130,8 @@ export default {
   padding-top: 5px;
 }
 .top-bar-center img {
-  width: 44px;
-  height: 21px;
+  height: 36px;
+  width: auto;
   position: absolute;
   left: 0;
   right: 0;

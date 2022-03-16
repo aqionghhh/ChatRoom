@@ -8,7 +8,7 @@
     </div>
     <!-- logo -->
     <div class="logo">
-      <img @click="testToken" src="../../static/images/login/logo.png" alt="" />
+      <img @click="testToken" src="../../static/images/login/logo.gif" alt="" />
     </div>
     <!-- 主体部分 -->
     <div class="main">
@@ -149,8 +149,7 @@ export default {
 }
 .logo img {
   padding-top: 128px;
-  width: 97px;
-  height: 46px;
+  width: 150px;
   height: auto;
   margin: 0 auto;
 }

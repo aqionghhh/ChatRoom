@@ -321,3 +321,23 @@ npm install vue-router
    1. 可以把用户的id存在localStorage中，在页面created的时候就向后端发送请求获取与用户信息
 2. 把用户的token存在localStorage中，并且设置axios响应拦截器和请求拦截器，判断当前的token是否存在，如果存在就设置统一的请求头header；响应拦截时判断token是否失效，token失效的话就清除localStorage中的token并跳转到登录页面。
 3. 进行全局前置路由守卫，如果是跳转到登录或注册页面就正常进行；如果不是就判断localStorage中是否存有token，如果有就next()，正常访问页面；如果没有，就跳转到登录页面。
+
+
+
+聊天室
+
+```
+群聊和单人聊天公用一个路由组件ChatRoom
+
+使用插件
+	npm install @better-scroll/mouse-wheel --save
+	npm install @better-scroll/pull-down --save
+在聊天内容还没有渲染到页面上的时候已经new BScroll了，所以不会有滚动的特效；需要在页面全部渲染完成之后才能new BScroll，可以再created中请求数据，然后在mounted函数中进行判断，如果msgs有数据了再创建BScroll，如果没有数据，就直接return，再使用$nextTick和watch组合 监视msgs数组，当数组里的内容发生改变之后再初始化BScorll
+```
+
+组件的封装
+
+```
+可以说封装的顶部导航栏组件？？
+```
+

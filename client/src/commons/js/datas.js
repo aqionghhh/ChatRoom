@@ -97,5 +97,83 @@ export default {
       },
     ]
     return isFriend;
+  },
+
+  message() {
+    let msgs = [
+      {
+        id: 'a',    // 用户id，规定b是自己
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
+        types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
+        time: new Date() - 1000,    // 发送时间
+        tip: 0
+      },
+      {
+        id: 'a',    // 用户id
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: require('../../static/images/img/two.jpg'),
+        types: 1,   // 内容类型（0文字，1图片链接，2音频链接）
+        time: new Date() - 1000,    // 发送时间
+        tip: 0
+      },
+      {
+        id: 'a',    // 用户id
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
+        types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
+        time: new Date() - 1000 * 16,    // 发送时间
+        tip: 1
+      },
+      {
+        id: 'b',    // 用户id
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
+        types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
+        time: new Date() - 1000 * 60,    // 发送时间
+        tip: 2
+      },
+      {
+        id: 'a',    // 用户id
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
+        types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
+        time: new Date() - 1000 * 60 * 360,    // 发送时间
+        tip: 3
+      },
+      {
+        id: 'b',    // 用户id
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
+        types: 0,   // 内容类型（0文字，1图片链接，2音频链接
+        time: new Date() - 1000 * 60 * 500,    // 发送时间
+        tip: 4
+      },
+      {
+        id: 'b',    // 用户id
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: require('../../static/images/img/two.jpg'),
+        types: 1,   // 内容类型（0文字，1图片链接，2音频链接
+        time: new Date() - 1000 * 60 * 1000,    // 发送时间
+        tip: 5    // 类似消息的id
+      },
+      {
+        id: 'a',    // 用户id
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: require('../../static/images/img/one.jpg'),
+        types: 1,
+        time: new Date() - 1000 * 60 * 3600,    // 发送时间
+        tip: 6    // 类似消息的id
+      },
+      {
+        id: 'a',    // 用户id
+        imgurl: require('../../static/images/img/one.jpg'),
+        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
+        types: 0,   // 内容类型（0文字，1图片链接，2音频链接
+        time: new Date() - 1000 * 60 * 6000,    // 发送时间
+        tip: 7    // 类似消息的id
+      },
+    ]
+    return msgs;
   }
 }
