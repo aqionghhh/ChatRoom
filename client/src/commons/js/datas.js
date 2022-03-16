@@ -114,7 +114,7 @@ export default {
         imgurl: require('../../static/images/img/one.jpg'),
         message: require('../../static/images/img/two.jpg'),
         types: 1,   // 内容类型（0文字，1图片链接，2音频链接）
-        time: new Date() - 1000,    // 发送时间
+        time: new Date() - 1000 * 10,    // 发送时间
         tip: 0
       },
       {
@@ -138,7 +138,7 @@ export default {
         imgurl: require('../../static/images/img/one.jpg'),
         message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
         types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
-        time: new Date() - 1000 * 60 * 360,    // 发送时间
+        time: new Date() - 1000 * 60 * 36,    // 发送时间
         tip: 3
       },
       {
@@ -146,7 +146,7 @@ export default {
         imgurl: require('../../static/images/img/one.jpg'),
         message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
         types: 0,   // 内容类型（0文字，1图片链接，2音频链接
-        time: new Date() - 1000 * 60 * 500,    // 发送时间
+        time: new Date() - 1000 * 60 * 50,    // 发送时间
         tip: 4
       },
       {
@@ -162,7 +162,7 @@ export default {
         imgurl: require('../../static/images/img/one.jpg'),
         message: require('../../static/images/img/one.jpg'),
         types: 1,
-        time: new Date() - 1000 * 60 * 3600,    // 发送时间
+        time: new Date() - 1000 * 60 * 30000,    // 发送时间
         tip: 6    // 类似消息的id
       },
       {
@@ -170,7 +170,7 @@ export default {
         imgurl: require('../../static/images/img/one.jpg'),
         message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
         types: 0,   // 内容类型（0文字，1图片链接，2音频链接
-        time: new Date() - 1000 * 60 * 6000,    // 发送时间
+        time: new Date() - 1000 * 60 * 600000,    // 发送时间
         tip: 7    // 类似消息的id
       },
     ]

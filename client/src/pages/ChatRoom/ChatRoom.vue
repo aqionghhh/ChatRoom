@@ -10,13 +10,14 @@
         <img src="../../static/images/img/one.jpg" alt="" />
       </div>
     </div>
-
     <!-- 主体部分 -->
     <div class="chat" ref="scroll" :style="{ height: height + 'px' }">
       <div class="chat-main">
         <!-- 聊天的内容分为两部分：一部分是事件，一部分是头像和内容 -->
         <div class="chat-cont" v-for="(item, index) in msgs" :key="index">
-          <div class="chat-time">{{ changeTime(item.time) }}</div>
+          <div class="chat-time" v-if="item.time != ''">
+            {{ changeTime(item.time) }}
+          </div>
           <div class="msg-m msg-left" v-if="item.id == 'a'">
             <img :src="item.imgurl" class="user-img" alt="" />
             <div class="message" v-if="item.types === 0">
@@ -25,7 +26,12 @@
               </div>
             </div>
             <div class="message" v-if="item.types === 1">
-              <img preview="1" :src="item.message" class="message-img" />
+              <img
+                preview="1"
+                :src="item.message"
+                class="message-img"
+                @load="imageLoad"
+              />
             </div>
           </div>
           <div class="msg-m msg-right" v-else-if="item.id == 'b'">
@@ -36,7 +42,12 @@
               </div>
             </div>
             <div class="message" v-else-if="item.types === 1">
-              <img preview="1" :src="item.message" class="message-img" />
+              <img
+                preview="1"
+                :src="item.message"
+                class="message-img"
+                @load="imageLoad"
+              />
             </div>
           </div>
         </div>
@@ -60,6 +71,7 @@ export default {
     return {
       msgs: [], // 装聊天信息
       height: 0,
+      oldTime: new Date(), // 用户进入聊天室的时间就是现在new的时间
     };
   },
   created() {
@@ -69,20 +81,23 @@ export default {
 
     // this.$previewRefresh(); // 如果图片是异步生成的，需要在图片数据更新之后调用
   },
+
   mounted() {
-    //数据有了，可以创建BScroll对象形成滑动
-    if (this.msgs) {
-      this.init();
-    }
+    this.init();
   },
-  wtach: {
+  watch: {
     msgs() {
+      // 当数组发生变化的时候调用refresh方法
       this.$nextTick(() => {
         this.init();
       });
     },
   },
   methods: {
+    imageLoad() {
+      this.scroll.refresh(); // 当src资源加载完成之后调用refresh方法
+      // console.log("onload");
+    },
     // 返回上一级路由
     goback() {
       this.$router.back();
@@ -94,20 +109,46 @@ export default {
     },
     // 处理时间
     changeTime(data) {
-      return myfun.dateTime(data);
+      return myfun.dateTime1(data);
     },
     // 获取聊天数据
     getMsg() {
-      this.msgs = datas.message().reverse();
-      console.log(this.msgs);
+      let msg = datas.message();
+      // 处理数据：时间
+      for (let i = 0; i < msg.length; i++) {
+        if (i < msg.length - 1) {
+          // 如果是最后一条数据（即最顶上的数据），就不进行匹配
+          // 时间间隔
+          let t = myfun.spaceTime(this.oldTime, msg[i].time);
+          if (t) {
+            // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
+            this.oldTime = t;
+          }
+          msg[i].time = t; // 要放到页面上展示的时间，如果没有返回值就是不显示，有返回值就显示
+        }
+        this.msgs.unshift(msg[i]); // 倒序插入
+      }
     },
     init() {
-      this.scroll = new BScroll(this.$refs.scroll, {
-        scrollY: true,
-        mouseWheel: true,
-        pullDownRefresh: true,
-      });
-      console.log(this.scroll);
+      // 这么做是为了防止内存泄漏
+      if (!this.scroll) {
+        this.scroll = new BScroll(this.$refs.scroll, {
+          click: true, // 不添加的话回合vue-photo-preview插件发生冲突
+          tap: true, // 不添加的话回合vue-photo-preview插件发生冲突
+          scrollY: true,
+          mouseWheel: true,
+          pullDownRefresh: true,
+          bounce: {
+            top: true,
+            bottom: false,
+          },
+        });
+      } else {
+        // 如果存在的话，直接刷新
+        this.scroll.refresh();
+      }
+
+      console.log(this.scroll.scrollerHeight);
     },
   },
 };

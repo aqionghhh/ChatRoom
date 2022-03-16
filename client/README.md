@@ -333,7 +333,25 @@ npm install vue-router
 	npm install @better-scroll/mouse-wheel --save
 	npm install @better-scroll/pull-down --save
 在聊天内容还没有渲染到页面上的时候已经new BScroll了，所以不会有滚动的特效；需要在页面全部渲染完成之后才能new BScroll，可以再created中请求数据，然后在mounted函数中进行判断，如果msgs有数据了再创建BScroll，如果没有数据，就直接return，再使用$nextTick和watch组合 监视msgs数组，当数组里的内容发生改变之后再初始化BScorll
+
+	vue-photo-preview插件：图片的预览
+	vue-photo-preview和better-scroll插件一起用会发生冲突：better-scroll默认会阻止浏览器的原生click事件。只需要添加几个配置项
+	https://blog.csdn.net/qq_41150189/article/details/94672119
+	
+	使用better-scroll 封装的vue组件 有时不能滚动到底部，需要用到@load事件，事件会在页面或图像加载完成后立即发生
+	
+让一段时间内的聊天内容只显示一个时间：
+	把这个方法写在myfun.js里面
 ```
+
+```
+// 如果是做的聊天框，会出现在输入框输入内容时，直接下拉到最底部
+// 解决方法：用watch去监听聊天记录是否发生变化，如果有变化才进行滑动
+
+https://blog.csdn.net/weixin_43566573/article/details/103206677?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164744514116782248558796%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=164744514116782248558796&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-3-103206677.142^v2^pc_search_result_control_group,143^v4^control&utm_term=better-scroll%E4%B8%8D%E8%83%BD%E6%BB%91%E5%88%B0%E5%BA%95%E9%83%A8&spm=1018.2226.3001.4187
+```
+
+
 
 组件的封装
 
