@@ -12,7 +12,11 @@
     </div>
     <!-- 主体部分 -->
     <div class="chat" ref="scroll" :style="{ height: height + 'px' }">
-      <div class="chat-main" :style="{ paddingBottom: mainHeight + 'px' }">
+      <div
+        class="chat-main"
+        @click="closeTap"
+        :style="{ paddingBottom: mainHeight + 'px' }"
+      >
         <!-- 聊天的内容分为两部分：一部分是事件，一部分是头像和内容 -->
         <div class="chat-cont" v-for="(item, index) in msgs" :key="index">
           <div class="chat-time" v-if="item.time != ''">
@@ -53,7 +57,12 @@
         </div>
       </div>
     </div>
-    <Submit class="submit" @sendMsg="getMessage" @Height="getPoupHeight" />
+    <Submit
+      canTap="false"
+      class="submit"
+      @sendMsg="getMessage"
+      @Height="getPoupHeight"
+    />
   </div>
 </template>
 <script>
@@ -76,12 +85,13 @@ export default {
       oldTime: new Date(), // 用户进入聊天室的时间就是现在new的时间
       a: [], // 获取聊天框的dom元素
       b: "", // 获取弹窗submit的高度
-      mainHeight: "5", // 聊天内容需要往上调的高度
+      mainHeight: "7", // 聊天内容需要往上调的高度
     };
   },
   components: {
     Submit,
   },
+
   created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
     this.getHeight(); //页面创建时调用
@@ -89,7 +99,6 @@ export default {
 
     // this.$previewRefresh(); // 如果图片是异步生成的，需要在图片数据更新之后调用
   },
-
   mounted() {
     this.$nextTick(() => {
       this.init();
@@ -99,23 +108,36 @@ export default {
   updated() {
     this.$nextTick(() => {
       this.init();
-      if (this.mainHeight > 100) {
-        this.scrollToBottom(); // 页面更新之后滚动到下方
-      }
+      this.scrollToBottom(); // 页面更新之后滚动到下方
     });
   },
+
   methods: {
+    // 点击外面的部分，关闭弹窗
+    closeTap() {
+      if (this.mainHeight > 100) {
+        this.$store.commit("changeTap");
+      }
+    },
     // 接收文本框发送来的值
     getMessage(name) {
-      console.log(name);
       name = name.replace(/(&nbsp;)/g, " "); // 把$nbsp;转换成空格
-      console.log("后面", name);
+      if (name.trim().length) {
+        let len = this.msgs.length;
+        let data = {
+          id: "b", // 用户id
+          imgurl: require("../../static/images/img/one.jpg"),
+          message: name,
+          types: 0, // 内容类型（0文字，1图片链接，2音频链接
+          time: new Date(), // 发送时间
+          tip: len, // 类似消息的id
+        };
+        this.msgs.push(data);
+      }
     },
     // 接收弹窗的高度
     getPoupHeight(height) {
       this.mainHeight = height;
-      console.log("弹窗高度", height);
-      console.log(this.mainHeight);
     },
     // 页面滚动到最下方
     scrollToBottom() {
@@ -179,7 +201,7 @@ export default {
         this.scroll.refresh();
       }
 
-      console.log("s", this.scroll.scrollerHeight);
+      console.log("scroll", this.scroll.scrollerHeight);
     },
   },
 };

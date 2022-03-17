@@ -52,7 +52,7 @@
             <img :src="friend.imgurl" alt="" />
           </div>
           <!-- 右边部分 -->
-          <div class="friend-list-r">
+          <div class="friend-list-r" @click="toChatRoom">
             <div class="top">
               <div class="name">{{ friend.name }}</div>
               <div class="time">{{ changeTime(friend.time) }}</div>
@@ -101,6 +101,9 @@ export default {
           this.friends[i].tip = "99";
         }
       }
+    },
+    toChatRoom() {
+      this.$router.push("/chatroom");
     },
   },
 };
