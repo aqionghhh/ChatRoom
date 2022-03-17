@@ -8,7 +8,7 @@ let secret = 'sxq';
 //生成token
 exports.generateToken = function (id) {
   let payload = { id: id, time: new Date() };
-  let token = jwt.sign(payload, secret, { expiresIn: 60 * 60 * 24 * 120 });
+  let token = jwt.sign(payload, secret, { expiresIn: 60 * 60 * 3 });   // 3小时，exp的单位是秒
   return token;
 }
 

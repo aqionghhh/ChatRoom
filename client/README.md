@@ -351,7 +351,12 @@ npm install vue-router
 https://blog.csdn.net/weixin_43566573/article/details/103206677?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164744514116782248558796%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=164744514116782248558796&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-3-103206677.142^v2^pc_search_result_control_group,143^v4^control&utm_term=better-scroll%E4%B8%8D%E8%83%BD%E6%BB%91%E5%88%B0%E5%BA%95%E9%83%A8&spm=1018.2226.3001.4187
 ```
 
-
+```
+submit组件
+组件之间通信：$emit
+在文本框中@keydown.enter.prevent="cendMessage"绑定事件，把内容传递到ChatRoom组件；通过this.$refs.xxx来获取其中的innerHTML内容
+下面的框框弹起来之后把背景内容往上调
+```
 
 组件的封装
 

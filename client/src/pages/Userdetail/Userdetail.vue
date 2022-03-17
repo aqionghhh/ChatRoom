@@ -84,7 +84,7 @@
         </div>
         <!-- 注册 -->
         <div class="column row">
-          <div class="title">注册</div>
+          <div class="title">注册日期</div>
           <div class="cont">{{ timeChange(dataarr.time) }}</div>
         </div>
         <!-- 昵称 -->

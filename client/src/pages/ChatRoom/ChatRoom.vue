@@ -12,7 +12,7 @@
     </div>
     <!-- 主体部分 -->
     <div class="chat" ref="scroll" :style="{ height: height + 'px' }">
-      <div class="chat-main">
+      <div class="chat-main" :style="{ paddingBottom: mainHeight + 'px' }">
         <!-- 聊天的内容分为两部分：一部分是事件，一部分是头像和内容 -->
         <div class="chat-cont" v-for="(item, index) in msgs" :key="index">
           <div class="chat-time" v-if="item.time != ''">
@@ -53,6 +53,7 @@
         </div>
       </div>
     </div>
+    <Submit class="submit" @sendMsg="getMessage" @Height="getPoupHeight" />
   </div>
 </template>
 <script>
@@ -62,6 +63,7 @@ import myfun from "../../commons/js/myfun.js";
 import BScroll from "@better-scroll/core";
 import MouseWheel from "@better-scroll/mouse-wheel";
 import PullDown from "@better-scroll/pull-down";
+import Submit from "../../components/Submit/Submit";
 
 BScroll.use(MouseWheel);
 BScroll.use(PullDown);
@@ -72,7 +74,13 @@ export default {
       msgs: [], // 装聊天信息
       height: 0,
       oldTime: new Date(), // 用户进入聊天室的时间就是现在new的时间
+      a: [], // 获取聊天框的dom元素
+      b: "", // 获取弹窗submit的高度
+      mainHeight: "5", // 聊天内容需要往上调的高度
     };
+  },
+  components: {
+    Submit,
   },
   created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
@@ -83,20 +91,42 @@ export default {
   },
 
   mounted() {
-    this.init();
+    this.$nextTick(() => {
+      this.init();
+      console.log(1);
+    });
   },
-  watch: {
-    msgs() {
-      // 当数组发生变化的时候调用refresh方法
-      this.$nextTick(() => {
-        this.init();
-      });
-    },
+  updated() {
+    this.$nextTick(() => {
+      this.init();
+      if (this.mainHeight > 100) {
+        this.scrollToBottom(); // 页面更新之后滚动到下方
+      }
+    });
   },
   methods: {
+    // 接收文本框发送来的值
+    getMessage(name) {
+      console.log(name);
+      name = name.replace(/(&nbsp;)/g, " "); // 把$nbsp;转换成空格
+      console.log("后面", name);
+    },
+    // 接收弹窗的高度
+    getPoupHeight(height) {
+      this.mainHeight = height;
+      console.log("弹窗高度", height);
+      console.log(this.mainHeight);
+    },
+    // 页面滚动到最下方
+    scrollToBottom() {
+      this.a = document.querySelectorAll(".chat-cont");
+      // console.log(this.a[this.a.length - 1]);
+      this.scroll.scrollToElement(this.a[this.a.length - 1]);
+    },
     imageLoad() {
       this.scroll.refresh(); // 当src资源加载完成之后调用refresh方法
       // console.log("onload");
+      this.scrollToBottom();
     },
     // 返回上一级路由
     goback() {
@@ -135,6 +165,7 @@ export default {
         this.scroll = new BScroll(this.$refs.scroll, {
           click: true, // 不添加的话回合vue-photo-preview插件发生冲突
           tap: true, // 不添加的话回合vue-photo-preview插件发生冲突
+          // probeType: 2, //因为惯性滑动不会触发
           scrollY: true,
           mouseWheel: true,
           pullDownRefresh: true,
@@ -148,16 +179,13 @@ export default {
         this.scroll.refresh();
       }
 
-      console.log(this.scroll.scrollerHeight);
+      console.log("s", this.scroll.scrollerHeight);
     },
   },
 };
 </script>
 
 <style scoped>
-[v-cloak] {
-  display: none;
-}
 .content {
   height: 100%;
   background-color: rgb(243, 243, 243);
@@ -186,8 +214,6 @@ export default {
   padding-left: 16px;
   padding-right: 16px;
   padding-top: 50px;
-  padding-bottom: 60px;
-  display: flex;
   flex-direction: column;
 }
 .chat-time {
@@ -232,7 +258,7 @@ export default {
   background-color: #fff;
 }
 .msg-left .message-img {
-  padding-left: 8px;
+  margin-left: 8px;
 }
 .msg-right {
   flex-direction: row-reverse;
@@ -243,6 +269,6 @@ export default {
   background-color: #fff260;
 }
 .msg-right .message-img {
-  padding-right: 8px;
+  margin-right: 8px;
 }
 </style>

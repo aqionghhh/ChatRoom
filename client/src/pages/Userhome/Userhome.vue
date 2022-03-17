@@ -16,14 +16,14 @@
     <!-- 内容 -->
     <div class="bg">
       <div class="bg-bai"></div>
-      <img class="bg-img" src="../../static/images/img/two.jpg" alt="" />
+      <img class="bg-img" src="../../static/images/img/one.jpg" alt="" />
     </div>
     <div class="main">
       <div class="user-header">
         <div class="sex" :style="{ background: sexBg }">
           <img src="../../static/images/Userhome/女性.png" alt="" />
         </div>
-        <img class="user-img" src="../../static/images/img/two.jpg" alt="" />
+        <img class="user-img" src="../../static/images/img/one.jpg" alt="" />
       </div>
       <div class="user-info">
         <div class="name">{{ user.name }}</div>
