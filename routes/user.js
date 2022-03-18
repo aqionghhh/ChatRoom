@@ -18,10 +18,12 @@ module.exports = function (app) {
     // 修改用户信息
     app.post('/user/update', (req, res) => {
       let data = req.body.arr;
-      // console.log('插入', data);
+      console.log('插入', data);
 
-      User.findOneAndUpdate({ pwd: data.pwd }, { $set: data })
-        .then(res => console.log('ok', res));
+      User.findOneAndUpdate({ pwd: data.pwd }, { $set: data }, (err, data) => {
+        console.log('ok', data)
+        res.send(data);  // 把查询到的用户信息传回去
+      })
     })
 }
 

@@ -27,7 +27,7 @@ const UserSchema = new Schema({
   },
   imgurl: {//头像链接
     type: String,
-    default: 'user.png'//给一张默认头像
+    default: 'E:\program\Chat\client\src\static\images\img\one.jpg'//给一张默认头像
   },
   time: {//注册时间
     type: Date,

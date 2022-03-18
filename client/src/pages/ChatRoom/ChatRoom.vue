@@ -85,7 +85,7 @@ export default {
       oldTime: new Date(), // 用户进入聊天室的时间就是现在new的时间
       a: [], // 获取聊天框的dom元素
       b: "", // 获取弹窗submit的高度
-      mainHeight: "7", // 聊天内容需要往上调的高度
+      mainHeight: "25", // 聊天内容需要往上调的高度
     };
   },
   components: {
@@ -120,15 +120,16 @@ export default {
       }
     },
     // 接收文本框发送来的值
-    getMessage(name) {
+    getMessage(name, type) {
       name = name.replace(/(&nbsp;)/g, " "); // 把$nbsp;转换成空格
+      console.log("内容和类型", name, type);
       if (name.trim().length) {
         let len = this.msgs.length;
         let data = {
           id: "b", // 用户id
           imgurl: require("../../static/images/img/one.jpg"),
           message: name,
-          types: 0, // 内容类型（0文字，1图片链接，2音频链接
+          types: type, // 内容类型（0文字，1图片链接，2音频链接
           time: new Date(), // 发送时间
           tip: len, // 类似消息的id
         };
@@ -143,7 +144,7 @@ export default {
     scrollToBottom() {
       this.a = document.querySelectorAll(".chat-cont");
       // console.log(this.a[this.a.length - 1]);
-      this.scroll.scrollToElement(this.a[this.a.length - 1]);
+      this.scroll.scrollToElement(this.a[this.a.length - 1], 200);
     },
     imageLoad() {
       this.scroll.refresh(); // 当src资源加载完成之后调用refresh方法

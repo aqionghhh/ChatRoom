@@ -4,7 +4,7 @@
     <div class="top-bar">
       <router-link class="top-bar-left" to="/userdetail">
         <!-- 头像 -->
-        <img src="../../static/images/img/one.jpg" alt="" />
+        <img :src="getImg" alt="" />
       </router-link>
       <!-- logo -->
       <div class="top-bar-center">
@@ -74,11 +74,17 @@ export default {
   data() {
     return {
       friends: [],
+      img: "",
     };
   },
   mounted() {
     this.getFriends();
     this.tips();
+  },
+  computed: {
+    getImg() {
+      return this.$store.state.imgUrl;
+    },
   },
   methods: {
     //转换时间

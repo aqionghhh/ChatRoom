@@ -61,6 +61,9 @@ exports.userMatch = (data, pwd, res) => {//data表示用户名/邮箱
             name: e.name,
             imgurl: e.imgurl,
             token: token,
+            sex: e.sex,
+            sign: e.sign,
+            birthday: e.birthday
           }
           res.send({ status: 200, back });
         } else {

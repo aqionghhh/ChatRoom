@@ -20,53 +20,16 @@
         <div class="row head">
           <div class="title">头像</div>
           <div class="user-head">
-            <!-- <img :src="imgurl" class="user-img" alt="" /> -->
-            <van-uploader
-              class="mt-3"
-              :max-size="3 * 1024 * 1024"
-              :before-read="beforeRead"
-              @oversize="onOversize"
-            >
-            </van-uploader>
-            <van-popup
-              class="bg-tran"
-              v-model="showCropper"
-              closeable
-              position="top"
-              :style="{ height: '100%' }"
-            >
-              <div class="flex-column-center height100">
-                <vueCropper
-                  ref="cropper"
-                  :img="option.img"
-                  :outputSize="option.outputSize"
-                  :outputType="option.outputType"
-                  :info="option.info"
-                  :full="option.full"
-                  :autoCropWidth="option.autoCropWidth"
-                  :autoCropHeight="option.autoCropHeight"
-                  :canMove="option.canMove"
-                  :canMoveBox="option.canMoveBox"
-                  :original="option.original"
-                  :autoCrop="option.autoCrop"
-                  :fixed="option.fixed"
-                  :fixedNumber="option.fixedNumber"
-                  :centerBox="option.centerBox"
-                  :infoTrue="option.infoTrue"
-                  :fixedBox="option.fixedBox"
-                  :high="option.high"
-                  :mode="option.mode"
-                ></vueCropper>
-                <van-button type="danger" @click="cancelCropper"
-                  >取消</van-button
-                >
-                <van-button type="danger" @click="rotateImage">旋转</van-button>
-                <van-button type="danger" @click="getCropBlob">确定</van-button>
-              </div>
-            </van-popup>
-          </div>
-          <div class="more">
-            <img src="../../static/images/Userdetail/右箭头.png" alt="" />
+            <div class="head_img" @click.stop="uploadHeadImg">
+              <img :src="dataarr.imgurl" />
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              @change="handleFile"
+              class="hiddenInput"
+              ref="hidden"
+            />
           </div>
         </div>
         <!-- 签名 -->
@@ -175,6 +138,7 @@ export default {
   data() {
     return {
       dataarr: {
+        imgurl: "", // 图片
         name: "", //昵称
         sign: "", //签名
         time: "", //注册时间
@@ -185,30 +149,6 @@ export default {
       isName: true, // 需要修改 名字
       animation: false, //弹窗是否显示
       data: "修改的内容", //弹窗的内容
-      option: {
-        img: "",
-        outputSize: 0.8,
-        info: false, // 裁剪框的大小信息
-        outputType: "jpeg", // 裁剪生成图片的格式
-        canScale: false, // 图片是否允许滚轮缩放
-        autoCrop: true, // 是否默认生成截图框
-        autoCropWidth: window.innerWidth - 100 + "px", // 默认生成截图框宽度
-        autoCropHeight: window.innerWidth - 100 + "px", // 默认生成截图框高度
-        high: true, // 是否按照设备的dpr 输出等比例图片
-        fixedBox: true, // 固定截图框大小 不允许改变
-        fixed: true, // 是否开启截图框宽高固定比例
-        fixedNumber: [1, 1], // 截图框的宽高比例
-        full: true, // 是否输出原图比例的截图
-        canMoveBox: false, // 截图框能否拖动
-        original: false, // 上传图片按照原始比例渲染
-        centerBox: false, // 截图框是否被限制在图片里面
-        infoTrue: false, // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
-        mode: "100% auto", // 图片默认渲染方式
-      },
-
-      showCropper: false, // 截图弹窗遮罩默认隐藏
-      imageAccept: "/jpg,/png,/jpeg",
-      imageFileName: "",
       modifyTitle: "", //弹窗的标题
       imgurl: require("../../static/images/img/two.jpg"),
       projectListArr: ["男", "女", "未知"], //下拉的数据源，从接口中请求到数据，根据需要变成一维数组，只存name
@@ -247,53 +187,34 @@ export default {
       this.dataarr.name = res.data.name;
       this.dataarr.pwd = res.data.pwd;
       this.dataarr.time = res.data.time;
+      this.dataarr.imgurl = res.data.imgurl;
+      this.$store.commit("setInfo", res.data);
     });
   },
   methods: {
-    imageToBase64(file) {
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        // 截图框中的图片
-        this.option.img = reader.result;
-      };
-      reader.onerror = function (error) {
-        console.log("Error: ", error);
-      };
+    // 打开图片上传
+    uploadHeadImg() {
+      this.$refs.hidden.click(); // 点击图片，时机上点击的是input按钮
     },
-
-    // 确认剪裁并上传图片
-    getCropBlob() {
-      this.$comMethods.toast("上传中", 0);
-      let formData = new FormData();
-      this.$refs.cropper.getCropBlob((data) => {
-        formData.append("avatar", data, this.imageFileName);
-        // formData私有类对象，访问不到，可以通过get判断值是否传进去
-        console.log(formData.get("avatar"));
-        // 上传图片至服务器
-        this.$api
-          .modifyProfile(formData)
-          .then((res) => {
-            if (res.code === 200) {
-              this.$toast("更改头像成功");
-              // do something...
-            } else {
-              this.$toast("上传失败");
-            }
-          })
-          .catch((err) => console.error(err));
-      });
-    },
-
-    // 旋转图片
-    rotateImage() {
-      this.$refs.cropper.rotateRight();
-    },
-
-    // 取消截图上传头像
-    cancelCropper() {
-      this.showCropper = false; // 隐藏切图遮罩
-      this.showPopup = true;
+    // 将头像显示，并且传到后端
+    handleFile(e) {
+      let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
+      console.log("blob", url);
+      this.dataarr.imgurl = url;
+      this.$axios({
+        method: "post",
+        data: {
+          arr: this.dataarr,
+        },
+        url: "api/user/update",
+      })
+        .then(() => {
+          localStorage.setItem("imgurl", this.dataarr.imgurl);
+          console.log("local", this.dataarr.imgurl);
+        })
+        .catch(() => {
+          console.log("error");
+        });
     },
     back() {
       this.$router.back();
@@ -315,6 +236,7 @@ export default {
         url: "api/user/update",
       });
       this.showPicker = false;
+      this.$store.commit("setSex", this.dataarr.sex);
     },
     //日期选择器
     getTime(e) {
@@ -348,41 +270,8 @@ export default {
         },
         url: "api/user/update",
       });
+      this.$store.commit("setBirth", this.dataarr.birthday);
     },
-    finish2() {
-      this.$refs.cropper2.getCropData((data) => {
-        this.modelSrc = data;
-        this.model = false;
-        //裁剪后的图片显示
-        this.example2.img = this.modelSrc;
-        // this.toBlob(data)
-        // console.log(data)
-        // console.log(this.toBlob(data))
-
-        //将图片上传服务器中
-      });
-    },
-
-    onOversize() {
-      this.$notify("图片不能大于3M");
-    },
-
-    // 获取文件后缀
-    getFileSuffix(fileName) {
-      return fileName.match(/\/\w+$/)[0].toLowerCase();
-    },
-
-    // 选择图片上传前操作，调起剪裁组件
-    beforeRead(file) {
-      if (!this.imageAccept.includes(this.getFileSuffix(file.type))) {
-        return this.$notify("请上传 jpg/png 格式图片");
-      }
-      this.showCropper = true;
-      this.imageFileName = file.name;
-      // 本地图片转成base64，用于截图框显示本地图片
-      this.imageToBase64(file);
-    },
-
     //修改弹窗
     animationChange(type, data) {
       this.data = data; // 在文本框中显示内容
@@ -396,9 +285,11 @@ export default {
         // 要修改的是昵称
         this.dataarr.name = this.data;
         console.log("name", this.dataarr.name);
+        this.$store.commit("setName", this.dataarr.name);
       } else {
         this.dataarr.sign = this.data;
         console.log("sign", this.dataarr.sign);
+        this.$store.commit("setSign", this.dataarr.sign);
       }
 
       // 先发送请求再关闭弹窗
@@ -585,5 +476,12 @@ van-popup {
   color: rgb(39, 40, 50);
   padding: 0 10px;
   flex: auto;
+}
+.hiddenInput {
+  display: none;
+}
+.head_img img {
+  width: 80px;
+  height: 80px;
 }
 </style>
