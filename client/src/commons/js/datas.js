@@ -104,16 +104,22 @@ export default {
       {
         id: 'b',    // 用户id，规定b是自己
         imgurl: require('../../static/images/img/one.jpg'),
-        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
+        message: {
+          voice: 'b',   // 音频
+          time: 40      // 时长，单位是秒
+        },
+        types: 2,   // 内容类型（0文字，1图片链接，2音频链接）
         time: new Date() - 1000,    // 发送时间
         tip: 0
       },
       {
         id: 'a',    // 用户id
         imgurl: require('../../static/images/img/one.jpg'),
-        message: require('../../static/images/img/two.jpg'),
-        types: 1,   // 内容类型（0文字，1图片链接，2音频链接）
+        message: {
+          voice: 'a',   // 音频
+          time: 3      // 时长，单位是秒
+        },
+        types: 2,   // 内容类型（0文字，1图片链接，2音频链接）
         time: new Date() - 1000 * 10,    // 发送时间
         tip: 1
       },

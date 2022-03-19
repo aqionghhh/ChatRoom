@@ -12,12 +12,13 @@ Vue.use(animated)
 import VueLazyload from 'vue-lazyload'
 Vue.use(VueLazyload)
 //使用vant组件
-import { Picker, Popup, DatetimePicker, Uploader, Button } from 'vant';
+import { Picker, Popup, DatetimePicker, Uploader, Button, Toast } from 'vant';
 Vue.use(Picker);
 Vue.use(Popup);
 Vue.use(DatetimePicker);
 Vue.use(Uploader);
 Vue.use(Button);
+Vue.use(Toast);
 // 引入大图预览插件
 let option = {
   maxSpreadZoom: 2, // 控制预览图最大的倍数，默认是2倍，我这里改成了原图

@@ -15,7 +15,14 @@
           @click="close"
           @keydown.enter.prevent="sendMessage"
         ></div>
-        <div class="record btn" v-show="record">按住说话</div>
+        <div
+          class="record btn"
+          v-show="record"
+          @touchstart="voiceStart"
+          @touchend="voiceEnd"
+        >
+          按住说话
+        </div>
         <div class="bt-img" @click="emoji">
           <img src="../../static/images/submit/笑脸.png" alt="" />
         </div>
@@ -37,6 +44,13 @@
         <div class="more-list" @click="photo">
           <img src="../../static/images/submit/图片.png" alt="" />
           <div class="more-list-title">图片</div>
+          <input
+            type="file"
+            accept="image/*"
+            @change="handleFile"
+            class="hiddenInput"
+            ref="hidden"
+          />
         </div>
         <div class="more-list" @click="file">
           <img src="../../static/images/submit/文件.png" alt="" />
@@ -67,6 +81,11 @@
 import Emoji from "../Emoji/Emoji";
 
 import { mapState } from "vuex";
+
+import Recorder from "recorder-js"; // 引入录音插件
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const recorder = new Recorder(audioContext, {});
+
 export default {
   data() {
     return {
@@ -76,6 +95,9 @@ export default {
       moreBtn: false, // 弹出more框，默认是不弹出
       msg: "", // 发送出去的信息
       Height: "", // 弹窗的高度
+      timer: "", // 定时器，用于记录按下鼠标到松开的时间
+      i: 1, // 记录音频的秒数
+      isRecording: false,
     };
   },
   components: {
@@ -147,6 +169,64 @@ export default {
         this.getHeight(".more");
       });
     },
+    // 音频处理
+    // 开始录音
+    voiceStart() {
+      console.log("开始");
+      //记录时间
+      this.timer = setInterval(() => {
+        this.i += 1;
+        console.log(this.i);
+      }, 1000);
+
+      // 先获取浏览器的权限，再开始录音
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          this.stream = stream;
+          recorder.init(stream);
+          // 录音
+          recorder.start().then(() => {
+            this.isRecording = true;
+            console.log("正在录音");
+          });
+          this.$toast({
+            icon: "music-o",
+            duration: 0, // 持续展示 toast
+            forbidClick: true,
+            message: "正在录音",
+          });
+        })
+        .catch((err) => console.log("Uh oh... unable to get stream...", err));
+    },
+    // 结束录音
+    voiceEnd() {
+      console.log("结束");
+      clearInterval(this.timer);
+      console.log("一共有多少秒：", this.i);
+      // 录音时间小于2s
+      if (this.i < 2) {
+        this.$toast.clear(); // 先清除一个toast
+        this.$toast.fail("时间不能少于2秒");
+        recorder.stop();
+      } else {
+        // 结束录音
+        recorder.stop().then(({ blob, buffer }) => {
+          let audioBlob = URL.createObjectURL(blob); // 给blob一个url
+          console.log("转化前的blob", blob);
+          console.log("转化后的blob", audioBlob);
+
+          let data = {
+            blob: audioBlob,
+            time: this.i,
+          };
+
+          this.$emit("sendVoice", data, 2);
+          this.$toast.clear();
+          this.i = 1;
+        });
+      }
+    },
     // 点击删除按钮
     deleteOne() {
       this.$refs.content.innerHTML = this.$refs.content.innerHTML.substring(
@@ -176,9 +256,15 @@ export default {
         this.$refs.content.innerHTML = "";
       }, 0);
     },
-    // 图片
+    // 发送图片
     photo() {
       console.log("photo");
+      this.$refs.hidden.click(); // 点击图片，时机上点击的是input按钮
+    },
+    // 将头像显示，并且传到后端
+    handleFile(e) {
+      let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
+      this.$emit("sendPhoto", url, 1); // 图片的类型是1
     },
     // 文件
     file() {
@@ -296,5 +382,8 @@ export default {
   font-size: 14px;
   color: rgba(39, 40, 50, 0.5);
   line-height: 17px;
+}
+.hiddenInput {
+  display: none;
 }
 </style>

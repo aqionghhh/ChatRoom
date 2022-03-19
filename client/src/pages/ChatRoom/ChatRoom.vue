@@ -24,11 +24,13 @@
           </div>
           <div class="msg-m msg-left" v-if="item.id == 'a'">
             <img :src="item.imgurl" class="user-img" alt="" />
+            <!-- 文字 -->
             <div class="message" v-if="item.types === 0">
               <div class="msg-text">
                 {{ item.message }}
               </div>
             </div>
+            <!-- 图片 -->
             <div class="message" v-if="item.types === 1">
               <img
                 preview="1"
@@ -36,6 +38,26 @@
                 class="message-img"
                 @load="imageLoad"
               />
+            </div>
+            <!-- 音频 -->
+            <div
+              class="message"
+              v-if="item.types === 2"
+              @click="listenVoice(item.message.voice)"
+            >
+              <div
+                ref="time"
+                class="msg-text voice"
+                :style="{ width: item.message.time * 4 + 'px' }"
+              >
+                <img
+                  class="voice-img"
+                  src="../../static/images/chatroom/音频.png"
+                  alt=""
+                />
+
+                {{ item.message.time }}″
+              </div>
             </div>
           </div>
           <div class="msg-m msg-right" v-else-if="item.id == 'b'">
@@ -53,6 +75,24 @@
                 @load="imageLoad"
               />
             </div>
+            <div
+              class="message"
+              v-if="item.types === 2"
+              @click="listenVoice(item.message.voice)"
+            >
+              <div
+                ref="time"
+                class="msg-text voice"
+                :style="{ width: item.message.time * 4 + 'px' }"
+              >
+                <img
+                  class="voice-img"
+                  src="../../static/images/chatroom/音频.png"
+                  alt=""
+                />
+                {{ item.message.time }}″
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -62,6 +102,8 @@
       class="submit"
       @sendMsg="getMessage"
       @Height="getPoupHeight"
+      @sendPhoto="getPhoto"
+      @sendVoice="getVoice"
     />
   </div>
 </template>
@@ -72,6 +114,7 @@ import myfun from "../../commons/js/myfun.js";
 import BScroll from "@better-scroll/core";
 import MouseWheel from "@better-scroll/mouse-wheel";
 import PullDown from "@better-scroll/pull-down";
+
 import Submit from "../../components/Submit/Submit";
 
 BScroll.use(MouseWheel);
@@ -96,8 +139,6 @@ export default {
     window.addEventListener(".bg", this.getHeight); //注册监听器
     this.getHeight(); //页面创建时调用
     this.getMsg();
-
-    // this.$previewRefresh(); // 如果图片是异步生成的，需要在图片数据更新之后调用
   },
   mounted() {
     this.$nextTick(() => {
@@ -119,7 +160,7 @@ export default {
         this.$store.commit("changeTap");
       }
     },
-    // 接收文本框发送来的值
+    // 接收文本内容
     getMessage(name, type) {
       name = name.replace(/(&nbsp;)/g, " "); // 把$nbsp;转换成空格
       console.log("内容和类型", name, type);
@@ -135,6 +176,69 @@ export default {
         };
         this.msgs.push(data);
       }
+    },
+    // 接收图片
+    getPhoto(img, type) {
+      console.log("接收到的消息", img, type);
+      let len = this.msgs.length;
+
+      let data = {
+        id: "b", // 用户id
+        imgurl: require("../../static/images/img/one.jpg"),
+        message: img,
+        types: type, // 内容类型（0文字，1图片链接，2音频链接
+        time: new Date(), // 发送时间
+        tip: len, // 类似消息的id
+      };
+      new Promise((resolve, reject) => {
+        this.msgs.push(data);
+      }).then((resolve) => {
+        console.log("resolve", resolve);
+        this.$previewRefresh(); // 如果图片是异步生成的，需要在图片数据更新之后调用
+      });
+    },
+    // 接收音频文件
+    getVoice(voice, type) {
+      console.log(voice);
+      let len = this.msgs.length;
+      let data = {
+        id: "b", // 用户id
+        imgurl: require("../../static/images/img/one.jpg"),
+        message: {
+          voice: voice.blob,
+          time: voice.time,
+        },
+        types: type, // 内容类型（0文字，1图片链接，2音频链接
+        time: new Date(), // 发送时间
+        tip: len, // 类似消息的id
+      };
+      this.msgs.push(data);
+      // this.stream = voice.stream;
+    },
+    // 从数据库中获取聊天数据
+    getMsg() {
+      let msg = datas.message();
+      // 处理数据：时间
+      for (let i = 0; i < msg.length; i++) {
+        if (i < msg.length - 1) {
+          // 如果是最后一条数据（即最顶上的数据），就不进行匹配
+          // 时间间隔
+          let t = myfun.spaceTime(this.oldTime, msg[i].time);
+          if (t) {
+            // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
+            this.oldTime = t;
+          }
+          msg[i].time = t; // 要放到页面上展示的时间，如果没有返回值就是不显示，有返回值就显示
+        }
+        this.msgs.unshift(msg[i]); // 倒序插入
+      }
+    },
+    // 听语音
+    listenVoice(e) {
+      console.log("音频文件", e);
+      let audio = new Audio();
+      audio.src = e;
+      audio.play();
     },
     // 接收弹窗的高度
     getPoupHeight(height) {
@@ -164,24 +268,7 @@ export default {
     changeTime(data) {
       return myfun.dateTime1(data);
     },
-    // 获取聊天数据
-    getMsg() {
-      let msg = datas.message();
-      // 处理数据：时间
-      for (let i = 0; i < msg.length; i++) {
-        if (i < msg.length - 1) {
-          // 如果是最后一条数据（即最顶上的数据），就不进行匹配
-          // 时间间隔
-          let t = myfun.spaceTime(this.oldTime, msg[i].time);
-          if (t) {
-            // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
-            this.oldTime = t;
-          }
-          msg[i].time = t; // 要放到页面上展示的时间，如果没有返回值就是不显示，有返回值就显示
-        }
-        this.msgs.unshift(msg[i]); // 倒序插入
-      }
-    },
+
     init() {
       // 这么做是为了防止内存泄漏
       if (!this.scroll) {
@@ -286,6 +373,9 @@ export default {
 .msg-right {
   flex-direction: row-reverse;
 }
+.msg-left {
+  flex-direction: row;
+}
 .msg-right .msg-text {
   border-radius: 10px 0 10px 10px;
   margin-right: 8px;
@@ -293,5 +383,16 @@ export default {
 }
 .msg-right .message-img {
   margin-right: 8px;
+}
+.voice {
+  text-align: right;
+  min-width: 50px;
+  max-width: 200px;
+}
+.voice-img {
+  float: left;
+  padding-right: 8px;
+  width: 18px;
+  height: 20px;
 }
 </style>
