@@ -16,19 +16,33 @@
     <!-- 内容 -->
     <div class="bg">
       <div class="bg-bai"></div>
-      <img class="bg-img" src="../../static/images/img/one.jpg" alt="" />
+      <img class="bg-img" :src="user.img" alt="" />
     </div>
     <div class="main">
       <div class="user-header">
-        <div class="sex" :style="{ background: sexBg }">
+        <div
+          v-if="user.sex === '女'"
+          class="sex"
+          :style="{ background: sexBg[0] }"
+        >
           <img src="../../static/images/Userhome/女性.png" alt="" />
         </div>
-        <img class="user-img" src="../../static/images/img/one.jpg" alt="" />
+        <div
+          v-else-if="user.sex === '男'"
+          class="sex"
+          :style="{ background: sexBg[1] }"
+        >
+          <img src="../../static/images/Userhome/男性.png" alt="" />
+        </div>
+        <div v-else class="sex" :style="{ background: sexBg[2] }">
+          <img src="../../static/images/Userhome/未知性别.png" alt="" />
+        </div>
+        <img class="user-img" :src="user.img" alt="" />
       </div>
       <div class="user-info">
         <div class="name">{{ user.name }}</div>
-        <div class="nick">昵称：{{ user.nick }}</div>
-        <div class="intr">{{ user.intr }}</div>
+        <div class="nick">邮箱：{{ user.email }}</div>
+        <div class="intr">签名：{{ user.intr }}</div>
       </div>
     </div>
     <!-- 底部按钮 -->
@@ -63,7 +77,7 @@
       <!-- 按钮 -->
       <div class="add-bt" v-show="animation">
         <div class="close" @click="addFriendAnimate">取消</div>
-        <div class="send">发送</div>
+        <div class="send" @click="sendRequest">发送</div>
       </div>
     </transition>
   </div>
@@ -73,12 +87,14 @@
 export default {
   data() {
     return {
-      sexBg: "rgb(255,93,91)",
-      myname: "不知道叫什么",
+      sexBg: ["rgb(255,93,91)", "rgb(25,144,254)", "rgb(255,228,49)"], // 分别对应女、男、未知
+      myname: "",
       user: {
-        name: "sxq", //名字
-        nick: "嘻嘻", //昵称
-        intr: "这个一个简介", //介绍
+        img: "", // 头像
+        name: "", //名字
+        email: "", //昵称
+        intr: "", //介绍
+        sex: "", // 性别
       },
       height: 0,
       animation: false, //添加好友弹窗
@@ -87,6 +103,28 @@ export default {
   created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
     this.getHeight(); //页面创建时调用
+    console.log("传过来的id", this.$route.query.id);
+    console.log("传过来的tip", this.$route.query.tip);
+    this.myname = localStorage.getItem("name");
+    // 获取用户信息
+    this.$axios({
+      method: "post",
+      url: "api/user/detail",
+      data: {
+        id: this.$route.query.id,
+      },
+    }).then((res) => {
+      console.log(res.data);
+      this.user.name = res.data.name;
+      this.user.email = res.data.email;
+      this.user.img = res.data.imgurl;
+      if (res.data.sign === "编辑你的个人签名") {
+        this.user.intr = "无";
+      } else {
+        this.user.intr = res.data.sign;
+      }
+      this.user.sex = res.data.sex;
+    });
   },
   methods: {
     //返回上一页
@@ -103,6 +141,20 @@ export default {
       this.animation = !this.animation;
       console.log(this.animation);
     },
+    // 发送好友请求
+    sendRequest() {
+      this.$axios({
+        method: 'post',
+        url: 'api/friend/request',
+        data: {
+          userID: localStorage.getItem('id'), // 自己的id
+          friendID: this.$route.query.id, // 好友的id
+          state: '1', // 发送请求
+        }
+      }).then((res) => {
+        console.log(res.data);
+      })
+    }
   },
 };
 </script>

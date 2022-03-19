@@ -6,7 +6,6 @@ module.exports = {
     },
   },
   lintOnSave: false, //关闭语法检查
-
   //开启代理服务器（方式一）
   // devServer: {//只能把请求转发给5000，不能发送给多个
   //   proxy: 'http://localhost:5000'//一会要把请求发给5000端口的服务器上

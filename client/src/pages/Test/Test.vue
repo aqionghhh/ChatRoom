@@ -124,6 +124,7 @@ export default {
 
     getRecordingData(e) {
       this.chunks.push(e.data);
+      console.log("getRecordingData", e.data);
     },
 
     saveRecordingData() {
@@ -132,7 +133,7 @@ export default {
         //估算时长
         duration = parseInt(blob.size / 6600);
       console.log("this.chunks", this.chunks);
-
+      console.log("blob", blob);
       if (duration <= 0) {
         alert("说话时间太短");
         return;

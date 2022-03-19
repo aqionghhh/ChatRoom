@@ -17,6 +17,9 @@
         @click="closeTap"
         :style="{ paddingBottom: mainHeight + 'px' }"
       >
+        <div class="loading">
+          <img src="../../static/images/chatroom/加载.png" alt="" />
+        </div>
         <!-- 聊天的内容分为两部分：一部分是事件，一部分是头像和内容 -->
         <div class="chat-cont" v-for="(item, index) in msgs" :key="index">
           <div class="chat-time" v-if="item.time != ''">
@@ -48,7 +51,7 @@
               <div
                 ref="time"
                 class="msg-text voice"
-                :style="{ width: item.message.time * 4 + 'px' }"
+                :style="{ width: item.message.time * 20 + 'px' }"
               >
                 <img
                   class="voice-img"
@@ -83,7 +86,7 @@
               <div
                 ref="time"
                 class="msg-text voice"
-                :style="{ width: item.message.time * 4 + 'px' }"
+                :style="{ width: item.message.time * 20 + 'px' }"
               >
                 <img
                   class="voice-img"
@@ -119,6 +122,7 @@ import Submit from "../../components/Submit/Submit";
 
 BScroll.use(MouseWheel);
 BScroll.use(PullDown);
+let audio = new Audio(); // 把变量放在外面可以防止同时播放多个音频
 
 export default {
   data() {
@@ -129,6 +133,7 @@ export default {
       a: [], // 获取聊天框的dom元素
       b: "", // 获取弹窗submit的高度
       mainHeight: "25", // 聊天内容需要往上调的高度
+      audio: {},
     };
   },
   components: {
@@ -164,6 +169,14 @@ export default {
     getMessage(name, type) {
       name = name.replace(/(&nbsp;)/g, " "); // 把$nbsp;转换成空格
       console.log("内容和类型", name, type);
+      let nowTime = new Date();
+      let t = myfun.spaceTime(this.oldTime, nowTime);
+      if (t) {
+        // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
+        this.oldTime = t;
+      }
+      nowTime = t;
+
       if (name.trim().length) {
         let len = this.msgs.length;
         let data = {
@@ -171,7 +184,7 @@ export default {
           imgurl: require("../../static/images/img/one.jpg"),
           message: name,
           types: type, // 内容类型（0文字，1图片链接，2音频链接
-          time: new Date(), // 发送时间
+          time: nowTime, // 发送时间
           tip: len, // 类似消息的id
         };
         this.msgs.push(data);
@@ -181,13 +194,19 @@ export default {
     getPhoto(img, type) {
       console.log("接收到的消息", img, type);
       let len = this.msgs.length;
-
+      let nowTime = new Date();
+      let t = myfun.spaceTime(this.oldTime, nowTime);
+      if (t) {
+        // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
+        this.oldTime = t;
+      }
+      nowTime = t;
       let data = {
         id: "b", // 用户id
         imgurl: require("../../static/images/img/one.jpg"),
         message: img,
         types: type, // 内容类型（0文字，1图片链接，2音频链接
-        time: new Date(), // 发送时间
+        time: nowTime, // 发送时间
         tip: len, // 类似消息的id
       };
       new Promise((resolve, reject) => {
@@ -199,7 +218,16 @@ export default {
     },
     // 接收音频文件
     getVoice(voice, type) {
-      console.log(voice);
+      console.log("接收来的blob", voice);
+      // 时间间隔
+      let nowTime = new Date();
+      let t = myfun.spaceTime(this.oldTime, nowTime);
+      if (t) {
+        // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
+        this.oldTime = t;
+      }
+      nowTime = t;
+
       let len = this.msgs.length;
       let data = {
         id: "b", // 用户id
@@ -209,11 +237,11 @@ export default {
           time: voice.time,
         },
         types: type, // 内容类型（0文字，1图片链接，2音频链接
-        time: new Date(), // 发送时间
+        time: nowTime, // 发送时间
         tip: len, // 类似消息的id
       };
+
       this.msgs.push(data);
-      // this.stream = voice.stream;
     },
     // 从数据库中获取聊天数据
     getMsg() {
@@ -236,9 +264,9 @@ export default {
     // 听语音
     listenVoice(e) {
       console.log("音频文件", e);
-      let audio = new Audio();
       audio.src = e;
       audio.play();
+      console.log("播放");
     },
     // 接收弹窗的高度
     getPoupHeight(height) {
@@ -319,6 +347,13 @@ export default {
 }
 .chat {
   overflow: hidden;
+}
+.loading {
+  text-align: center;
+}
+.loading img {
+  width: 30px;
+  height: 30px;
 }
 .chat-main {
   padding-left: 16px;

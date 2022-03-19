@@ -82,9 +82,9 @@ import Emoji from "../Emoji/Emoji";
 
 import { mapState } from "vuex";
 
-import Recorder from "recorder-js"; // 引入录音插件
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-const recorder = new Recorder(audioContext, {});
+// import Recorder from "recorder-js"; // 引入录音插件
+// const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// const recorder = new Recorder(audioContext, {});
 
 export default {
   data() {
@@ -98,6 +98,7 @@ export default {
       timer: "", // 定时器，用于记录按下鼠标到松开的时间
       i: 1, // 记录音频的秒数
       isRecording: false,
+      chunks: [], // 保存blob语音流相关数据
     };
   },
   components: {
@@ -117,6 +118,16 @@ export default {
         }
       },
     },
+  },
+  mounted() {
+    if (!navigator.mediaDevices) {
+      alert("您的浏览器不支持获取用户设备");
+      return;
+    }
+    if (!window.MediaRecorder) {
+      alert("您的浏览器不支持录音");
+      return;
+    }
   },
   methods: {
     // 当光标停留在输入框的时候，emoji弹窗总是关闭的
@@ -173,58 +184,65 @@ export default {
     // 开始录音
     voiceStart() {
       console.log("开始");
-      //记录时间
-      this.timer = setInterval(() => {
-        this.i += 1;
-        console.log(this.i);
-      }, 1000);
 
-      // 先获取浏览器的权限，再开始录音
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
-          this.stream = stream;
-          recorder.init(stream);
+          this.recorder = new window.MediaRecorder(stream);
+          // recorder.init(stream);
           // 录音
-          recorder.start().then(() => {
-            this.isRecording = true;
-            console.log("正在录音");
-          });
-          this.$toast({
+          this.recorder.start();
+          this.recorder.ondataavailable = this.getRecordingData;
+          console.log("正在录音");
+          this.$toast.loading({
             icon: "music-o",
             duration: 0, // 持续展示 toast
             forbidClick: true,
-            message: "正在录音",
+            message: `正在录音中...`,
           });
+
+          //记录时间
+          this.timer = setInterval(() => {
+            this.i += 1;
+            console.log(this.i);
+            if (this.i > 59) {
+              this.$toast.clear();
+              this.voiceEnd(); // 强制结束
+            }
+          }, 1000);
         })
         .catch((err) => console.log("Uh oh... unable to get stream...", err));
+    },
+    // 获取blob语音流
+    getRecordingData(e) {
+      this.chunks.push(e.data);
+      console.log("getRecordingData", e.data);
+      console.log("chunks", this.chunks);
+      let blob = new Blob(this.chunks, { type: "audio/ogg; codecs=opus" }); // 获取blob
+      let audioStream = URL.createObjectURL(blob); // 给blob一个url
+      console.log("audioStream", audioStream);
+      let data = {
+        blob: audioStream,
+        time: this.i,
+      };
+      this.$emit("sendVoice", data, 2);
+      this.$toast.clear(); // 清除弹窗
+      this.i = 1;
+      this.chunks = [];
     },
     // 结束录音
     voiceEnd() {
       console.log("结束");
-      clearInterval(this.timer);
+      clearInterval(this.timer); // 清除定时器
       console.log("一共有多少秒：", this.i);
       // 录音时间小于2s
       if (this.i < 2) {
         this.$toast.clear(); // 先清除一个toast
         this.$toast.fail("时间不能少于2秒");
-        recorder.stop();
+        this.recorder.stop();
       } else {
         // 结束录音
-        recorder.stop().then(({ blob, buffer }) => {
-          let audioBlob = URL.createObjectURL(blob); // 给blob一个url
-          console.log("转化前的blob", blob);
-          console.log("转化后的blob", audioBlob);
-
-          let data = {
-            blob: audioBlob,
-            time: this.i,
-          };
-
-          this.$emit("sendVoice", data, 2);
-          this.$toast.clear();
-          this.i = 1;
-        });
+        this.recorder.stop();
       }
     },
     // 点击删除按钮

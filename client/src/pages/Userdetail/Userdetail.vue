@@ -286,6 +286,7 @@ export default {
         this.dataarr.name = this.data;
         console.log("name", this.dataarr.name);
         this.$store.commit("setName", this.dataarr.name);
+        localStorage.setItem("name", this.data);
       } else {
         this.dataarr.sign = this.data;
         console.log("sign", this.dataarr.sign);
