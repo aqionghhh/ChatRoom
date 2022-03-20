@@ -12,7 +12,7 @@
       </div>
       <!-- 搜索和创建的图标 -->
       <div class="toop-bar-right">
-        <div class="add">
+        <div class="add" @click="create">
           <img src="../../static/images/index/add.png" alt="" />
         </div>
         <div class="search" @click="toSearch">
@@ -99,6 +99,10 @@ export default {
     //跳转到search页面
     toSearch() {
       this.$router.push("/search");
+    },
+    // 跳转到建群页面
+    create() {
+      this.$router.push('create');
     },
     // 判断信息tip是否大于99条
     tips() {

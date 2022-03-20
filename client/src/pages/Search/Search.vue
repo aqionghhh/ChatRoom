@@ -80,12 +80,12 @@ export default {
       this.$axios({
         method: "post",
         url: "api/user/search",
-        data: {
-          id: localStorage.getItem("id"), // 把自己的id返回回去
-        },
       }).then((res) => {
-        console.log(res.data);
-        arr = res.data;
+        arr = res.data.filter((item) => {
+          // 后端返回所有的数据，在这里进行过滤
+          return item._id !== localStorage.getItem("id"); // 返回id不等于自身的数组
+        });
+        console.log("arr", arr);
         let exp = eval("/" + e + "/g"); //封装在正则里面
         for (let i = 0; i < arr.length; i++) {
           console.log("找出来的所有用户1", arr[i]);
@@ -117,6 +117,8 @@ export default {
         },
       }).then((res) => {
         let arr = res.data;
+        console.log("好友", arr);
+
         for (let i = 0; i < arr.length; i++) {
           // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
           if (arr[i].frinedID == e._id) {

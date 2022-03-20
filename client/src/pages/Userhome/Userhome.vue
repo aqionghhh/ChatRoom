@@ -48,6 +48,7 @@
     <!-- 底部按钮 -->
     <div class="bottom-bar">
       <div @click="addFriendAnimate" class="bottom-btn">加为好友</div>
+      <!-- <div @click="senMessage" class="bottom-btn">发送消息</div> -->
     </div>
     <!-- 添加好友弹窗 -->
     <transition
@@ -144,17 +145,29 @@ export default {
     // 发送好友请求
     sendRequest() {
       this.$axios({
-        method: 'post',
-        url: 'api/friend/request',
+        method: "post",
+        url: "api/friend/request",
         data: {
-          userID: localStorage.getItem('id'), // 自己的id
+          userID: localStorage.getItem("id"), // 自己的id
           friendID: this.$route.query.id, // 好友的id
-          state: '1', // 发送请求
-        }
+          state: "1", // 发送请求
+        },
       }).then((res) => {
         console.log(res.data);
-      })
-    }
+        if (res.data.status === 501) {
+          this.$toast({
+            message: "别发那么多次！",
+            icon: require("../../static/images/Userhome/成功.jpg"),
+          });
+        } else {
+          this.$toast({
+            message: "发送成功",
+            icon: require("../../static/images/Userhome/成功.jpg"),
+          });
+        }
+        this.animation = false;
+      });
+    },
   },
 };
 </script>

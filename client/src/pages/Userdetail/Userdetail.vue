@@ -194,7 +194,7 @@ export default {
   methods: {
     // 打开图片上传
     uploadHeadImg() {
-      this.$refs.hidden.click(); // 点击图片，时机上点击的是input按钮
+      this.$refs.hidden.click(); // 点击图片，实际上点击的是input按钮
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
@@ -307,6 +307,7 @@ export default {
     logout() {
       localStorage.clear();
       this.$router.replace("/login");
+      localStorage.clear();
     },
   },
 };

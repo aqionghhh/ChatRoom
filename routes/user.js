@@ -26,20 +26,12 @@ module.exports = function (app) {
       })
     }),
 
-    // 搜索响应的用户
+    // 搜索所有的用户
     app.post('/user/search', (req, res) => {
-      console.log(req.body);
-      // 返回除了自身的所有数据
       User.find((err, data) => {
         console.log('查找用户', data);
-        for (let i = 0; i < data.length; i++) {
-          if (req.body.id == data[i]._id) {
-            data.pop(data[i]);
-          }
-        }
         res.send(data);
       })
-
     })
 }
 

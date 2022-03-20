@@ -11,6 +11,7 @@ import Cropper from '../pages/Cropper/Cropper';
 import FriendRequest from '../pages/FriendRequest/FriendRequest';
 import ChatRoom from '../pages/ChatRoom/ChatRoom';
 import Test from '../pages/Test/Test';
+import Create from '../pages/Create/Create';
 
 //声明使用插件
 Vue.use(VueRouter)
@@ -61,6 +62,10 @@ const router = new VueRouter({
     {
       path: '/chatroom',
       component: ChatRoom,
+    },
+    {
+      path: '/create',
+      component: Create,
     }
   ]
 });

@@ -17,8 +17,18 @@
         @click="closeTap"
         :style="{ paddingBottom: mainHeight + 'px' }"
       >
-        <div class="loading">
-          <img src="../../static/images/chatroom/加载.png" alt="" />
+        <div class="pulldown-wrapper">
+          <div v-show="beforePullDown">
+            <span>下拉刷新</span>
+          </div>
+          <div v-show="!beforePullDown">
+            <div v-show="isPullingDown">
+              <span>刷新中</span>
+            </div>
+            <div v-show="!isPullingDown">
+              <span>刷新成功</span>
+            </div>
+          </div>
         </div>
         <!-- 聊天的内容分为两部分：一部分是事件，一部分是头像和内容 -->
         <div class="chat-cont" v-for="(item, index) in msgs" :key="index">
@@ -133,7 +143,9 @@ export default {
       a: [], // 获取聊天框的dom元素
       b: "", // 获取弹窗submit的高度
       mainHeight: "25", // 聊天内容需要往上调的高度
-      audio: {},
+      beforePullDown: true,
+      isPullingDown: false,
+      nowPage: 0, // 记录当前的页码，初始值为0
     };
   },
   components: {
@@ -143,7 +155,7 @@ export default {
   created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
     this.getHeight(); //页面创建时调用
-    this.getMsg();
+    this.getMsg(this.nowPage); // 把页码传进去
   },
   mounted() {
     this.$nextTick(() => {
@@ -153,8 +165,13 @@ export default {
   },
   updated() {
     this.$nextTick(() => {
-      this.init();
-      this.scrollToBottom(); // 页面更新之后滚动到下方
+      // this.init();
+      this.scroll.refresh();
+
+      // dom更新时，只有当有弹窗的时候才会滚动到底部，否则下拉刷新也会导致滚动
+      if (this.mainHeight > 100) {
+        this.scrollToBottom(); // 页面更新之后滚动到下方
+      }
     });
   },
 
@@ -189,6 +206,11 @@ export default {
         };
         this.msgs.push(data);
       }
+
+      this.$nextTick(() => {
+        this.scroll.refresh();
+        this.scrollToBottom(); // 页面更新之后滚动到下方
+      });
     },
     // 接收图片
     getPhoto(img, type) {
@@ -211,8 +233,13 @@ export default {
       };
       new Promise((resolve, reject) => {
         this.msgs.push(data);
+        console.log(1111111);
       }).then((resolve) => {
         console.log("resolve", resolve);
+      });
+      this.$nextTick(() => {
+        this.scroll.refresh();
+        this.scrollToBottom(); // 页面更新之后滚动到下方
         this.$previewRefresh(); // 如果图片是异步生成的，需要在图片数据更新之后调用
       });
     },
@@ -242,13 +269,20 @@ export default {
       };
 
       this.msgs.push(data);
+
+      this.$nextTick(() => {
+        this.scroll.refresh();
+        this.scrollToBottom(); // 页面更新之后滚动到下方
+      });
     },
     // 从数据库中获取聊天数据
-    getMsg() {
+    getMsg(page) {
+      // 接收现在的页码，然后分段渲染聊天数据
       let msg = datas.message();
       // 处理数据：时间
-      for (let i = 0; i < msg.length; i++) {
-        if (i < msg.length - 1) {
+      // 一次渲染十条
+      for (let i = page * 10; i < (page + 1) * 10; i++) {
+        if (i < 9) {
           // 如果是最后一条数据（即最顶上的数据），就不进行匹配
           // 时间间隔
           let t = myfun.spaceTime(this.oldTime, msg[i].time);
@@ -260,6 +294,7 @@ export default {
         }
         this.msgs.unshift(msg[i]); // 倒序插入
       }
+      this.nowPage += 1;
     },
     // 听语音
     listenVoice(e) {
@@ -301,12 +336,18 @@ export default {
       // 这么做是为了防止内存泄漏
       if (!this.scroll) {
         this.scroll = new BScroll(this.$refs.scroll, {
-          click: true, // 不添加的话回合vue-photo-preview插件发生冲突
-          tap: true, // 不添加的话回合vue-photo-preview插件发生冲突
+          click: true, // 不添加的话会和vue-photo-preview插件发生冲突
+          tap: true, // 不添加的话会和vue-photo-preview插件发生冲突
           // probeType: 2, //因为惯性滑动不会触发
           scrollY: true,
           mouseWheel: true,
-          pullDownRefresh: true,
+
+          bounceTime: 800,
+          useTransition: false,
+          pullDownRefresh: {
+            threshold: 60, // 顶部的下拉距离
+            stop: 56,
+          },
           bounce: {
             top: true,
             bottom: false,
@@ -316,8 +357,42 @@ export default {
         // 如果存在的话，直接刷新
         this.scroll.refresh();
       }
+      // 触发时机：当顶部下拉的距离大于 threshold 值时，触发一次 pullingDown 钩子
+      this.scroll.on("pullingDown", this.pullingDownHandler);
 
       console.log("scroll", this.scroll.scrollerHeight);
+    },
+
+    // 当下拉距离大于60时，执行该函数
+    pullingDownHandler() {
+      console.log("下拉刷新");
+      this.beforePullDown = false;
+      this.isPullingDown = true;
+
+      setTimeout(() => {
+        this.requestData(); // 请求数据
+
+        this.isPullingDown = false;
+        this.finishPullDown();
+      }, 1000);
+    },
+
+    // 请求数据
+    requestData() {
+      // 在这里面发送请求
+      this.getMsg(this.nowPage);
+      setTimeout(() => {
+        console.log("刷新中");
+      }, 1000);
+    },
+
+    // 完成刷新
+    async finishPullDown() {
+      this.scroll.finishPullDown();
+      setTimeout(() => {
+        this.beforePullDown = true;
+        this.scroll.refresh();
+      }, 900);
     },
   },
 };
@@ -348,12 +423,14 @@ export default {
 .chat {
   overflow: hidden;
 }
-.loading {
+.pulldown-wrapper {
+  position: absolute;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  transform: translateY(-100%) translateZ(0);
   text-align: center;
-}
-.loading img {
-  width: 30px;
-  height: 30px;
+  color: #999;
 }
 .chat-main {
   padding-left: 16px;

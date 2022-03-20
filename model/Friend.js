@@ -9,7 +9,7 @@ const FriendSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  frinedID: {//好友id
+  friendID: {//好友id
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
