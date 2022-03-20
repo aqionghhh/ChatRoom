@@ -34,11 +34,11 @@
               <div class="name" v-html="user.name"></div>
               <div class="email" v-html="user.email"></div>
             </div>
-          </router-link>
 
-          <!-- 右边是进行的操作 -->
-          <div class="right-btn adds" v-if="user.tip == 0">加好友</div>
-          <div class="right-btn send" v-if="user.tip == 1">发消息</div>
+            <!-- 右边是进行的操作 -->
+            <div class="right-btn adds" v-if="user.tip === 0">加好友</div>
+            <div class="right-btn send" v-if="user.tip === 1">发消息</div>
+          </router-link>
         </div>
       </div>
     </div>
@@ -102,6 +102,7 @@ export default {
             this.userarr.push(arr[i]);
           }
         }
+        console.log("this.userarr", this.userarr);
       });
 
       // console.log(this.userarr);
@@ -118,18 +119,23 @@ export default {
       }).then((res) => {
         let arr = res.data;
         console.log("好友", arr);
+        console.log("e", e);
 
         for (let i = 0; i < arr.length; i++) {
+          console.log(arr[i].friendID);
+          console.log(e._id);
           // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
-          if (arr[i].frinedID == e._id) {
+          if (arr[i].friendID === e._id) {
             //好友表中friend的id与搜索出来的用户id相同，则认为是好友关系
-            tip = 1; //是好友关系
+            console.log("到这了");
+            // tip = 1; //是好友关系  注：这样加属性没有响应式
+            this.$set(e, "tip", 1); // 这样加才有响应式
+          } else {
+            this.$set(e, "tip", 0);
           }
         }
-        console.log(arr);
+        // e.tip = tip; //存入搜索出来的数组中
       });
-
-      e.tip = tip; //存入搜索出来的数组中
     },
     //返回上一页
     back() {

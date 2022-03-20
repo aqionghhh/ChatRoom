@@ -5,8 +5,7 @@ module.exports = function (app) {
   // 查询好友相关
   app.post('/friend/search', (req, res) => {
     console.log('frined', req.body);
-
-    Friend.find({ _id: req.body.id }, (err, data) => {
+    Friend.find({ userID: req.body.id }, (err, data) => {
       console.log(data);
       res.send(data);
     })

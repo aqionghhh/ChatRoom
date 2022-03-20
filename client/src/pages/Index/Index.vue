@@ -24,7 +24,7 @@
     <!-- 消息列表 -->
     <div class="main">
       <div class="friends">
-        <div class="friend-list">
+        <div @click="toFriendRequest" class="friend-list">
           <!-- 左边部分,即头像 -->
           <div class="friend-list-l">
             <span class="tip">1</span>
@@ -102,7 +102,7 @@ export default {
     },
     // 跳转到建群页面
     create() {
-      this.$router.push('create');
+      this.$router.push("create");
     },
     // 判断信息tip是否大于99条
     tips() {
@@ -114,6 +114,10 @@ export default {
     },
     toChatRoom() {
       this.$router.push("/chatroom");
+    },
+    // 去好友申请列表
+    toFriendRequest() {
+      this.$router.push("friendrequest");
     },
   },
 };

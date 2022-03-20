@@ -47,8 +47,12 @@
     </div>
     <!-- 底部按钮 -->
     <div class="bottom-bar">
-      <div @click="addFriendAnimate" class="bottom-btn">加为好友</div>
-      <!-- <div @click="senMessage" class="bottom-btn">发送消息</div> -->
+      <div v-if="tip === '0'" @click="addFriendAnimate" class="bottom-btn">
+        加为好友
+      </div>
+      <div v-else-if="tip === '1'" @click="sendMessage" class="bottom-btn">
+        发送消息
+      </div>
     </div>
     <!-- 添加好友弹窗 -->
     <transition
@@ -99,6 +103,7 @@ export default {
       },
       height: 0,
       animation: false, //添加好友弹窗
+      tip: "", // 根据传进来的tip判断当前用户是否为好友，1为好友，0为陌生人
     };
   },
   created() {
@@ -106,6 +111,7 @@ export default {
     this.getHeight(); //页面创建时调用
     console.log("传过来的id", this.$route.query.id);
     console.log("传过来的tip", this.$route.query.tip);
+    this.tip = this.$route.query.tip; // 传进来的是字符串
     this.myname = localStorage.getItem("name");
     // 获取用户信息
     this.$axios({
@@ -167,6 +173,10 @@ export default {
         }
         this.animation = false;
       });
+    },
+    // 给好友发送消息
+    sendMessage() {
+      this.$router.replace("/chatroom");
     },
   },
 };

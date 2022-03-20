@@ -69,76 +69,43 @@ export default {
   data() {
     return {
       groupImg: require("../../static/images/Userhome/成功.jpg"), // 群头像
-      user: [
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "xxx", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "xx", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "xx", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "xx", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "xx", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "xx", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊", // 用户名
-        },
-        {
-          selected: false, // 是否选择该用户
-          imgurl: require("../../static/images/img/one.jpg"), // 用户头像
-          name: "xx", // 用户名
-        },
-      ],
+      user: [],
       number: 1, // 选择的成员数，默认值为1，因为包括了自己
       groupName: "", // 群名
     };
+  },
+  created() {
+    // 获取好友列表
+    this.$axios({
+      method: "post",
+      url: "api/friend/search",
+      data: {
+        id: localStorage.getItem("id"),
+      },
+    }).then((res) => {
+      console.log("获取到的好友列表", res.data);
+      let userarr = res.data.filter((item) => {
+        return item.state === "0";
+      });
+      console.log("临时变量user数组", userarr); // 这里面是自己的好友
+
+      // 返回所有的用户，再从所有的用户中筛选出有friendID的用户
+      this.$axios({
+        method: "post",
+        url: "api/user/search",
+      }).then((res) => {
+        console.log(res.data);
+        for (let i = 0; i < userarr.length; i++) {
+          for (let j = 0; j < res.data.length; j++) {
+            if (userarr[i].friendID === res.data[j]._id) {
+              this.user.push(res.data[j]);
+              this.$set(this.user[i], "selected", false);
+            }
+          }
+        }
+        console.log("处理完的数据", this.user);
+      });
+    });
   },
   methods: {
     // 返回首页
@@ -174,6 +141,8 @@ export default {
           icon: require("../../static/images/Userhome/成功.jpg"),
         });
         // 在这里发送请求
+        let groupname = this.groupName.trim();
+        console.log(groupname);
       }
     },
   },
