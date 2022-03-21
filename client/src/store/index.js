@@ -14,6 +14,7 @@ const store = new Vuex.Store({
     birth: '',
     email: '',
     canTap: false, // 弹窗是否展示，false就是不展示，true就是可以展示
+    isBlur: true,   // 输入框是否失焦，默认是不失焦
   },
   mutations: { // 增加nutations属性
     setInfo(state, back) {  // 增加一个mutations的方法，方法的作用是让num从0变成5，state是必须默认参数
@@ -47,6 +48,9 @@ const store = new Vuex.Store({
     },
     changeTap(state) {  // 弹窗是否展示
       state.canTap = !state.canTap;
+    },
+    changeBlur(state) {  // 输入框是否失焦
+      state.isBlur = !state.isBlur;
     }
   },
 })

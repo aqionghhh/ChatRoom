@@ -23,7 +23,7 @@
           </div>
           <div v-show="!beforePullDown">
             <div v-show="isPullingDown">
-              <span>刷新中</span>
+              <span>刷新中...</span>
             </div>
             <div v-show="!isPullingDown">
               <span>刷新成功</span>
@@ -111,7 +111,6 @@
       </div>
     </div>
     <Submit
-      canTap="false"
       class="submit"
       @sendMsg="getMessage"
       @Height="getPoupHeight"
@@ -181,6 +180,8 @@ export default {
       if (this.mainHeight > 100) {
         this.$store.commit("changeTap");
       }
+      // 只要点击了外面的部分，就会失焦
+      this.$store.commit('changeBlur'); 
     },
     // 接收文本内容
     getMessage(name, type) {

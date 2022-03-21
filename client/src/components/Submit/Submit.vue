@@ -56,22 +56,6 @@
           <img src="../../static/images/submit/文件.png" alt="" />
           <div class="more-list-title">文件</div>
         </div>
-        <div class="more-list">
-          <img src="../../static/images/submit/图片.png" alt="" />
-          <div class="more-list-title">图片</div>
-        </div>
-        <div class="more-list">
-          <img src="../../static/images/submit/文件.png" alt="" />
-          <div class="more-list-title">文件</div>
-        </div>
-        <div class="more-list">
-          <img src="../../static/images/submit/图片.png" alt="" />
-          <div class="more-list-title">图片</div>
-        </div>
-        <div class="more-list">
-          <img src="../../static/images/submit/文件.png" alt="" />
-          <div class="more-list-title">文件</div>
-        </div>
       </div>
     </div>
   </div>
@@ -105,7 +89,7 @@ export default {
     Emoji,
   },
   computed: {
-    ...mapState(["canTap"]),
+    ...mapState(["canTap", "isBlur"]),
   },
   watch: {
     canTap: {
@@ -116,6 +100,11 @@ export default {
         if (this.moreBtn) {
           this.more();
         }
+      },
+    },
+    isBlur: {
+      handler() {
+        this.$refs.content.blur();
       },
     },
   },
