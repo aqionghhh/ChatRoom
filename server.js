@@ -5,11 +5,13 @@ const bodyParser = require('body-parser');//引入body-parser用来解析req.bod
 //解析前端数据
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json({ limit: '10mb' })); // 最大为5mb
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
 
 require('./routes/index')(app);//引入index.js//后面的括号是要传过去的东西
 require('./routes/user')(app);//引入index.js//后面的括号是要传过去的东西
 require('./routes/friend')(app);//引入index.js//后面的括号是要传过去的东西
-
 
 
 //配置404页面

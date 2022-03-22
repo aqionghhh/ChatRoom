@@ -198,23 +198,30 @@ export default {
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
-      let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
-      console.log("blob", url);
-      this.dataarr.imgurl = url;
-      this.$axios({
-        method: "post",
-        data: {
-          arr: this.dataarr,
-        },
-        url: "api/user/update",
-      })
-        .then(() => {
-          localStorage.setItem("imgurl", this.dataarr.imgurl);
-          console.log("local", this.dataarr.imgurl);
+      // console.log("e", e.srcElement.files.item(0)); // 图片文件
+      // let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
+      // console.log("blob", url);
+      // this.dataarr.imgurl = url;
+      let reader = new FileReader();
+      reader.readAsDataURL(e.srcElement.files.item(0));
+      reader.onload = () => {
+        console.log(reader.result);
+        this.dataarr.imgurl = reader.result;
+        this.$axios({
+          method: "post",
+          data: {
+            arr: this.dataarr,
+          },
+          url: "api/user/update",
         })
-        .catch(() => {
-          console.log("error");
-        });
+          .then(() => {
+            localStorage.setItem("imgurl", this.dataarr.imgurl);
+            // console.log("local", this.dataarr.imgurl);
+          })
+          .catch(() => {
+            console.log("error");
+          });
+      };
     },
     back() {
       this.$router.back();

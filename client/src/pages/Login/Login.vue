@@ -82,6 +82,7 @@ export default {
               localStorage.setItem("token", this.token);
               localStorage.setItem("id", res.data.back.id);
               localStorage.setItem("name", res.data.back.name);
+              localStorage.setItem("imgurl", res.data.back.imgurl);
               console.log(this.$store.state);
               // 把用户信息存到vuex中
               this.$store.commit("setInfo", res.data.back);

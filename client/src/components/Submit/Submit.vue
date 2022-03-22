@@ -18,8 +18,8 @@
         <div
           class="record btn"
           v-show="record"
-          @touchstart="voiceStart"
-          @touchend="voiceEnd"
+          @touchstart.prevent="voiceStart"
+          @touchend.prevent="voiceEnd"
         >
           按住说话
         </div>

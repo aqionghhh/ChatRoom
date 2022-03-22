@@ -83,7 +83,7 @@ export default {
   },
   computed: {
     getImg() {
-      return this.$store.state.imgUrl;
+      return localStorage.getItem("imgurl");
     },
   },
   methods: {
