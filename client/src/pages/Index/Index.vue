@@ -77,9 +77,28 @@ export default {
       img: "",
     };
   },
+  // 注册socket
+  sockets: {
+    connet() {
+      console.log("连接成功");
+    },
+    disconnect() {
+      console.log("断开链接");
+    }, //检测socket断开链接
+    reconnect() {
+      console.log("重新链接");
+    },
+    //客户端接收后台传输的socket事件
+    // 方法名要和后端emit来的名字一样才能接收
+    msg(msg) {
+      console.log("后端传来的数据", msg); //接收的消息
+    },
+  },
   mounted() {
     this.getFriends();
     this.tips();
+    // 往服务端发送自己的id
+    this.$socket.emit("register", localStorage.getItem("id"));
   },
   computed: {
     getImg() {

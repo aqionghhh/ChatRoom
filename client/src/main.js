@@ -37,9 +37,13 @@ import 'vue-photo-preview/dist/skin.css'
 
 Vue.use(preview, option)
 
-//引入vue-cropper
-import VueCropper from 'vue-cropper';
-Vue.use(VueCropper);
+// 引入Vue.socket.io
+import VueSocketIO from 'vue-socket.io'
+Vue.use(new VueSocketIO({
+  debug: true,
+  connection: 'http://localhost:8081',
+}))
+
 //引入axios
 import axios from 'axios';
 Vue.prototype.$axios = axios
