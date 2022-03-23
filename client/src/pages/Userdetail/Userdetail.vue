@@ -150,7 +150,6 @@ export default {
       animation: false, //弹窗是否显示
       data: "修改的内容", //弹窗的内容
       modifyTitle: "", //弹窗的标题
-      imgurl: require("../../static/images/img/two.jpg"),
       projectListArr: ["男", "女", "未知"], //下拉的数据源，从接口中请求到数据，根据需要变成一维数组，只存name
       showPicker: false, //弹出层显示隐藏
       //日期选择器
@@ -198,7 +197,7 @@ export default {
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
-      // console.log("e", e.srcElement.files.item(0)); // 图片文件
+      console.log("e", e.srcElement.files.item(0)); // 图片文件
       // let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
       // console.log("blob", url);
       // this.dataarr.imgurl = url;
@@ -206,7 +205,19 @@ export default {
       reader.readAsDataURL(e.srcElement.files.item(0));
       reader.onload = () => {
         console.log(reader.result);
+        console.log(this.dataarr.imgurl);
         this.dataarr.imgurl = reader.result;
+        // console.log("this.imgurl", this.imgurl);
+        // let formData = new FormData();
+        // formData.append("file", this.dataarr.imgurl);
+        // formData.append("name", this.dataarr.name);
+        // formData.append("sign", this.dataarr.sign);
+        // formData.append("time", this.dataarr.time);
+        // formData.append("sex", this.dataarr.sex);
+        // formData.append("pwd", this.dataarr.pwd);
+        // formData.append("birthday", this.dataarr.birthday);
+        // console.log("formData", formData);
+
         this.$axios({
           method: "post",
           data: {
@@ -214,7 +225,8 @@ export default {
           },
           url: "api/user/update",
         })
-          .then(() => {
+          .then((res) => {
+            console.log("res.data", res.data);
             localStorage.setItem("imgurl", this.dataarr.imgurl);
             // console.log("local", this.dataarr.imgurl);
           })

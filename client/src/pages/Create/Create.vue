@@ -97,7 +97,16 @@ export default {
         console.log(res.data);
         for (let i = 0; i < userarr.length; i++) {
           for (let j = 0; j < res.data.length; j++) {
-            if (userarr[i].friendID === res.data[j]._id) {
+            if (
+              userarr[i].friendID === res.data[j]._id &&
+              userarr[i].friendID !== localStorage.getItem("id")
+            ) {
+              this.user.push(res.data[j]);
+              this.$set(this.user[i], "selected", false);
+            } else if (
+              userarr[i].userID === res.data[j]._id &&
+              userarr[i].userID !== localStorage.getItem("id")
+            ) {
               this.user.push(res.data[j]);
               this.$set(this.user[i], "selected", false);
             }

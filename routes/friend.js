@@ -5,9 +5,10 @@ module.exports = function (app) {
   // 查询好友相关
   app.post('/friend/search', (req, res) => {
     console.log('frined', req.body);
-    Friend.find({ userID: req.body.id }, (err, data) => {
-      console.log(data);
-      res.send(data);
+    // 查询跟本人相关的id
+    Friend.find({ $or: [{ 'userID': req.body.id }, { 'friendID': req.body.id }] }).then(result => {
+      console.log('以本人为user时查询的数据', result);
+      res.send(result);
     })
   }),
 
@@ -26,6 +27,12 @@ module.exports = function (app) {
             })
           }
         })
+    })
 
+    // 同意加为好友
+    app.post('/friend/agree', (req,res) => {
+      console.log('同意请求', req.body);
+
+      Friend.find()
     })
 }

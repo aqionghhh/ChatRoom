@@ -27,12 +27,16 @@ const UserSchema = new Schema({
   },
   imgurl: {//头像链接
     type: String,
-    default: 'E:\program\Chat\client\src\static\images\img\one.jpg'//给一张默认头像
+    // default: 'E:\program\Chat\client\src\static\images\img\one.jpg'//给一张默认头像
   },
   time: {//注册时间
     type: Date,
     // default: new Date()
   },
+  // originalname: { // 头像图片的格式
+  //   type: String,
+  //   default: 'image/jpeg'
+  // }
 });
 
 module.exports = db.model('User', UserSchema);//暴露用户表

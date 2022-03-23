@@ -53,10 +53,23 @@ export default {
       width: 0,
       userarr: [],
       find: "", // 用户在input框中要搜索的东西
+      friendarr: [], // 获取到跟本人id相关的好友列表
     };
   },
   created() {
     this.getWidth(); //页面创建时调用
+  },
+  mounted() {
+    this.$axios({
+      method: "post",
+      url: "api/friend/search",
+      data: {
+        id: localStorage.getItem("id"), // 把自己的id返回回去
+      },
+    }).then((res) => {
+      this.friendarr = res.data;
+      console.log("本人的好友列表", this.friendarr);
+    });
   },
   methods: {
     //动态获取元素的宽度
@@ -85,10 +98,11 @@ export default {
           // 后端返回所有的数据，在这里进行过滤
           return item._id !== localStorage.getItem("id"); // 返回id不等于自身的数组
         });
-        console.log("arr", arr);
+        console.log("arr", arr); // 除了自己的所有用户
         let exp = eval("/" + e + "/g"); //封装在正则里面
         for (let i = 0; i < arr.length; i++) {
-          console.log("找出来的所有用户1", arr[i]);
+          console.log("找出来的用户" + i, arr[i]);
+          this.$set(arr[i], "tip", 0); // 默认找出来的都不是好友
           if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
             this.isFriend(arr[i]);
             arr[i].name = arr[i].name.replace(
@@ -110,32 +124,26 @@ export default {
     //判断是否为为好友
     isFriend(e) {
       let tip = 0; //先默认搜索出来的每个人都不是好友(0不是好友,1是好友)
-      this.$axios({
-        method: "post",
-        url: "api/friend/search",
-        data: {
-          id: localStorage.getItem("id"), // 把自己的id返回回去
-        },
-      }).then((res) => {
-        let arr = res.data;
-        console.log("好友", arr);
-        console.log("e", e);
 
-        for (let i = 0; i < arr.length; i++) {
-          console.log(arr[i].friendID);
-          console.log(e._id);
-          // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
-          if (arr[i].friendID === e._id) {
-            //好友表中friend的id与搜索出来的用户id相同，则认为是好友关系
-            console.log("到这了");
-            // tip = 1; //是好友关系  注：这样加属性没有响应式
-            this.$set(e, "tip", 1); // 这样加才有响应式
-          } else {
-            this.$set(e, "tip", 0);
-          }
+      console.log("好友", this.friendarr);
+      console.log("e", e); // 这的e是除了自己的所有的用户
+
+      for (let i = 0; i < this.friendarr.length; i++) {
+        console.log(e._id);
+        console.log("this.friendarr[i].friendID", this.friendarr[i].friendID);
+        console.log("this.friendarr[i].userID", this.friendarr[i].userID);
+        // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
+        if (
+          this.friendarr[i].friendID === e._id ||
+          this.friendarr[i].userID === e._id
+        ) {
+          //好友表中的id与搜索出来的用户id相同，则认为是好友关系
+          console.log("到这了");
+          // tip = 1; //是好友关系  注：这样加属性没有响应式
+          this.$set(e, "tip", 1); // 这样加才有响应式
         }
-        // e.tip = tip; //存入搜索出来的数组中
-      });
+      }
+      // e.tip = tip; //存入搜索出来的数组中
     },
     //返回上一页
     back() {
