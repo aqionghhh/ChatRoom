@@ -1,6 +1,7 @@
 const express = require('express');//引入express
 const app = express();//实例化app
 const bodyParser = require('body-parser');//引入body-parser用来解析req.body
+const path = require('path');
 
 //解析前端数据
 app.use(bodyParser.json());
@@ -8,6 +9,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json({ limit: '10mb' })); // 最大为5mb
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
+// 将静态文件目录设置为：项目根目录+/public
+// 获取静态路径
+app.use(express.static(path.join(__dirname, 'uploads')));
 
 require('./routes/index')(app);//引入index.js//后面的括号是要传过去的东西
 require('./routes/user')(app);//引入index.js//后面的括号是要传过去的东西

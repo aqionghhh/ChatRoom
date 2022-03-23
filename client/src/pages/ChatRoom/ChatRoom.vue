@@ -145,6 +145,8 @@ export default {
       beforePullDown: true,
       isPullingDown: false,
       nowPage: 0, // 记录当前的页码，初始值为0
+      type: 0, // 判断是私聊还是群聊，私聊是0，群聊是1
+      friendID: "6235f67219a8d49ef56a49a3", // 先写死一个friendID
     };
   },
   components: {
@@ -181,7 +183,7 @@ export default {
         this.$store.commit("changeTap");
       }
       // 只要点击了外面的部分，就会失焦
-      this.$store.commit('changeBlur'); 
+      this.$store.commit("changeBlur");
     },
     // 接收文本内容
     getMessage(name, type) {
@@ -206,8 +208,8 @@ export default {
           tip: len, // 类似消息的id
         };
         this.msgs.push(data);
+        this.sendSocket(data);
       }
-
       this.$nextTick(() => {
         this.scroll.refresh();
         this.scrollToBottom(); // 页面更新之后滚动到下方
@@ -275,6 +277,25 @@ export default {
         this.scroll.refresh();
         this.scrollToBottom(); // 页面更新之后滚动到下方
       });
+    },
+
+    // socket提交 发送给后端
+    sendSocket(e) {
+      // 接收聊天信息
+      // 判断这是私聊还是群聊
+      if (this.type === 0) {
+        // 私聊
+        console.log("aaa");
+        this.$socket.emit("msg", e, localStorage.getItem("id"), this.friendID); // 事件、消息的内容、发送方、接收方
+      } else {
+        // 群聊
+        this.$socket.emit(
+          "groupMsg",
+          e,
+          localStorage.getItem("id"),
+          this.groupID
+        ); // 事件、消息的内容、发送方、接收方
+      }
     },
     // 从数据库中获取聊天数据
     getMsg(page) {

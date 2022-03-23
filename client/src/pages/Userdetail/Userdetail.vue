@@ -186,7 +186,10 @@ export default {
       this.dataarr.name = res.data.name;
       this.dataarr.pwd = res.data.pwd;
       this.dataarr.time = res.data.time;
-      this.dataarr.imgurl = res.data.imgurl;
+      // this.dataarr.imgurl = res.data.imgurl;
+      res.data.imgurl = "userImg/" + res.data.imgurl;
+      this.dataarr.imgurl = "http://localhost:8080/api/" + res.data.imgurl;
+      console.log(this.dataarr.imgurl);
       this.$store.commit("setInfo", res.data);
     });
   },
@@ -194,6 +197,7 @@ export default {
     // 打开图片上传
     uploadHeadImg() {
       this.$refs.hidden.click(); // 点击图片，实际上点击的是input按钮
+      console.log("input");
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
@@ -208,27 +212,32 @@ export default {
         console.log(this.dataarr.imgurl);
         this.dataarr.imgurl = reader.result;
         // console.log("this.imgurl", this.imgurl);
-        // let formData = new FormData();
-        // formData.append("file", this.dataarr.imgurl);
-        // formData.append("name", this.dataarr.name);
-        // formData.append("sign", this.dataarr.sign);
-        // formData.append("time", this.dataarr.time);
-        // formData.append("sex", this.dataarr.sex);
-        // formData.append("pwd", this.dataarr.pwd);
-        // formData.append("birthday", this.dataarr.birthday);
-        // console.log("formData", formData);
 
+        let formData = new FormData();
+        formData.append("file", e.srcElement.files.item(0));
+        formData.append("name", this.dataarr.name);
+        formData.append("sign", this.dataarr.sign);
+        formData.append("time", this.dataarr.time);
+        formData.append("sex", this.dataarr.sex);
+        formData.append("pwd", this.dataarr.pwd);
+        formData.append("birthday", this.dataarr.birthday);
+        console.log("formData", formData);
         this.$axios({
           method: "post",
-          data: {
-            arr: this.dataarr,
-          },
+          // data: {
+          //   arr: this.dataarr,
+          // },
+          data: formData,
           url: "api/user/update",
         })
           .then((res) => {
             console.log("res.data", res.data);
             localStorage.setItem("imgurl", this.dataarr.imgurl);
             // console.log("local", this.dataarr.imgurl);
+            res.data.imgurl = "userImg/" + res.data.imgurl;
+            this.dataarr.imgurl =
+              "http://localhost:8080/api/" + res.data.imgurl; // 因为做了代理，不要忘记加上/api！
+            console.log("this.dataarr.imgurl", this.dataarr.imgurl);
           })
           .catch(() => {
             console.log("error");
