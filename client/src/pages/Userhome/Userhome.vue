@@ -50,9 +50,14 @@
       <div v-if="tip === '0'" @click="addFriendAnimate" class="bottom-btn">
         加为好友
       </div>
-      <div v-else-if="tip === '1'" @click="sendMessage" class="bottom-btn">
-        发送消息
-      </div>
+      <router-link
+        :to="{
+          path: '/chatroom',
+          query: { id: friendID, name: user.name },
+        }"
+      >
+        <div v-if="tip === '1'" class="bottom-btn">发送消息</div>
+      </router-link>
     </div>
     <!-- 添加好友弹窗 -->
     <transition
@@ -175,11 +180,6 @@ export default {
         }
         this.animation = false;
       });
-    },
-    // 给好友发送消息
-    sendMessage() {
-      this.$router.replace("/chatroom");
-      this.$bus.$emit("friendID", this.friendID);
     },
   },
 };

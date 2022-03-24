@@ -97,6 +97,8 @@ export default {
         console.log(res.data);
         for (let i = 0; i < userarr.length; i++) {
           for (let j = 0; j < res.data.length; j++) {
+            res.data[j].imgurl =
+              "http://localhost:8080/api/userImg/" + res.data[j].imgurl;
             if (
               userarr[i].friendID === res.data[j]._id &&
               userarr[i].friendID !== localStorage.getItem("id")

@@ -46,21 +46,28 @@
           v-for="(friend, index) in friends"
           :key="index"
         >
-          <!-- 左边部分,即头像 -->
-          <div class="friend-list-l">
-            <span class="tip" v-if="friend.tip">{{ friend.tip }}</span>
-            <img :src="friend.imgurl" alt="" />
-          </div>
-          <!-- 右边部分 -->
-          <div class="friend-list-r" @click="toChatRoom">
-            <div class="top">
-              <div class="name">{{ friend.name }}</div>
-              <div class="time">{{ changeTime(friend.time) }}</div>
+          <router-link
+            :to="{
+              path: '/chatroom',
+              query: { id: friend._id, name: friend.name },
+            }"
+          >
+            <!-- 左边部分,即头像 -->
+            <div class="friend-list-l">
+              <span class="tip" v-if="friend.tip">{{ friend.tip }}</span>
+              <img :src="friend.imgurl" alt="" />
             </div>
-            <div class="message">
-              {{ friend.message }}
+            <!-- 右边部分 -->
+            <div class="friend-list-r">
+              <div class="top">
+                <div class="name">{{ friend.name }}</div>
+                <div class="time">{{ changeTime(friend.time) }}</div>
+              </div>
+              <div class="message">
+                {{ friend.message }}
+              </div>
             </div>
-          </div>
+          </router-link>
         </div>
       </div>
     </div>
@@ -68,7 +75,7 @@
 </template>
 
 <script>
-import datas from "../../commons/js/datas.js";
+// import datas from "../../commons/js/datas.js";
 import myfun from "../../commons/js/myfun.js";
 export default {
   data() {
@@ -95,8 +102,49 @@ export default {
       console.log("后端传来的数据", msg); //接收的消息
     },
   },
+  created() {
+    this.$axios({
+      method: "post",
+      url: "api/friend/search",
+      data: {
+        id: localStorage.getItem("id"),
+      },
+    }).then((res) => {
+      console.log("获取到的好友列表", res.data);
+      let userarr = res.data.filter((item) => {
+        return item.state === "0";
+      });
+      console.log("临时变量user数组", userarr); // 这里面是自己的好友
+
+      // 返回所有的用户，再从所有的用户中筛选出有friendID的用户
+      this.$axios({
+        method: "post",
+        url: "api/user/search",
+      }).then((res) => {
+        console.log(res.data);
+        for (let i = 0; i < userarr.length; i++) {
+          for (let j = 0; j < res.data.length; j++) {
+            res.data[j].imgurl =
+              "http://localhost:8080/api/userImg/" + res.data[j].imgurl;
+            if (
+              userarr[i].friendID === res.data[j]._id &&
+              userarr[i].friendID !== localStorage.getItem("id")
+            ) {
+              this.friends.push(res.data[j]);
+            } else if (
+              userarr[i].userID === res.data[j]._id &&
+              userarr[i].userID !== localStorage.getItem("id")
+            ) {
+              this.friends.push(res.data[j]);
+            }
+          }
+        }
+        console.log("处理完的数据", this.friends);
+      });
+    });
+  },
   mounted() {
-    this.getFriends();
+    // this.getFriends();
     this.tips();
     // 往服务端发送自己的id
     this.$socket.emit("register", localStorage.getItem("id"));
@@ -108,10 +156,10 @@ export default {
       return myfun.dateTime(date);
     },
     //获取好友列表数据
-    getFriends() {
-      this.friends = datas.friends();
-      // console.log(this.friends);
-    },
+    // getFriends() {
+    //   this.friends = datas.friends();
+    //   // console.log(this.friends);
+    // },
     //跳转到search页面
     toSearch() {
       this.$router.push("/search");
@@ -128,9 +176,7 @@ export default {
         }
       }
     },
-    toChatRoom() {
-      this.$router.push("/chatroom");
-    },
+
     // 去好友申请列表
     toFriendRequest() {
       this.$router.push("friendrequest");

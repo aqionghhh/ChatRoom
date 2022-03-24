@@ -5,8 +5,8 @@
       <div class="top-left" @click="goback">
         <img src="../../static/images/Userhome/左箭头.png" alt="" />
       </div>
-      <div class="top-bar-center">昵称</div>
-      <div class="top-bar-right">
+      <div class="top-bar-center">{{ friendName }}</div>
+      <div class="top-bar-right" v-if="type === 1">
         <img src="../../static/images/img/one.jpg" alt="" />
       </div>
     </div>
@@ -148,6 +148,7 @@ export default {
       type: 0, // 判断是私聊还是群聊，私聊是0，群聊是1
       userID: "", // 本人的id
       friendID: "",
+      friendName: "", // 要对话的人的名字
     };
   },
   components: {
@@ -159,27 +160,35 @@ export default {
     this.getHeight(); //页面创建时调用
     this.getMsg(this.nowPage); // 把页码传进去
     this.userID = localStorage.getItem("id");
-    this.$bus.$on("friendID", (data) => {
-      // 往vm的$bus上绑定事件hello
-      console.log("收到了friendID", data);
-      this.friendID = data;
-      localStorage.setItem("friendID", data);
-    });
+    this.friendID = this.$route.query.id;
+    this.friendName = this.$route.query.name;
+
+    // this.$bus.$on("friendID", (data, name) => {
+    //   // 往vm的$bus上绑定事件hello
+    //   console.log("收到了friendID", data, name);
+    //   this.friendID = data;
+    //   this.friendName = name;
+    //   localStorage.setItem("friendID", data);
+    //   localStorage.setItem("friendName", name);
+    // });
   },
   watch: {
     userID: {
       immediate: true,
       handler() {
-        console.log(111111);
-
         this.userID = localStorage.getItem("id");
       },
     },
     friendID: {
       immediate: true,
       handler() {
-        console.log(111111);
         this.friendID = localStorage.getItem("friendID");
+      },
+    },
+    friendName: {
+      immediate: true,
+      handler() {
+        this.friendName = localStorage.getItem("friendName");
       },
     },
   },
