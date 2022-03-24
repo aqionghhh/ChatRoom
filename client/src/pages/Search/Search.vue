@@ -102,6 +102,8 @@ export default {
         let exp = eval("/" + e + "/g"); //封装在正则里面
         for (let i = 0; i < arr.length; i++) {
           console.log("找出来的用户" + i, arr[i]);
+          arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
+
           this.$set(arr[i], "tip", 0); // 默认找出来的都不是好友
           if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
             this.isFriend(arr[i]);
