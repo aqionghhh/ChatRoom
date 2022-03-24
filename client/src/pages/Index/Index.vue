@@ -73,6 +73,7 @@ import myfun from "../../commons/js/myfun.js";
 export default {
   data() {
     return {
+      getImg: "",
       friends: [],
       img: "",
     };
@@ -99,11 +100,7 @@ export default {
     this.tips();
     // 往服务端发送自己的id
     this.$socket.emit("register", localStorage.getItem("id"));
-  },
-  computed: {
-    getImg() {
-      return localStorage.getItem("imgurl");
-    },
+    this.getImg = localStorage.getItem("imgurl");
   },
   methods: {
     //转换时间

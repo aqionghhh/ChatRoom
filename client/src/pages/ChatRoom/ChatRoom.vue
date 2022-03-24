@@ -80,7 +80,7 @@
                 {{ item.message }}
               </div>
             </div>
-            <div class="message" v-else-if="item.types === 1">
+            <div class="message" v-else-if="item.types === '1'">
               <img
                 preview="1"
                 :src="item.message"
@@ -203,12 +203,13 @@ export default {
           id: "b", // 用户id
           imgurl: require("../../static/images/img/one.jpg"),
           message: name,
-          types: type, // 内容类型（0文字，1图片链接，2音频链接
+          types: 1, // 内容类型（0文字，1图片链接，2音频链接
           time: nowTime, // 发送时间
           tip: len, // 类似消息的id
         };
         this.msgs.push(data);
-        this.sendSocket(data);
+        console.log(this.msgs);
+        this.sendSocket(data); // socket
       }
       this.$nextTick(() => {
         this.scroll.refresh();
@@ -216,8 +217,8 @@ export default {
       });
     },
     // 接收图片
-    getPhoto(img, type) {
-      console.log("接收到的消息", img, type);
+    getPhoto(form, type) {
+      console.log("接收到的消息", form, type);
       let len = this.msgs.length;
       let nowTime = new Date();
       let t = myfun.spaceTime(this.oldTime, nowTime);
@@ -226,20 +227,36 @@ export default {
         this.oldTime = t;
       }
       nowTime = t;
-      let data = {
-        id: "b", // 用户id
-        imgurl: require("../../static/images/img/one.jpg"),
-        message: img,
-        types: type, // 内容类型（0文字，1图片链接，2音频链接
-        time: nowTime, // 发送时间
-        tip: len, // 类似消息的id
-      };
-      new Promise((resolve, reject) => {
-        this.msgs.push(data);
-        console.log(1111111);
-      }).then((resolve) => {
-        console.log("resolve", resolve);
+
+      // 需要先把图片和音频上传到文件夹中
+      let formData = new FormData();
+      formData.append("userID", localStorage.getItem("id"));
+      formData.append("friendID", this.friendID);
+      formData.append("file", form);
+      formData.append("types", type);
+      formData.append("time", new Date());
+      formData.append("state", 1);
+
+      this.$axios({
+        method: "post",
+        url: "api/chat/add",
+        data: formData,
+      }).then((res) => {
+        console.log("res.data", res.data);
+        res.data.message = "chatImg/" + res.data.message;
+        let photo = "http://localhost:8080/api/" + res.data.message;
+        let data = {
+          id: "b", // 用户id
+          imgurl: localStorage.getItem("imgurl"),
+          message: photo,
+          types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
+          time: nowTime, // 发送时间
+          tip: len, // 类似消息的id
+        };
+        this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
+        this.sendSocket(data);
       });
+
       this.$nextTick(() => {
         this.scroll.refresh();
         this.scrollToBottom(); // 页面更新之后滚动到下方
@@ -249,6 +266,7 @@ export default {
     // 接收音频文件
     getVoice(voice, type) {
       console.log("接收来的blob", voice);
+      let audioStream = URL.createObjectURL(voice.blob);
       // 时间间隔
       let nowTime = new Date();
       let t = myfun.spaceTime(this.oldTime, nowTime);
@@ -257,6 +275,34 @@ export default {
         this.oldTime = t;
       }
       nowTime = t;
+
+      // 需要先把图片和音频上传到文件夹中
+      let formData = new FormData();
+      formData.append("userID", localStorage.getItem("id"));
+      formData.append("friendID", this.friendID);
+      formData.append("file", voice.blob);
+      formData.append("types", type);
+      formData.append("time", new Date());
+      formData.append("state", 1);
+      this.$axios({
+        method: "post",
+        url: "api/chat/add",
+        data: formData,
+      }).then((res) => {
+        console.log("res.data", res.data);
+        // res.data.message = "chatImg/" + res.data.message;
+        // let photo = "http://localhost:8080/api/" + res.data.message;
+        // let data = {
+        //   id: "b", // 用户id
+        //   imgurl: localStorage.getItem("imgurl"),
+        //   message: photo,
+        //   types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
+        //   time: nowTime, // 发送时间
+        //   tip: len, // 类似消息的id
+        // };
+        // this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
+        // this.sendSocket(data);
+      });
 
       let len = this.msgs.length;
       let data = {

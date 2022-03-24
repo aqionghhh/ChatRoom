@@ -8,7 +8,7 @@ const MessageSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  frinedID: {//好友id(接收方id)
+  friendID: {//好友id(接收方id)
     type: Schema.Types.ObjectId,
     ref: 'User'
   },

@@ -200,7 +200,7 @@ export default {
             }
           }, 1000);
         })
-        .catch((err) => console.log("Uh oh... unable to get stream...", err));
+        .catch((err) => console.log("无法连接到音频", err));
     },
     // 获取blob语音流
     getRecordingData(e) {
@@ -208,10 +208,11 @@ export default {
       console.log("getRecordingData", e.data);
       console.log("chunks", this.chunks);
       let blob = new Blob(this.chunks, { type: "audio/ogg; codecs=opus" }); // 获取blob
-      let audioStream = URL.createObjectURL(blob); // 给blob一个url
-      console.log("audioStream", audioStream);
+      console.log("blob", blob);
+      // let audioStream = URL.createObjectURL(blob); // 给blob一个url
+      // console.log("audioStream", audioStream);
       let data = {
-        blob: audioStream,
+        blob: blob,
         time: this.i,
       };
       this.$emit("sendVoice", data, 2);
@@ -270,8 +271,10 @@ export default {
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
-      let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
-      this.$emit("sendPhoto", url, 1); // 图片的类型是1
+      // let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
+      // let formData = new FormData();
+      // formData.append("file", e.srcElement.files.item(0));
+      this.$emit("sendPhoto", e.srcElement.files.item(0), 1); // 图片的类型是1
     },
     // 文件
     file() {

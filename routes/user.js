@@ -32,9 +32,9 @@ module.exports = function (app) {
     })
   }),
 
-    // 修改用户信息
+    // 修改用户头像
     //  upload.single('file')：括号里的值要和append里面的参数一直
-    app.post('/user/update', upload.single('file'), (req, res) => {
+    app.post('/user/updateFile', upload.single('file'), (req, res) => {
       let data = req.body;
       console.log('req.file', req.file);
       // console.log('req.file.path', req.file.path);
@@ -46,20 +46,14 @@ module.exports = function (app) {
       data = JSON.parse(JSON.stringify(data));
       console.log('修改之后', data);
 
-      User.findOneAndUpdate({ pwd: data.pwd }, { $set: data }, (err, data) => {
-        console.log('ok', data)
-        res.send(data);  // 把查询到的用户信息传回去
-      })
+      User.updateOne({ pwd: data.pwd }, { $set: { imgurl: req.file.filename } })
+        .then(result => {
+          console.log('ok', result)
+          res.send({ msg: '修改成功' });  // 把查询到的用户信息传回去
+        })
     }),
-    // app.post('/user/update', (req, res) => {
-    //   let data = req.body.arr;
-    //   console.log('插入', data);
 
-    //   User.findOneAndUpdate({ pwd: data.pwd }, { $set: data }, (err, data) => {
-    //     console.log('ok', data)
-    //     res.send(data);  // 把查询到的用户信息传回去
-    //   })
-    // }),
+
 
     // 搜索所有的用户
     app.post('/user/search', (req, res) => {

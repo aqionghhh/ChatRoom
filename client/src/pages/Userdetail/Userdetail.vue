@@ -228,16 +228,25 @@ export default {
           //   arr: this.dataarr,
           // },
           data: formData,
-          url: "api/user/update",
+          url: "api/user/updatefile",
         })
           .then((res) => {
             console.log("res.data", res.data);
+            if (res.data.msg === "修改成功") {
+              this.$axios({
+                method: "post",
+                data: {
+                  id: this.id, // 把id作为索引传给后端
+                },
+                url: "api/user/detail",
+              }).then((res) => {
+                this.dataarr.imgurl =
+                  "http://localhost:8080/api/userImg/" + res.data.imgurl; // 因为做了代理，不要忘记加上/api！
+                console.log("this.dataarr.imgurl", this.dataarr.imgurl);
+              });
+            }
             localStorage.setItem("imgurl", this.dataarr.imgurl);
-            // console.log("local", this.dataarr.imgurl);
-            res.data.imgurl = "userImg/" + res.data.imgurl;
-            this.dataarr.imgurl =
-              "http://localhost:8080/api/" + res.data.imgurl; // 因为做了代理，不要忘记加上/api！
-            console.log("this.dataarr.imgurl", this.dataarr.imgurl);
+            // console.log(this.dataarr);
           })
           .catch(() => {
             console.log("error");
@@ -245,7 +254,7 @@ export default {
       };
     },
     back() {
-      this.$router.back();
+      this.$router.replace("/index");
     },
     // 注册时间处理
     timeChange(date) {
