@@ -90,7 +90,7 @@
             </div>
             <div
               class="message"
-              v-if="item.types === 2"
+              v-if="item.types === '2'"
               @click="listenVoice(item.message.voice)"
             >
               <div
@@ -243,8 +243,7 @@ export default {
         data: formData,
       }).then((res) => {
         console.log("res.data", res.data);
-        res.data.message = "chatImg/" + res.data.message;
-        let photo = "http://localhost:8080/api/" + res.data.message;
+        let photo = "http://localhost:8080/api/chatImg/" + res.data.message;
         let data = {
           id: "b", // 用户id
           imgurl: localStorage.getItem("imgurl"),
@@ -280,7 +279,7 @@ export default {
       let formData = new FormData();
       formData.append("userID", localStorage.getItem("id"));
       formData.append("friendID", this.friendID);
-      formData.append("file", voice.blob);
+      formData.append("file", voice.blob, "file.mp3"); // 转成mp3格式
       formData.append("types", type);
       formData.append("time", new Date());
       formData.append("state", 1);
@@ -290,38 +289,29 @@ export default {
         data: formData,
       }).then((res) => {
         console.log("res.data", res.data);
-        // res.data.message = "chatImg/" + res.data.message;
-        // let photo = "http://localhost:8080/api/" + res.data.message;
-        // let data = {
-        //   id: "b", // 用户id
-        //   imgurl: localStorage.getItem("imgurl"),
-        //   message: photo,
-        //   types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
-        //   time: nowTime, // 发送时间
-        //   tip: len, // 类似消息的id
-        // };
-        // this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
-        // this.sendSocket(data);
-      });
+        res.data.message = "chatImg/" + res.data.message;
+        let voiceMsg = "http://localhost:8080/api/" + res.data.message;
+        console.log(voiceMsg);
+        let len = this.msgs.length;
+        let data = {
+          id: "b", // 用户id
+          imgurl: localStorage.getItem("imgurl"),
+          message: {
+            voice: voiceMsg,
+            time: voice.time,
+          },
+          types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
+          time: nowTime, // 发送时间
+          tip: len, // 类似消息的id
+        };
+        this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
+        console.log(data);
+        this.sendSocket(data);
 
-      let len = this.msgs.length;
-      let data = {
-        id: "b", // 用户id
-        imgurl: require("../../static/images/img/one.jpg"),
-        message: {
-          voice: voice.blob,
-          time: voice.time,
-        },
-        types: type, // 内容类型（0文字，1图片链接，2音频链接
-        time: nowTime, // 发送时间
-        tip: len, // 类似消息的id
-      };
-
-      this.msgs.push(data);
-
-      this.$nextTick(() => {
-        this.scroll.refresh();
-        this.scrollToBottom(); // 页面更新之后滚动到下方
+        this.$nextTick(() => {
+          this.scroll.refresh();
+          this.scrollToBottom(); // 页面更新之后滚动到下方
+        });
       });
     },
 
@@ -366,7 +356,7 @@ export default {
     },
     // 听语音
     listenVoice(e) {
-      console.log("音频文件", e);
+      console.log("音频文件", e); // 传进来的是mp3文件
       audio.src = e;
       audio.play();
       console.log("播放");

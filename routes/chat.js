@@ -24,8 +24,9 @@ module.exports = function (app) {
     req.body.message = req.file.filename;
     console.log(req.body);
 
-    // Message.create(req.body).then(created => {
-    //   res.send(created);
-    // })
+    Message.create(req.body).then(created => {
+      res.send(created);
+    })
   })
+
 }

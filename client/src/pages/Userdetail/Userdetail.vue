@@ -243,9 +243,9 @@ export default {
                 this.dataarr.imgurl =
                   "http://localhost:8080/api/userImg/" + res.data.imgurl; // 因为做了代理，不要忘记加上/api！
                 console.log("this.dataarr.imgurl", this.dataarr.imgurl);
+                localStorage.setItem("imgurl", this.dataarr.imgurl);
               });
             }
-            localStorage.setItem("imgurl", this.dataarr.imgurl);
             // console.log(this.dataarr);
           })
           .catch(() => {
