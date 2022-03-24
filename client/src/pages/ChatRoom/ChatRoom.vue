@@ -224,7 +224,7 @@ export default {
 
       let data = {
         id: msg[0].id, // 用户id
-        imgurl: "http://localhost:8080/api/userImg/" + msg[0].imgurl,
+        imgurl: msg[0].imgurl,
         message: msg[0].message,
         types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
         time: msg[0].time, // 发送时间
