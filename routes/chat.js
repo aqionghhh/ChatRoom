@@ -20,13 +20,29 @@ const upload = multer({ storage: storage });
 
 module.exports = function (app) {
   app.post('/chat/add', upload.single('file'), (req, res) => {
-    console.log(req.file);
+    // console.log(req.file);
     req.body.message = req.file.filename;
-    console.log(req.body);
+    // console.log(req.body);
 
     Message.create(req.body).then(created => {
       res.send(created);
     })
-  })
+  }),
+
+    app.post('/chat/text', (req, res) => {
+      console.log(req.body);
+
+      Message.create(req.body).then(created => {
+        res.send(created);
+      })
+    }),
+
+    app.post('/chat/find', (req, res) => {
+      console.log(req.body);
+
+      Message.find({ userID: req.body.userID }).then(result => {
+        console.log(result);
+      })
+    })
 
 }

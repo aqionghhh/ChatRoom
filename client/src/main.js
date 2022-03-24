@@ -55,5 +55,8 @@ new Vue({
   el: '#app',
   render: h => h(App),
   router,//使用上vue-router
-  store
+  store,
+  beforeCreate() {
+    Vue.prototype.$bus = this;  // 全局事件总线
+  }
 })

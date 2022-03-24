@@ -104,6 +104,7 @@ export default {
       height: 0,
       animation: false, //添加好友弹窗
       tip: "", // 根据传进来的tip判断当前用户是否为好友，1为好友，0为陌生人
+      friendID: "", // 朋友id
     };
   },
   created() {
@@ -112,6 +113,7 @@ export default {
     console.log("传过来的id", this.$route.query.id);
     console.log("传过来的tip", this.$route.query.tip);
     this.tip = this.$route.query.tip; // 传进来的是字符串
+    this.friendID = this.$route.query.id;
     this.myname = localStorage.getItem("name");
     // 获取用户信息
     this.$axios({
@@ -177,6 +179,7 @@ export default {
     // 给好友发送消息
     sendMessage() {
       this.$router.replace("/chatroom");
+      this.$bus.$emit("friendID", this.friendID);
     },
   },
 };

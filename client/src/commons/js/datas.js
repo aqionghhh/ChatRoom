@@ -102,91 +102,75 @@ export default {
   message() {
     let msgs = [
       {
-        id: 'b',    // 用户id，规定b是自己
+        id: '6235f67219a8d49ef56a49a3',    // 用户id，规定b是自己
         imgurl: require('../../static/images/img/one.jpg'),
         message: {
-          voice: 'b',   // 音频
+          voice: '6235f67219a8d49ef56a49a3',   // 音频
           time: 40      // 时长，单位是秒
         },
-        types: 2,   // 内容类型（0文字，1图片链接，2音频链接）
+        types: '2',   // 内容类型（0文字，1图片链接，2音频链接）
         time: new Date() - 1000,    // 发送时间
         tip: 0
       },
       {
-        id: 'a',    // 用户id
+        id: '6234a9d7437035c85be8764a',    // 用户id
         imgurl: require('../../static/images/img/one.jpg'),
         message: {
-          voice: 'a',   // 音频
+          voice: '6234a9d7437035c85be8764a',   // 音频
           time: 3      // 时长，单位是秒
         },
-        types: 2,   // 内容类型（0文字，1图片链接，2音频链接）
+        types: '2',   // 内容类型（0文字，1图片链接，2音频链接）
         time: new Date() - 1000 * 10,    // 发送时间
         tip: 1
       },
       {
-        id: 'a',    // 用户id
+        id: '6234a9d7437035c85be8764a',    // 用户id
         imgurl: require('../../static/images/img/one.jpg'),
         message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
+        types: '0',   // 内容类型（0文字，1图片链接，2音频链接）
         time: new Date() - 1000 * 16,    // 发送时间
         tip: 2
       },
       {
-        id: 'b',    // 用户id
+        id: '6235f67219a8d49ef56a49a3',    // 用户id
         imgurl: require('../../static/images/img/one.jpg'),
         message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
+        types: '0',   // 内容类型（0文字，1图片链接，2音频链接）
         time: new Date() - 1000 * 60,    // 发送时间
         tip: 3
       },
       {
-        id: 'a',    // 用户id
+        id: '6234a9d7437035c85be8764a',    // 用户id
         imgurl: require('../../static/images/img/one.jpg'),
         message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        types: 0,   // 内容类型（0文字，1图片链接，2音频链接）
+        types: '0',   // 内容类型（0文字，1图片链接，2音频链接）
         time: new Date() - 1000 * 60 * 36,    // 发送时间
         tip: 4
       },
       {
-        id: 'b',    // 用户id
+        id: '6235f67219a8d49ef56a49a3',    // 用户id
         imgurl: require('../../static/images/img/one.jpg'),
         message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        types: 0,   // 内容类型（0文字，1图片链接，2音频链接
+        types: '0',   // 内容类型（0文字，1图片链接，2音频链接
         time: new Date() - 1000 * 60 * 50,    // 发送时间
         tip: 5
       },
       {
-        id: 'b',    // 用户id
+        id: '6235f67219a8d49ef56a49a3',    // 用户id
         imgurl: require('../../static/images/img/one.jpg'),
         message: require('../../static/images/img/two.jpg'),
-        types: 1,   // 内容类型（0文字，1图片链接，2音频链接
+        types: '1',   // 内容类型（0文字，1图片链接，2音频链接
         time: new Date() - 1000 * 60 * 1000,    // 发送时间
         tip: 6    // 类似消息的id
       },
       {
-        id: 'a',    // 用户id
+        id: '6234a9d7437035c85be8764a',    // 用户id
         imgurl: require('../../static/images/img/one.jpg'),
         message: require('../../static/images/img/one.jpg'),
-        types: 1,
+        types: '1',
         time: new Date() - 1000 * 60 * 30000,    // 发送时间
         tip: 7    // 类似消息的id
-      },
-      {
-        id: 'a',    // 用户id
-        imgurl: require('../../static/images/img/one.jpg'),
-        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        types: 0,   // 内容类型（0文字，1图片链接，2音频链接
-        time: new Date() - 1000 * 60 * 600000,    // 发送时间
-        tip: 8    // 类似消息的id
-      },
-      {
-        id: 'b',    // 用户id
-        imgurl: require('../../static/images/img/one.jpg'),
-        message: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
-        types: 0,   // 内容类型（0文字，1图片链接，2音频链接
-        time: new Date() - 1000 * 60 * 600000,    // 发送时间
-        tip: 9    // 类似消息的id
-      },
+      }
     ]
     return msgs;
   }
