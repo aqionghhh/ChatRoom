@@ -37,12 +37,41 @@ module.exports = function (app) {
       })
     }),
 
-    app.post('/chat/find', (req, res) => {
-      console.log(req.body);
+    // 查找两个用户的最后一条聊天记录
+    app.post('/chat/findOne', (req, res) => {
+      console.log('查找最后一条聊天数据', req.body);
 
-      Message.find({ userID: req.body.userID }).then(result => {
+      // 首先查询跟本人id相关的聊天记录
+      Message.find({ $or: [{ 'userID': req.body.userID }, { 'friendID': req.body.userID }] }).then(async ids => {
+        // console.log(ids)
+        let arr = []; // 存储所有跟friends相关的最后一条聊天记录
+        for (let i = 0; i < req.body.friends.length; i++) {
+          let friendID = req.body.friends[i]._id; // 拿到每个friend的id
+          // 再查找跟每个friendID相关的最后一条聊天记录
+          await Message.find({ $or: [{ 'userID': friendID }, { 'friendID': friendID }] }).sort({ time: -1 }).limit(1).then(result => {
+            arr = arr.concat(result);
+          })
+        }
+        console.log(arr);
+        res.send(arr);
+      })
+
+
+      // for ( let i = 0; i < req.body.friends.length; i++) {
+      //   let friendID = req.body.friends[i]._id; // 拿到每个friend的id
+      //   Message.find({ userID: req.body.userID }).then(result => {
+      //     console.log(result);
+      //   })
+      // }
+    }),
+
+    // 查找两个人的聊天记录
+    app.post('/chat/find', (req, res) => {
+      console.log('查找聊天数据', req.body);
+      // 按照时间倒叙查找50条
+      Message.find({ userID: req.body.userID }).sort({ time: -1 }).limit(50).then(result => {
         console.log(result);
+        res.send(result);
       })
     })
-
 }

@@ -98,53 +98,43 @@ export default {
     },
     //客户端接收后台传输的socket事件
     // 方法名要和后端emit来的名字一样才能接收
-    msg(msg) {
-      console.log("后端传来的数据", msg); //接收的消息
+    msg1(msg) {
+      console.log("我在首页收到了");
+      let middleMsg = ""; // 拿一个变量来显示在主页上的文字信息
+      // 判断接收的message类型是图片、文字还是语音
+      if (msg[0].types === "0") {
+        console.log("发过来的是文字");
+        // 文字
+        middleMsg = msg[0].message;
+      } else if (msg[0].types === "1") {
+        // 图片
+        middleMsg = "[图片]";
+      } else {
+        // 语音
+        middleMsg = "[语音]";
+      }
+      console.log(msg);
+      for (let i = 0; i < this.friends.length; i++) {
+        this.$set(this.friends[i], "tip", msg[0].tip);
+
+        if (this.friends[i]._id === msg[0].id) {
+          console.log("好友收到了");
+          let e = this.friends[i];
+          e.tip += 1; // 未读消息累加
+          e.time = new Date(); // 接收到消息的时间
+          e.message = middleMsg; // 显示在页面上的最后一条消息
+          // 删除原来的数据项
+          this.friends.splice(i, 1);
+          // 接收到消息的用户插入到最顶部
+          this.friends.unshift(e);
+        }
+      }
     },
   },
   created() {
-    this.$axios({
-      method: "post",
-      url: "api/friend/search",
-      data: {
-        id: localStorage.getItem("id"),
-      },
-    }).then((res) => {
-      console.log("获取到的好友列表", res.data);
-      let userarr = res.data.filter((item) => {
-        return item.state === "0";
-      });
-      console.log("临时变量user数组", userarr); // 这里面是自己的好友
-
-      // 返回所有的用户，再从所有的用户中筛选出有friendID的用户
-      this.$axios({
-        method: "post",
-        url: "api/user/search",
-      }).then((res) => {
-        console.log(res.data);
-        for (let i = 0; i < userarr.length; i++) {
-          for (let j = 0; j < res.data.length; j++) {
-            res.data[j].imgurl =
-              "http://localhost:8080/api/userImg/" + res.data[j].imgurl;
-            if (
-              userarr[i].friendID === res.data[j]._id &&
-              userarr[i].friendID !== localStorage.getItem("id")
-            ) {
-              this.friends.push(res.data[j]);
-            } else if (
-              userarr[i].userID === res.data[j]._id &&
-              userarr[i].userID !== localStorage.getItem("id")
-            ) {
-              this.friends.push(res.data[j]);
-            }
-          }
-        }
-        console.log("处理完的数据", this.friends);
-      });
-    });
+    this.getFriends();
   },
   mounted() {
-    // this.getFriends();
     this.tips();
     // 往服务端发送自己的id
     this.$socket.emit("register", localStorage.getItem("id"));
@@ -156,10 +146,74 @@ export default {
       return myfun.dateTime(date);
     },
     //获取好友列表数据
-    // getFriends() {
-    //   this.friends = datas.friends();
-    //   // console.log(this.friends);
-    // },
+    getFriends() {
+      // this.friends = datas.friends();
+      // console.log(this.friends);
+      this.$axios({
+        method: "post",
+        url: "api/friend/search",
+        data: {
+          id: localStorage.getItem("id"),
+        },
+      }).then((res) => {
+        console.log("获取到的好友列表", res.data);
+        let userarr = res.data.filter((item) => {
+          return item.state === "0";
+        });
+        console.log("临时变量user数组", userarr); // 这里面是自己的好友
+
+        // 返回所有的用户，再从所有的用户中筛选出有friendID的用户
+        this.$axios({
+          method: "post",
+          url: "api/user/search",
+        }).then((res) => {
+          console.log(res.data);
+          for (let i = 0; i < userarr.length; i++) {
+            for (let j = 0; j < res.data.length; j++) {
+              res.data[j].imgurl =
+                "http://localhost:8080/api/userImg/" + res.data[j].imgurl;
+              if (
+                userarr[i].friendID === res.data[j]._id &&
+                userarr[i].friendID !== localStorage.getItem("id")
+              ) {
+                this.friends.push(res.data[j]);
+              } else if (
+                userarr[i].userID === res.data[j]._id &&
+                userarr[i].userID !== localStorage.getItem("id")
+              ) {
+                this.friends.push(res.data[j]);
+              }
+            }
+          }
+          console.log("处理完的数据", this.friends);
+
+          // 获取好友的最后一条消息
+          this.$axios({
+            method: "post",
+            url: "api/chat/findOne",
+            data: {
+              userID: localStorage.getItem("id"),
+              friends: this.friends,
+            },
+          }).then((res) => {
+            console.log("聊天数据", res.data);
+
+            // 先遍历朋友数组
+            for (let i = 0; i < this.friends.length; i++) {
+              for (let j = 0; j < res.data.length; j++) {
+                if (
+                  this.friends[i]._id === res.data[j].friendID ||
+                  this.friends[i]._id === res.data[j].userID
+                ) {
+                  this.$set(this.friends[i], "message", res.data[j].message);
+                  this.friends[i].time = res.data[j].time;
+                }
+              }
+            }
+          });
+        });
+      });
+    },
     //跳转到search页面
     toSearch() {
       this.$router.push("/search");

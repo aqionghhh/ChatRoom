@@ -160,9 +160,10 @@ export default {
     this.getHeight(); //页面创建时调用
     this.getMsg(this.nowPage); // 把页码传进去
     this.userID = localStorage.getItem("id");
-    this.friendID = this.$route.query.id;
-    this.friendName = this.$route.query.name;
-
+    localStorage.setItem("friendID", this.$route.query.id);
+    this.friendID = localStorage.getItem("friendID");
+    localStorage.setItem("friendName", this.$route.query.name);
+    this.friendName = localStorage.getItem("friendName");
     // this.$bus.$on("friendID", (data, name) => {
     //   // 往vm的$bus上绑定事件hello
     //   console.log("收到了friendID", data, name);
@@ -172,31 +173,12 @@ export default {
     //   localStorage.setItem("friendName", name);
     // });
   },
-  watch: {
-    userID: {
-      immediate: true,
-      handler() {
-        this.userID = localStorage.getItem("id");
-      },
-    },
-    friendID: {
-      immediate: true,
-      handler() {
-        this.friendID = localStorage.getItem("friendID");
-      },
-    },
-    friendName: {
-      immediate: true,
-      handler() {
-        this.friendName = localStorage.getItem("friendName");
-      },
-    },
-  },
   mounted() {
     this.$nextTick(() => {
       this.init();
       console.log(1);
     });
+    console.log("friendName", this.friendName);
   },
   updated() {
     this.$nextTick(() => {
@@ -223,31 +205,27 @@ export default {
     // 方法名要和后端emit来的名字一样才能接收
     msg1(msg) {
       let len = this.msgs.length;
-      // let nowTime = new Date();
-      // let t = myfun.spaceTime(this.oldTime, nowTime);
-      // if (t) {
-      //   // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
-      //   this.oldTime = t;
-      // }
-      // nowTime = t;
+      console.log(msg);
+      // 进行一个判断，当后端传进来的好友id等于当前页面的好友id，再进行消息的接收
+      if (msg[1] === this.friendID) {
+        let data = {
+          id: msg[0].id, // 发送方用户id
+          imgurl: msg[0].imgurl,
+          message: msg[0].message,
+          types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
+          time: msg[0].time, // 发送时间
+          tip: len, // 类似消息的id
+        };
+        console.log(data.imgurl);
+        this.msgs.push(data);
 
-      let data = {
-        id: msg[0].id, // 用户id
-        imgurl: msg[0].imgurl,
-        message: msg[0].message,
-        types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
-        time: msg[0].time, // 发送时间
-        tip: len, // 类似消息的id
-      };
-      console.log(data.imgurl);
-      this.msgs.push(data);
-
-      this.$nextTick(() => {
-        this.scroll.refresh();
-        this.scrollToBottom(); // 页面更新之后滚动到下方
-      });
-      console.log("后端传来的数据", msg[0]); //接收的消息
-      console.log("后端传来的数据", msg[1]); //接收的消息
+        this.$nextTick(() => {
+          this.scroll.refresh();
+          this.scrollToBottom(); // 页面更新之后滚动到下方
+        });
+        console.log("后端传来的数据", msg[0]); //接收的消息
+        console.log("后端传来的数据", msg[1]); // id
+      }
     },
   },
   methods: {

@@ -30,11 +30,18 @@ module.exports = function (io) {
     })
 
     // 一对一私聊
-    socket.on('msg', (msg, userID, FriendID) => {
-      console.log('一对一聊天', msg, userID, FriendID);
+    socket.on('msg', (msg, userID, friendID) => {
+      console.log('一对一聊天', msg, userID, friendID);
 
-      // 发送给对方
-      socket.to(users[FriendID]).emit('msg1', msg, userID);  // emit里面的后两个参数是聊天的信息和发送方id
+      //进行判断，有值的时候再发送给对方
+      if (users[friendID]) {
+        // 发送给对方
+        socket.to(users[friendID]).emit('msg1', msg, userID);  // emit里面的后两个参数是聊天的信息和发送方id
+      }
+
+      // 自己也需要接收在index页面显示，所以发送一份给自己
+      // 这样写好像没用，只能在index页面渲染完成之后把最后一条用户的聊天信息一起渲染出来
+      // socket.to(users[userID]).emit('msg1', msg, friendID);
     })
   })
 }
