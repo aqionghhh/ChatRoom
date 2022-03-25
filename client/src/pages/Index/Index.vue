@@ -205,6 +205,13 @@ export default {
                   this.friends[i]._id === res.data[j].friendID ||
                   this.friends[i]._id === res.data[j].userID
                 ) {
+                  if (res.data[j].types === "1") {
+                    // 图片
+                    res.data[j].message = "[图片]";
+                  } else if (res.data[j].types === "2") {
+                    // 语音
+                    res.data[j].message = "[语音]";
+                  }
                   this.$set(this.friends[i], "message", res.data[j].message);
                   this.friends[i].time = res.data[j].time;
                 }

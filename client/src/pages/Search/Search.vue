@@ -41,6 +41,25 @@
           </router-link>
         </div>
       </div>
+      <div class="search-user result">
+        <div class="title" v-if="userarr.length > 0">用户</div>
+        <div class="list user" v-for="(user, index) in userarr" :key="index">
+          <!-- 左边是头像、名字和用户 -->
+          <router-link
+            :to="{ path: '/userhome', query: { id: user._id, tip: user.tip } }"
+          >
+            <img :src="user.imgurl" alt="" />
+            <div class="names">
+              <div class="name" v-html="user.name"></div>
+              <div class="email" v-html="user.email"></div>
+            </div>
+
+            <!-- 右边是进行的操作 -->
+            <div class="right-btn adds" v-if="user.tip === 0">加好友</div>
+            <div class="right-btn send" v-if="user.tip === 1">发消息</div>
+          </router-link>
+        </div>
+      </div>
     </div>
   </div>
 </template>

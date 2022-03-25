@@ -37,7 +37,7 @@
           <div class="title">签名</div>
           <div
             class="cont"
-            @click="animationChange('签名', dataarr.sign, !isName)"
+            @click="animationChange($event, '签名', dataarr.sign, !isName)"
           >
             {{ dataarr.sign }}
           </div>
@@ -55,7 +55,7 @@
           <div class="title">昵称</div>
           <div
             class="cont"
-            @click="animationChange('昵称', dataarr.name, isName)"
+            @click="animationChange($event, '昵称', dataarr.name, isName)"
           >
             {{ dataarr.name }}
           </div>
@@ -310,10 +310,11 @@ export default {
       this.$store.commit("setBirth", this.dataarr.birthday);
     },
     //修改弹窗
-    animationChange(type, data) {
+    // 当点击取消按钮的时候，会默认传event事件进来，所以需要一个参数接着
+    animationChange(e, type, data) {
       this.data = data; // 在文本框中显示内容
-      this.animation = !this.animation;
       this.modifyTitle = type; // 弹窗的标题
+      this.animation = !this.animation;
     },
 
     //点击弹窗的确定按钮

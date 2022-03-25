@@ -11,7 +11,7 @@
     </div>
     <!-- 背景图片 -->
     <div class="bg">
-      <img class="bg-img" src="../../static/images/Userhome/成功.jpg" alt="" />
+      <img class="bg-img" :src="groupimg" alt="" />
     </div>
     <!-- 下面的内容 -->
     <div class="main">
@@ -50,7 +50,7 @@
               <div class="user-name">{{ item.name }}</div>
             </div>
             <div class="member-list">
-              <div class="imgs">
+              <div class="imgs" @click="inviteMember">
                 <img
                   class="user-add"
                   src="../../static/images/chatroom/加号.png"
@@ -62,7 +62,10 @@
           </div>
         </div>
         <div class="group-detail">
-          <div class="row">
+          <div
+            class="row"
+            @click="animationChange($event, '昵称', '传进来的群名')"
+          >
             <div class="row-title">群名称</div>
             <div class="row-content">群名称</div>
             <div class="more">
@@ -72,17 +75,23 @@
           <div class="row">
             <div class="row-title">群头像</div>
             <div class="row-content">
-              <img
-                class="group-img"
-                src="../../static/images/Userhome/成功.jpg"
-                alt=""
+              <img @click="toChange" class="group-img" :src="groupimg" alt="" />
+              <input
+                type="file"
+                accept="image/*"
+                @change="handleFile"
+                class="hiddenInput"
+                ref="hidden"
               />
             </div>
             <div class="more">
               <img src="../../static/images/Userdetail/右箭头.png" alt="" />
             </div>
           </div>
-          <div class="row">
+          <div
+            class="row"
+            @click="animationChange($event, '群公告', '传进来的群公告')"
+          >
             <div class="row-title">群公告</div>
             <div class="row-content">
               这是一个群简介群简介群简介群简介群简介群简介群简介群简介群简介群简介
@@ -95,6 +104,25 @@
         <div class="btn2" @click="logout">退出群聊</div>
       </div>
     </div>
+    <!-- 修改的弹出层 -->
+    <transition
+      name="fade"
+      enter-active-class="animated fadeInUp"
+      leave-active-class="animated fadeOutDown"
+    >
+      <div class="modify" v-show="animation">
+        <!-- 弹窗的头部 -->
+        <div class="modify-header">
+          <div class="close" @click="animationChange">取消</div>
+          <div class="title">{{ modifyTitle }}</div>
+          <div class="define" @click="determine">确定</div>
+        </div>
+        <!-- 弹窗的内容 -->
+        <div class="modify-main">
+          <textarea v-model="data" class="modify-content"></textarea>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -103,7 +131,11 @@ import datas from "../../commons/js/datas.js";
 export default {
   data() {
     return {
+      animation: false, //弹窗是否显示
+      data: "修改的内容", //弹窗的内容
+      modifyTitle: "", //弹窗的标题
       member: "", // 群成员信息
+      groupimg: require("../../static/images/Userhome/成功.jpg"), // 群头像
     };
   },
   created() {
@@ -112,6 +144,66 @@ export default {
     this.getMember();
   },
   methods: {
+    //修改弹窗
+    animationChange(e, type, data) {
+      console.log("type", type);
+      this.data = data; // 在文本框中显示内容
+      this.modifyTitle = type; // 弹窗的标题
+      this.animation = !this.animation;
+    },
+
+    //点击弹窗的确定按钮
+    determine() {
+      if (this.modifyTitle === "昵称") {
+        // 要修改的是昵称
+      } else {
+      }
+
+      // 先发送请求再关闭弹窗
+      // this.$axios({
+      //   method: "post",
+      //   data: {
+      //     arr: this.dataarr,
+      //   },
+      //   url: "api/user/update",
+      // });
+      this.animationChange();
+    },
+    // 打开图片上传
+    toChange() {
+      this.$refs.hidden.click(); // 点击图片，实际上点击的是input按钮
+    },
+    // 将头像显示，并且传到后端
+    handleFile(e) {
+      let reader = new FileReader();
+      reader.readAsDataURL(e.srcElement.files.item(0));
+      reader.onload = () => {
+        console.log(reader.result);
+        this.groupimg = reader.result;
+        // let formData = new FormData();
+        // formData.append("file", e.srcElement.files.item(0));
+        // formData.append("name", this.dataarr.name);
+        // formData.append("sign", this.dataarr.sign);
+        // formData.append("time", this.dataarr.time);
+        // formData.append("sex", this.dataarr.sex);
+        // formData.append("pwd", this.dataarr.pwd);
+        // formData.append("birthday", this.dataarr.birthday);
+        // console.log("formData", formData);
+        // this.$axios({
+        //   method: "post",
+        //   data: formData,
+        //   url: "api/user/updatefile",
+        // })
+        // .then((res) => {
+        //   console.log("res.data", res.data);
+        // })
+      };
+    },
+
+    // 邀请成员
+    inviteMember() {
+      console.log("邀请成员");
+    },
     // 返回上一页
     back() {
       this.$router.back();
@@ -294,7 +386,7 @@ export default {
   color: #ff5d5b;
   font-weight: 400;
   text-align: center;
-  margin: 80px 0 20px 0;
+  margin: 75px 0 20px 0;
   line-height: 44px;
 }
 .group-img {
@@ -302,5 +394,81 @@ export default {
   height: 40px;
   border-radius: 10px;
   margin-top: 8px;
+}
+
+/* 修改的弹窗 */
+.modify {
+  position: absolute;
+  z-index: 1002;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #fff;
+}
+.modify-header {
+  width: 100%;
+  height: 44px;
+  /* padding-top: 44px; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+.modify-header .close {
+  padding-left: 16px;
+  font-size: 16px;
+  line-height: 44px;
+  color: rgb(39, 40, 50);
+}
+.modify-header .title {
+  flex: auto;
+  text-align: center;
+  font-size: 20px;
+  line-height: 44px;
+  font-weight: 500;
+}
+
+.modify-header .define {
+  padding-right: 16px;
+  font-size: 16px;
+  line-height: 44px;
+  color: rgb(87, 153, 255);
+}
+.modify-main {
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+}
+.modify-pwd {
+  background: rgb(243, 244, 246);
+  border-radius: 10px;
+  font-size: 16px;
+  line-height: 44px;
+  height: 44px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 16px;
+}
+.modify-content {
+  background: rgb(243, 244, 246);
+  border-radius: 10px;
+  border: none;
+  height: 193px;
+  box-sizing: border-box;
+  width: 100%;
+  font-size: 16px;
+  line-height: 44px;
+  color: rgb(39, 40, 50);
+  padding: 0 10px;
+  flex: auto;
+}
+.hiddenInput {
+  display: none;
+}
+.head_img img {
+  width: 80px;
+  height: 80px;
 }
 </style>
