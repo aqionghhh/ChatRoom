@@ -6,9 +6,16 @@
         <img src="../../static/images/Userhome/左箭头.png" alt="" />
       </div>
       <div class="top-bar-center">{{ friendName }}</div>
-      <div class="top-bar-right" v-if="type === 1">
-        <img src="../../static/images/img/one.jpg" alt="" />
-      </div>
+      <router-link
+        :to="{
+          path: '/groupdetail',
+          query: { id: friendID },
+        }"
+      >
+        <div class="top-bar-right" v-if="type === 1">
+          <img src="../../static/images/img/one.jpg" alt="" />
+        </div>
+      </router-link>
     </div>
     <!-- 主体部分 -->
     <div class="chat" ref="scroll" :style="{ height: height + 'px' }">
