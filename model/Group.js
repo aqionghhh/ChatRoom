@@ -4,10 +4,6 @@ const db = require('../config/db');
 const Schema = mongoose.Schema;
 
 const GroupSchema = new Schema({
-  userID: {//用户id
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  },
   name: {//群名称
     type: String,
   },

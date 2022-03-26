@@ -154,6 +154,7 @@ export default {
         // 在这里发送请求
         let groupname = this.groupName.trim();
         console.log(groupname);
+        
       }
     },
   },

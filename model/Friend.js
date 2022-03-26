@@ -20,6 +20,10 @@ const FriendSchema = new Schema({
     type: Date,
     default: new Date()
   },
+  tip: {  // 未读消息数
+    type: Number,
+    default: 0,
+  }
 });
 
 
