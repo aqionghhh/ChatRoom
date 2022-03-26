@@ -54,7 +54,7 @@
       <div class="bottom-bar">
         <div
           @click="createGroup"
-          :class="{ canCreate: number > 2 && groupName }"
+          :class="{ canCreate: number > 1 && groupName }"
           class="bottom-btn"
         >
           创建（{{ number }}）
@@ -72,6 +72,7 @@ export default {
       user: [],
       number: 1, // 选择的成员数，默认值为1，因为包括了自己
       groupName: "", // 群名
+      form: "",
     };
   },
   created() {
@@ -129,6 +130,10 @@ export default {
     },
     // 将头像显示
     handleFile(e) {
+      this.form = e.srcElement.files.item(0);
+      console.log(this.form);
+
+      console.log("头像", e.srcElement.files.item(0));
       let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
       console.log("blob", url);
       this.groupImg = url;
@@ -146,7 +151,7 @@ export default {
     },
     // 创建群聊
     createGroup() {
-      if (this.number > 2 && this.groupName) {
+      if (this.number > 1 && this.groupName) {
         this.$toast({
           message: "创建成功",
           icon: require("../../static/images/Userhome/成功.jpg"),
@@ -154,7 +159,21 @@ export default {
         // 在这里发送请求
         let groupname = this.groupName.trim();
         console.log(groupname);
-        
+
+        let formData = new FormData();
+        formData.append("file", this.form);
+        formData.append("groupMaster", localStorage.getItem("id"));
+        formData.append("groupName", this.groupName);
+        for (let i = 0; i < this.user.length; i++) {
+          formData.append(`user${i + 1}`, this.user[i]._id);
+        }
+        this.$axios({
+          method: "post",
+          url: "api/group/createGroup",
+          data: formData,
+        }).then((res) => {
+          console.log("创建成功", res.data);
+        });
       }
     },
   },

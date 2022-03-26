@@ -17,6 +17,7 @@ require('./routes/index')(app);//引入index.js//后面的括号是要传过去�
 require('./routes/user')(app);//引入index.js//后面的括号是要传过去的东西
 require('./routes/friend')(app);//引入index.js//后面的括号是要传过去的东西
 require('./routes/chat')(app);//引入index.js//后面的括号是要传过去的东西
+require('./routes/group')(app);//引入index.js//后面的括号是要传过去的东西
 
 //socket.io
 const io = require('socket.io');
