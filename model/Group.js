@@ -7,15 +7,20 @@ const GroupSchema = new Schema({
   name: {//群名称
     type: String,
   },
+  master: { // 群主
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   imgurl: {//群头像
     type: String,
-    default: 'group.png'//默认群头像
   },
   notice: {//群公告
     type: String,
+    default: '',
   },
   time: {//群创建时间
     type: Date,
+    default: new Date(),
   },
 });
 

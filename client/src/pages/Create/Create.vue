@@ -19,7 +19,7 @@
             ref="hidden"
           />
         </div>
-        <div class="group-img-tip">点击图片更换群头像</div>
+        <div class="group-img-tip">点击图片上传群头像</div>
         <!-- 群名 -->
         <div class="group-name">
           <input
@@ -54,7 +54,7 @@
       <div class="bottom-bar">
         <div
           @click="createGroup"
-          :class="{ canCreate: number > 1 && groupName }"
+          :class="{ canCreate: number > 1 && groupName && form }"
           class="bottom-btn"
         >
           创建（{{ number }}）
@@ -68,7 +68,7 @@
 export default {
   data() {
     return {
-      groupImg: require("../../static/images/Userhome/成功.jpg"), // 群头像
+      groupImg: require("../../static/images/chatroom/加号.png"), // 群头像
       user: [],
       number: 1, // 选择的成员数，默认值为1，因为包括了自己
       groupName: "", // 群名
@@ -151,7 +151,7 @@ export default {
     },
     // 创建群聊
     createGroup() {
-      if (this.number > 1 && this.groupName) {
+      if (this.number > 1 && this.groupName && this.form) {
         this.$toast({
           message: "创建成功",
           icon: require("../../static/images/Userhome/成功.jpg"),
@@ -164,15 +164,20 @@ export default {
         formData.append("file", this.form);
         formData.append("groupMaster", localStorage.getItem("id"));
         formData.append("groupName", this.groupName);
+        let ids = []; // 群用户的id
         for (let i = 0; i < this.user.length; i++) {
-          formData.append(`user${i + 1}`, this.user[i]._id);
+          ids.push(this.user[i]._id);
         }
+        formData.append("user", ids);
         this.$axios({
           method: "post",
           url: "api/group/createGroup",
           data: formData,
         }).then((res) => {
-          console.log("创建成功", res.data);
+          if (res.data.message === "ok") {
+            console.log("创建成功", res.data);
+            this.$router.replace("/index");
+          }
         });
       }
     },

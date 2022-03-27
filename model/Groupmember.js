@@ -18,6 +18,7 @@ const GroupmemberSchema = new Schema({
   },
   time: {//加入时间
     type: Date,
+    default: new Date(),
   },
 });
 
