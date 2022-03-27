@@ -14,6 +14,10 @@ const GroupSchema = new Schema({
   imgurl: {//群头像
     type: String,
   },
+  tip: {//群主的未读消息数
+    type: Number,
+    default: 0
+  },
   notice: {//群公告
     type: String,
     default: '',

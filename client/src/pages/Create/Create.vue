@@ -85,38 +85,17 @@ export default {
       },
     }).then((res) => {
       console.log("获取到的好友列表", res.data);
-      let userarr = res.data.filter((item) => {
+      this.user = res.data.filter((item) => {
         return item.state === "0";
       });
-      console.log("临时变量user数组", userarr); // 这里面是自己的好友
+      console.log("临时变量user数组", this.user); // 这里面是自己的好友
 
-      // 返回所有的用户，再从所有的用户中筛选出有friendID的用户
-      this.$axios({
-        method: "post",
-        url: "api/user/search",
-      }).then((res) => {
-        console.log(res.data);
-        for (let i = 0; i < userarr.length; i++) {
-          for (let j = 0; j < res.data.length; j++) {
-            res.data[j].imgurl =
-              "http://localhost:8080/api/userImg/" + res.data[j].imgurl;
-            if (
-              userarr[i].friendID === res.data[j]._id &&
-              userarr[i].friendID !== localStorage.getItem("id")
-            ) {
-              this.user.push(res.data[j]);
-              this.$set(this.user[i], "selected", false);
-            } else if (
-              userarr[i].userID === res.data[j]._id &&
-              userarr[i].userID !== localStorage.getItem("id")
-            ) {
-              this.user.push(res.data[j]);
-              this.$set(this.user[i], "selected", false);
-            }
-          }
-        }
-        console.log("处理完的数据", this.user);
-      });
+      for (let i = 0; i < this.user.length; i++) {
+        this.user[i].imgurl =
+          "http://localhost:8080/api/userImg/" + this.user[i].imgurl;
+        this.$set(this.user[i], "selected", false);
+      }
+      console.log("临时变量user数组", this.user); // 这里面是自己的好友
     });
   },
   methods: {

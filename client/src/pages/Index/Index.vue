@@ -147,78 +147,26 @@ export default {
     },
     //获取好友列表数据
     getFriends() {
-      // this.friends = datas.friends();
-      // console.log(this.friends);
       this.$axios({
         method: "post",
-        url: "api/friend/search",
+        url: "api/friend/render",
         data: {
           id: localStorage.getItem("id"),
         },
       }).then((res) => {
         console.log("获取到的好友列表", res.data);
-        let userarr = res.data.filter((item) => {
-          return item.state === "0";
-        });
-        console.log("临时变量user数组", userarr); // 这里面是自己的好友
-
-        // 返回所有的用户，再从所有的用户中筛选出有friendID的用户
-        this.$axios({
-          method: "post",
-          url: "api/user/search",
-        }).then((res) => {
-          console.log(res.data);
-          for (let i = 0; i < userarr.length; i++) {
-            for (let j = 0; j < res.data.length; j++) {
-              res.data[j].imgurl =
-                "http://localhost:8080/api/userImg/" + res.data[j].imgurl;
-              if (
-                userarr[i].friendID === res.data[j]._id &&
-                userarr[i].friendID !== localStorage.getItem("id")
-              ) {
-                this.friends.push(res.data[j]);
-              } else if (
-                userarr[i].userID === res.data[j]._id &&
-                userarr[i].userID !== localStorage.getItem("id")
-              ) {
-                this.friends.push(res.data[j]);
-              }
-            }
+        this.friends = res.data;
+        for (let i = 0; i < this.friends.length; i++) {
+          this.friends[i].imgurl =
+            "http://localhost:8080/api/userImg/" + this.friends[i].imgurl;
+          if (this.friends[i].types === "1") {
+            // 图片
+            this.friends[i].message = "[图片]";
+          } else if (this.friends[i].types === "2") {
+            // 语音
+            this.friends[i].message = "[语音]";
           }
-          console.log("处理完的数据", this.friends);
-
-          // 获取好友的最后一条消息
-          this.$axios({
-            method: "post",
-            url: "api/chat/findOne",
-            data: {
-              userID: localStorage.getItem("id"),
-              friends: this.friends,
-            },
-          }).then((res) => {
-            console.log("聊天数据", res.data);
-
-            // 先遍历朋友数组
-            for (let i = 0; i < this.friends.length; i++) {
-              for (let j = 0; j < res.data.length; j++) {
-                if (
-                  this.friends[i]._id === res.data[j].friendID ||
-                  this.friends[i]._id === res.data[j].userID
-                ) {
-                  if (res.data[j].types === "1") {
-                    // 图片
-                    res.data[j].message = "[图片]";
-                  } else if (res.data[j].types === "2") {
-                    // 语音
-                    res.data[j].message = "[语音]";
-                  }
-                  this.$set(this.friends[i], "message", res.data[j].message);
-                  this.friends[i].time = res.data[j].time;
-                }
-              }
-            }
-          });
-        });
+        }
       });
     },
     //跳转到search页面
