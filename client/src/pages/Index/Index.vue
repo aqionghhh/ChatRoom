@@ -155,21 +155,25 @@ export default {
         data: {
           id: localStorage.getItem("id"),
         },
-      }).then((res) => {
-        console.log("获取到的好友列表", res.data);
-        this.friends = res.data;
-        for (let i = 0; i < this.friends.length; i++) {
-          this.friends[i].imgurl =
-            "http://localhost:8080/api/userImg/" + this.friends[i].imgurl;
-          if (this.friends[i].types === "1") {
-            // 图片
-            this.friends[i].message = "[图片]";
-          } else if (this.friends[i].types === "2") {
-            // 语音
-            this.friends[i].message = "[语音]";
+      })
+        .then((res) => {
+          console.log("获取到的好友列表", res.data);
+          this.friends = res.data;
+          for (let i = 0; i < this.friends.length; i++) {
+            this.friends[i].imgurl =
+              "http://localhost:8080/api/userImg/" + this.friends[i].imgurl;
+            if (this.friends[i].types === "1") {
+              // 图片
+              this.friends[i].message = "[图片]";
+            } else if (this.friends[i].types === "2") {
+              // 语音
+              this.friends[i].message = "[语音]";
+            }
           }
-        }
-      });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     //跳转到search页面
     toSearch() {
