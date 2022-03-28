@@ -27,7 +27,10 @@
         <div class="list user" v-for="(user, index) in userarr" :key="index">
           <!-- 左边是头像、名字和用户 -->
           <router-link
-            :to="{ path: '/userhome', query: { id: user._id, tip: user.tip } }"
+            :to="{
+              path: '/userhome',
+              query: { id: user._id, tip: user.tip, target: 'user' },
+            }"
           >
             <img :src="user.imgurl" alt="" />
             <div class="names">
@@ -36,27 +39,28 @@
             </div>
 
             <!-- 右边是进行的操作 -->
-            <div class="right-btn adds" v-if="user.tip === 0">加好友</div>
             <div class="right-btn send" v-if="user.tip === 1">发消息</div>
+            <div class="right-btn adds" v-else>加好友</div>
           </router-link>
         </div>
       </div>
       <div class="search-user result">
-        <div class="title" v-if="userarr.length > 0">用户</div>
-        <div class="list user" v-for="(user, index) in userarr" :key="index">
-          <!-- 左边是头像、名字和用户 -->
+        <div class="title" v-if="grouparr.length > 0">群聊</div>
+        <div class="list user" v-for="(group, index) in grouparr" :key="index">
           <router-link
-            :to="{ path: '/userhome', query: { id: user._id, tip: user.tip } }"
+            :to="{
+              path: '/userhome',
+              query: { id: group._id, tip: group.tips, target: 'group' },
+            }"
           >
-            <img :src="user.imgurl" alt="" />
+            <img :src="group.imgurl" alt="" />
             <div class="names">
-              <div class="name" v-html="user.name"></div>
-              <div class="email" v-html="user.email"></div>
+              <div class="name" v-html="group.name"></div>
+              <div class="email" v-html="group.notice"></div>
             </div>
 
-            <!-- 右边是进行的操作 -->
-            <div class="right-btn adds" v-if="user.tip === 0">加好友</div>
-            <div class="right-btn send" v-if="user.tip === 1">发消息</div>
+            <div class="right-btn send" v-if="group.tips === 1">发消息</div>
+            <div class="right-btn adds" v-else>申请加群</div>
           </router-link>
         </div>
       </div>
@@ -65,14 +69,15 @@
 </template>
 
 <script>
-import datas from "../../commons/js/datas.js";
 export default {
   data() {
     return {
       width: 0,
       userarr: [],
+      grouparr: [],
       find: "", // 用户在input框中要搜索的东西
       friendarr: [], // 获取到跟本人id相关的好友列表
+      memberarr: [], // 获取到本人添加的群
     };
   },
   created() {
@@ -89,6 +94,17 @@ export default {
       this.friendarr = res.data;
       console.log("本人的好友列表", this.friendarr);
     });
+
+    this.$axios({
+      method: "post",
+      url: "api/group/find", // 自己在的群
+      data: {
+        id: localStorage.getItem("id"), // 把自己的id返回回去
+      },
+    }).then((res) => {
+      this.memberarr = res.data;
+      console.log("本人的群聊列表", this.memberarr);
+    });
   },
   methods: {
     //动态获取元素的宽度
@@ -99,10 +115,12 @@ export default {
     //获取关键词
     search() {
       this.userarr = [];
+      this.grouparr = [];
       let searchVal = this.find;
       //当字符串长度大于0时才开始进行匹配
       if (searchVal.length > 0) {
         this.searchUser(searchVal);
+        this.searchGroup(searchVal);
       }
     },
     //寻找关键词匹配的用户.
@@ -113,6 +131,7 @@ export default {
         method: "post",
         url: "api/user/search",
       }).then((res) => {
+        console.log("res.data", res.data);
         arr = res.data.filter((item) => {
           // 后端返回所有的数据，在这里进行过滤
           return item._id !== localStorage.getItem("id"); // 返回id不等于自身的数组
@@ -122,7 +141,6 @@ export default {
         for (let i = 0; i < arr.length; i++) {
           console.log("找出来的用户" + i, arr[i]);
           arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
-
           this.$set(arr[i], "tip", 0); // 默认找出来的都不是好友
           if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
             this.isFriend(arr[i]);
@@ -142,6 +160,32 @@ export default {
 
       // console.log(this.userarr);
     },
+    // 寻找关键词匹配的群
+    searchGroup(e) {
+      let arr = [];
+      this.$axios({
+        method: "post",
+        url: "api/group/search",
+      }).then((res) => {
+        console.log(res.data);
+        arr = res.data;
+        let exp = eval("/" + e + "/g"); //封装在正则里面
+        for (let i = 0; i < arr.length; i++) {
+          console.log("找出来的群" + i, arr[i]);
+          arr[i].imgurl = "http://localhost:8080/api/groupImg/" + arr[i].imgurl;
+          this.$set(arr[i], "tips", 0); // 默认找出来的都不是自己的群
+          if (arr[i].name.search(e) != -1) {
+            this.isGroup(arr[i]);
+            arr[i].name = arr[i].name.replace(
+              exp,
+              '<span style="color:#4aaaff">' + e + "</span>"
+            );
+            this.grouparr.push(arr[i]);
+          }
+          console.log(this.grouparr);
+        }
+      });
+    },
     //判断是否为为好友
     isFriend(e) {
       let tip = 0; //先默认搜索出来的每个人都不是好友(0不是好友,1是好友)
@@ -152,16 +196,26 @@ export default {
       for (let i = 0; i < this.friendarr.length; i++) {
         console.log(e._id);
         console.log("this.friendarr[i].friendID", this.friendarr[i].friendID);
-        console.log("this.friendarr[i].userID", this.friendarr[i].userID);
         // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
-        if (
-          this.friendarr[i].friendID === e._id ||
-          this.friendarr[i].userID === e._id
-        ) {
+        if (this.friendarr[i].friendID === e._id) {
           //好友表中的id与搜索出来的用户id相同，则认为是好友关系
           console.log("到这了");
           // tip = 1; //是好友关系  注：这样加属性没有响应式
           this.$set(e, "tip", 1); // 这样加才有响应式
+        }
+      }
+      // e.tip = tip; //存入搜索出来的数组中
+    },
+    // 判断是否为自己的群
+    isGroup(e) {
+      for (let i = 0; i < this.memberarr.length; i++) {
+        console.log(e._id);
+        // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
+        if (this.memberarr[i]._id === e._id) {
+          //好友表中的id与搜索出来的用户id相同，则认为是好友关系
+          console.log("到这了");
+          // tip = 1; //是好友关系  注：这样加属性没有响应式
+          this.$set(e, "tips", 1); // 这样加才有响应式
         }
       }
       // e.tip = tip; //存入搜索出来的数组中

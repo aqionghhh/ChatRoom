@@ -34,15 +34,23 @@
         >
           <img src="../../static/images/Userhome/男性.png" alt="" />
         </div>
-        <div v-else class="sex" :style="{ background: sexBg[2] }">
+        <div
+          v-else-if="user.sex === '未知'"
+          class="sex"
+          :style="{ background: sexBg[2] }"
+        >
           <img src="../../static/images/Userhome/未知性别.png" alt="" />
+        </div>
+        <div v-else class="sex" :style="{ background: sexBg[2] }">
+          <img src="../../static/images/Userhome/群聊.png" alt="" />
         </div>
         <img class="user-img" :src="user.img" alt="" />
       </div>
       <div class="user-info">
         <div class="name">{{ user.name }}</div>
-        <div class="nick">邮箱：{{ user.email }}</div>
-        <div class="intr">签名：{{ user.intr }}</div>
+        <div class="nick" v-show="user.email">邮箱：{{ user.email }}</div>
+        <div class="nick" v-show="user.notice">群公告：{{ user.notice }}</div>
+        <div class="intr" v-show="user.email">签名：{{ user.intr }}</div>
       </div>
     </div>
     <!-- 底部按钮 -->
@@ -53,7 +61,7 @@
       <router-link
         :to="{
           path: '/chatroom',
-          query: { id: friendID, name: user.name },
+          query: { id: friendID, name: user.name, target: target },
         }"
       >
         <div v-if="tip === '1'" class="bottom-btn">发送消息</div>
@@ -73,8 +81,15 @@
         <!-- :style="{ height: height + 'px', bottom: '-' + height + 'px' -->
         <div class="name">{{ user.name }}</div>
         <textarea
+          v-if="target === 'user'"
           class="add-main"
           :value="myname + '请求加为好友~'"
+          maxlength="120"
+        ></textarea>
+        <textarea
+          v-if="target === 'group'"
+          class="add-main"
+          :value="myname + '请求加群~'"
           maxlength="120"
         ></textarea>
       </div>
@@ -105,40 +120,66 @@ export default {
         email: "", //昵称
         intr: "", //介绍
         sex: "", // 性别
+        notice: "", // 群公告
       },
       height: 0,
       animation: false, //添加好友弹窗
-      tip: "", // 根据传进来的tip判断当前用户是否为好友，1为好友，0为陌生人
-      friendID: "", // 朋友id
+      tip: "", // 根据传进来的tip判断当前用户是否为好友，1为好友，0为陌生人；1为群成员，0为未加群
+      friendID: "", // 朋友id或群id
+      target: "", // 表示当前是群还是好友
     };
   },
   created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
     this.getHeight(); //页面创建时调用
-    console.log("传过来的id", this.$route.query.id);
-    console.log("传过来的tip", this.$route.query.tip);
     this.tip = this.$route.query.tip; // 传进来的是字符串
     this.friendID = this.$route.query.id;
+    console.log("传过来的id", this.$route.query.id);
+    console.log("传过来的tip", this.$route.query.tip);
+    console.log("传过来的target", this.$route.query.target);
+    if (this.$route.query.target === "group") {
+      // 群聊天
+      this.$axios({
+        method: "post",
+        url: "api/group/match",
+        data: {
+          id: this.friendID,
+        },
+      }).then((res) => {
+        console.log(res.data);
+        this.user.name = res.data.name;
+        this.user.img = "http://localhost:8080/api/groupImg/" + res.data.imgurl;
+        this.user.notice = res.data.notice;
+        this.target = "group";
+      });
+    } else {
+      // 好友
+      this.$axios({
+        method: "post",
+        url: "api/user/detail",
+        data: {
+          id: this.$route.query.id,
+        },
+      }).then((res) => {
+        console.log(res.data);
+        this.user.name = res.data.name;
+        this.user.email = res.data.email;
+        this.user.img = "http://localhost:8080/api/userImg/" + res.data.imgurl;
+        if (res.data.sign === "编辑你的个人签名") {
+          this.user.intr = "无";
+        } else {
+          this.user.intr = res.data.sign;
+        }
+        if (res.data.sex === "asexual") {
+          this.user.sex = "未知";
+        }
+        this.user.sex = res.data.sex;
+        this.target = "user";
+      });
+    }
+
     this.myname = localStorage.getItem("name");
     // 获取用户信息
-    this.$axios({
-      method: "post",
-      url: "api/user/detail",
-      data: {
-        id: this.$route.query.id,
-      },
-    }).then((res) => {
-      console.log(res.data);
-      this.user.name = res.data.name;
-      this.user.email = res.data.email;
-      this.user.img = "http://localhost:8080/api/userImg/" + res.data.imgurl;
-      if (res.data.sign === "编辑你的个人签名") {
-        this.user.intr = "无";
-      } else {
-        this.user.intr = res.data.sign;
-      }
-      this.user.sex = res.data.sex;
-    });
   },
   methods: {
     //返回上一页

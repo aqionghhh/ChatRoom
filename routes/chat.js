@@ -2,6 +2,7 @@ const db = require('../model/Message');
 const Message = db.model('Message');
 // 文件上传
 const multer = require("multer");
+const User = require('../model/User');
 // const upload = multer({ dest: 'uploads/userImg/' })
 const storage = multer.diskStorage({
   destination(req, file, cb) {
@@ -22,7 +23,7 @@ module.exports = function (app) {
   app.post('/chat/add', upload.single('file'), (req, res) => {
     // console.log(req.file);
     req.body.message = req.file.filename;
-    // console.log(req.body);
+    console.log(req.body);
 
     Message.create(req.body).then(created => {
       res.send(created);
@@ -31,7 +32,6 @@ module.exports = function (app) {
 
     app.post('/chat/text', (req, res) => {
       console.log(req.body);
-
       Message.create(req.body).then(created => {
         res.send(created);
       })
@@ -40,7 +40,6 @@ module.exports = function (app) {
     // 查找两个用户的最后一条聊天记录
     app.post('/chat/findOne', (req, res) => {
       console.log('查找最后一条聊天数据', req.body);
-
       // 首先查询跟本人id相关的聊天记录
       Message.find({ $or: [{ 'userID': req.body.userID }, { 'friendID': req.body.userID }] }).then(async ids => {
         // console.log(ids)
@@ -66,12 +65,23 @@ module.exports = function (app) {
     }),
 
     // 查找两个人的聊天记录
-    app.post('/chat/find', (req, res) => {
+    app.post('/chat/getMessage', (req, res) => {
       console.log('查找聊天数据', req.body);
-      // 按照时间倒叙查找50条
-      Message.find({ userID: req.body.userID }).sort({ time: -1 }).limit(50).then(result => {
-        console.log(result);
-        res.send(result);
-      })
+      // 按照时间倒叙查找100条
+      if (req.body.target === 'friend') { // 用户聊天记录查询
+
+        Message.find({ $or: [{ userID: req.body.userID }, { friendID: req.body.userID }] }).sort({ time: -1 }).then(async result => {
+          // console.log(result);
+
+          await User.findOne({ _id: req.body.userID }).then(img => {
+            // console.log(img.imgurl);
+          });
+          await Message.find({ $or: [{ userID: req.body.friendID }, { friendID: req.body.friendID }] }).sort({ time: -1 }).limit(100).then(result2 => {
+
+            // console.log(result2);
+            res.send(result2);
+          })
+        })
+      }
     })
 }

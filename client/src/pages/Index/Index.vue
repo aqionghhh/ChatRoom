@@ -49,7 +49,11 @@
           <router-link
             :to="{
               path: '/chatroom',
-              query: { id: friend._id, name: friend.name },
+              query: {
+                id: friend.friendID,
+                name: friend.name,
+                target: 'friend',
+              },
             }"
           >
             <!-- 左边部分,即头像 -->

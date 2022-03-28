@@ -6,6 +6,13 @@ const db3 = require('../model/Message');
 const Message = db3.model('Message');
 
 module.exports = function (app) {
+  // 查找用户
+  app.post('/friend/find', (req, res) => {
+    console.log('req.body', req.body);
+
+  })
+
+
   // 查询好友相关
   app.post('/friend/search', (req, res) => {
     console.log('frined', req.body);
@@ -23,6 +30,7 @@ module.exports = function (app) {
             friendID: find[i]._id,
             imgurl: find[i].imgurl,
             name: find[i].name,
+            email: find[i].email,
           }
           info.push(data);
         })

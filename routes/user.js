@@ -58,7 +58,7 @@ module.exports = function (app) {
     // 搜索所有的用户
     app.post('/user/search', (req, res) => {
       User.find((err, data) => {
-        console.log('查找用户', data);
+        // console.log('查找用户', data);
         res.send(data);
       })
     })

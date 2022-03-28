@@ -35,5 +35,41 @@ module.exports = function (app) {
       await res.send({ message: 'ok' });
 
     })
-  })
+  }),
+
+    //搜索所有群
+    app.post('/group/search', (req, res) => {
+      console.log(req.body);
+      Group.find((err, data) => {
+        res.send(data);
+      })
+    }),
+
+    // 找有自己的群
+    app.post('/group/find', async (req, res) => {
+      let arr = []; // 用来存group的信息
+      await Group.find({ master: req.body.id }).then(find => {
+        if (find[0]) {
+          arr = arr.concat(find);
+        };
+      });
+      await Groupmember.find({ userID: req.body.id }).then(async member => {
+        for (let i = 0; i < member.length; i++) {
+          await Group.find({ _id: member[i].groupID }).then(group => {
+            arr = arr.concat(group);
+            console.log('groupinfo', arr);
+          })
+        }
+        res.send(arr);
+      });
+    }),
+
+    // 根据群id搜索群
+    app.post('/group/match', (req, res) => {
+      console.log('传进来的群id：', req.body);
+
+      Group.findOne({ _id: req.body.id }).then(result => {
+        res.send(result)
+      })
+    })
 }

@@ -42,7 +42,7 @@
           <div class="chat-time" v-if="item.time != ''">
             {{ changeTime(item.time) }}
           </div>
-          <div class="msg-m msg-left" v-if="item.id == friendID">
+          <div class="msg-m msg-left" v-if="item.userID == friendID">
             <img :src="item.imgurl" class="user-img" alt="" />
             <!-- 文字 -->
             <div class="message" v-if="item.types === '0'">
@@ -80,7 +80,7 @@
               </div>
             </div>
           </div>
-          <div class="msg-m msg-right" v-else-if="item.id == userID">
+          <div class="msg-m msg-right" v-else-if="item.userID == userID">
             <img v-cloak :src="item.imgurl" class="user-img" alt="" />
             <div class="message" v-if="item.types === '0'">
               <div class="msg-text">
@@ -162,23 +162,17 @@ export default {
     Submit,
   },
 
-  created() {
+  async created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
     this.getHeight(); //页面创建时调用
-    this.getMsg(this.nowPage); // 把页码传进去
     this.userID = localStorage.getItem("id");
     localStorage.setItem("friendID", this.$route.query.id);
     this.friendID = localStorage.getItem("friendID");
     localStorage.setItem("friendName", this.$route.query.name);
     this.friendName = localStorage.getItem("friendName");
-    // this.$bus.$on("friendID", (data, name) => {
-    //   // 往vm的$bus上绑定事件hello
-    //   console.log("收到了friendID", data, name);
-    //   this.friendID = data;
-    //   this.friendName = name;
-    //   localStorage.setItem("friendID", data);
-    //   localStorage.setItem("friendName", name);
-    // });
+    localStorage.setItem("target", this.$route.query.target);
+    this.target = localStorage.getItem("target");
+    await this.getMsg(this.nowPage); // 把页码传进去
   },
   mounted() {
     this.$nextTick(() => {
@@ -215,16 +209,32 @@ export default {
       console.log(msg);
       // 进行一个判断，当后端传进来的好友id等于当前页面的好友id，再进行消息的接收
       if (msg[1] === this.friendID) {
-        let data = {
-          id: msg[0].id, // 发送方用户id
-          imgurl: msg[0].imgurl,
-          message: msg[0].message,
-          types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
-          time: msg[0].time, // 发送时间
-          tip: len, // 类似消息的id
-        };
-        console.log(data.imgurl);
-        this.msgs.push(data);
+        if (msg[0].types === "2") {
+          let data = {
+            userID: msg[0].userID, // 发送方用户id
+            imgurl: msg[0].imgurl,
+            message: {
+              voice: msg[0].message.voice,
+              time: msg[0].message.time,
+            },
+            types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
+            time: msg[0].time, // 发送时间
+            tip: len, // 类似消息的id
+          };
+          console.log("socketdata", data);
+          this.msgs.push(data);
+        } else {
+          let data = {
+            userID: msg[0].userID, // 发送方用户id
+            imgurl: msg[0].imgurl,
+            message: msg[0].message,
+            types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
+            time: msg[0].time, // 发送时间
+            tip: len, // 类似消息的id
+          };
+          console.log("socketdata", data);
+          this.msgs.push(data);
+        }
 
         this.$nextTick(() => {
           this.scroll.refresh();
@@ -264,6 +274,7 @@ export default {
           data: {
             userID: this.userID,
             friendID: localStorage.getItem("friendID"),
+            imgurl: localStorage.getItem("imgurl"),
             message: name,
             types: "0",
             time: new Date(),
@@ -272,7 +283,7 @@ export default {
         }).then((res) => {
           console.log("res", res.data);
           let data = {
-            id: this.userID, // 用户id
+            userID: this.userID, // 用户id
             imgurl: localStorage.getItem("imgurl"),
             message: res.data.message,
             types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
@@ -305,6 +316,7 @@ export default {
       // 需要先把图片和音频上传到文件夹中
       let formData = new FormData();
       formData.append("userID", this.userID);
+      formData.append("imgurl", localStorage.getItem("imgurl"));
       formData.append("friendID", localStorage.getItem("friendID"));
       formData.append("file", form);
       formData.append("types", type);
@@ -317,16 +329,17 @@ export default {
         data: formData,
       }).then((res) => {
         console.log("res.data", res.data);
-        let photo = "http://localhost:8080/api/chatImg/" + res.data.message;
         let data = {
-          id: this.userID, // 用户id
+          userID: this.userID, // 用户id
           imgurl: localStorage.getItem("imgurl"),
-          message: photo,
-          types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
+          message: "http://localhost:8080/api/chatImg/" + res.data.message,
+          types: "1", // 内容类型（0文字，1图片链接，2音频链接
           time: nowTime, // 发送时间
           tip: len, // 类似消息的id
         };
+        console.log("图片", data);
         this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
+        console.log(this.msgs);
         this.sendSocket(data);
       });
 
@@ -351,8 +364,10 @@ export default {
       // 需要先把图片和音频上传到文件夹中
       let formData = new FormData();
       formData.append("userID", this.userID);
+      formData.append("imgurl", localStorage.getItem("imgurl"));
       formData.append("friendID", localStorage.getItem("friendID"));
       formData.append("file", voice.blob, "file.mp3"); // 转成mp3格式
+      formData.append("time2", voice.time);
       formData.append("types", type);
       formData.append("time", new Date());
       formData.append("state", 1);
@@ -362,12 +377,12 @@ export default {
         data: formData,
       }).then((res) => {
         console.log("res.data", res.data);
-        res.data.message = "chatImg/" + res.data.message;
-        let voiceMsg = "http://localhost:8080/api/" + res.data.message;
+        // res.data.message = "chatImg/" + res.data.message;
+        let voiceMsg = "http://localhost:8080/api/chatImg/" + res.data.message;
         console.log(voiceMsg);
         let len = this.msgs.length;
         let data = {
-          id: this.userID, // 用户id
+          userID: this.userID, // 用户id
           imgurl: localStorage.getItem("imgurl"),
           message: {
             voice: voiceMsg,
@@ -411,42 +426,48 @@ export default {
         ); // 事件、消息的内容、发送方、接收方
       }
     },
-    // socket接收消息 从后端接收
-    // receiveSocket() {
-    //   this.$socket.on("msg", (msg, userID) => {
-    //     console.log(msg);
-    //     console.log(userID);
-    //   });
-    // },
     // 从数据库中获取聊天数据
     getMsg(page) {
       // 接收现在的页码，然后分段渲染聊天数据
-      let msg = datas.message();
-      // this.$axios({
-      //   method: 'post',
-      //   url: 'api/chat/find',
-      //   data:{
-      //     userID: this.userID,
-      //     friendID: this.friendID
-      //   }
-      // }).then(res => {
-      //   console.log(res.data);
-      // })
-      // 处理数据：时间
-      // 一次渲染十条
-      for (let i = 0; i < msg.length; i++) {
-        if (i < 9) {
-          // 如果是最后一条数据（即最顶上的数据），就不进行匹配
-          // 时间间隔
-          let t = myfun.spaceTime(this.oldTime, msg[i].time);
-          if (t) {
-            // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
-            this.oldTime = t;
+      this.$axios({
+        method: "post",
+        url: "api/chat/getMessage",
+        data: {
+          userID: this.userID,
+          friendID: this.friendID,
+          target: this.target,
+        },
+      }).then((res) => {
+        let msg = res.data;
+        console.log(msg);
+        for (let i = 0; i < msg.length; i++) {
+          if (i < msg.length) {
+            // 如果是最后一条数据（即最顶上的数据），就不进行匹配
+            // 时间间隔
+            let t = myfun.spaceTime(this.oldTime, msg[i].time);
+            if (t) {
+              // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
+              this.oldTime = t;
+            }
+            msg[i].time = t; // 要放到页面上展示的时间，如果没有返回值就是不显示，有返回值就显示
           }
-          msg[i].time = t; // 要放到页面上展示的时间，如果没有返回值就是不显示，有返回值就显示
+          // msg[i].imgurl = "http://localhost:8080/api/userImg/" + msg[i].imgurl;
+          if (msg[i].types === "1" || msg[i].types === "2") {
+            msg[i].message =
+              "http://localhost:8080/api/chatImg/" + msg[i].message;
+          }
+          if (msg[i].types === "2") {
+            msg[i].message = {
+              voice: msg[i].message,
+              time: msg[i].time2,
+            };
+          }
+          this.msgs.unshift(msg[i]); // 倒序插入
         }
-        this.msgs.unshift(msg[i]); // 倒序插入
-      }
+        console.log(this.msgs);
+      });
+      // 一次渲染十条
+
       this.nowPage += 1;
     },
     // 听语音
@@ -468,7 +489,7 @@ export default {
     },
     imageLoad() {
       this.scroll.refresh(); // 当src资源加载完成之后调用refresh方法
-      // console.log("onload");
+      console.log("onload");
       this.scrollToBottom();
     },
     // 返回上一级路由
@@ -586,8 +607,8 @@ export default {
   color: #999;
 }
 .chat-main {
-  padding-left: 16px;
-  padding-right: 16px;
+  /* margin-left: 16px; */
+  /* padding-right: 16px; */
   padding-top: 50px;
   flex-direction: column;
 }
@@ -600,7 +621,7 @@ export default {
 }
 .msg-m {
   display: flex;
-  padding: 10px 0;
+  padding: 10px 16px;
 }
 .user-img {
   width: 40px;
