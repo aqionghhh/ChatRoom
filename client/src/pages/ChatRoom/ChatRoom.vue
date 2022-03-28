@@ -436,33 +436,37 @@ export default {
           userID: this.userID,
           friendID: this.friendID,
           target: this.target,
+          page,
         },
       }).then((res) => {
         let msg = res.data;
         console.log(msg);
-        for (let i = 0; i < msg.length; i++) {
-          if (i < msg.length) {
-            // 如果是最后一条数据（即最顶上的数据），就不进行匹配
-            // 时间间隔
-            let t = myfun.spaceTime(this.oldTime, msg[i].time);
-            if (t) {
-              // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
-              this.oldTime = t;
+        if (msg[0]) {
+          for (let i = 0; i < msg.length; i++) {
+            if (i < msg.length) {
+              // 如果是最后一条数据（即最顶上的数据），就不进行匹配
+              // 时间间隔
+              let t = myfun.spaceTime(this.oldTime, msg[i].time);
+              if (t) {
+                // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
+                this.oldTime = t;
+              }
+              msg[i].time = t; // 要放到页面上展示的时间，如果没有返回值就是不显示，有返回值就显示
             }
-            msg[i].time = t; // 要放到页面上展示的时间，如果没有返回值就是不显示，有返回值就显示
+            // msg[i].imgurl = "http://localhost:8080/api/userImg/" + msg[i].imgurl;
+            if (msg[i].types === "1" || msg[i].types === "2") {
+              msg[i].message =
+                "http://localhost:8080/api/chatImg/" + msg[i].message;
+            }
+            if (msg[i].types === "2") {
+              msg[i].message = {
+                voice: msg[i].message,
+                time: msg[i].time2,
+              };
+            }
+            this.msgs.unshift(msg[i]); // 倒序插入
           }
-          // msg[i].imgurl = "http://localhost:8080/api/userImg/" + msg[i].imgurl;
-          if (msg[i].types === "1" || msg[i].types === "2") {
-            msg[i].message =
-              "http://localhost:8080/api/chatImg/" + msg[i].message;
-          }
-          if (msg[i].types === "2") {
-            msg[i].message = {
-              voice: msg[i].message,
-              time: msg[i].time2,
-            };
-          }
-          this.msgs.unshift(msg[i]); // 倒序插入
+        } else {
         }
         console.log(this.msgs);
       });
@@ -563,9 +567,11 @@ export default {
     // 完成刷新
     async finishPullDown() {
       this.scroll.finishPullDown();
+      // this.a = document.querySelectorAll(".chat-cont");
+      // console.log(this.a[0]);
+      // this.scroll.scrollToElement(this.a[0]);
       setTimeout(() => {
         this.beforePullDown = true;
-        this.scroll.refresh();
       }, 900);
     },
   },

@@ -3,6 +3,7 @@ const Message = db.model('Message');
 // 文件上传
 const multer = require("multer");
 const User = require('../model/User');
+const user = require('./user');
 // const upload = multer({ dest: 'uploads/userImg/' })
 const storage = multer.diskStorage({
   destination(req, file, cb) {
@@ -68,19 +69,42 @@ module.exports = function (app) {
     app.post('/chat/getMessage', (req, res) => {
       console.log('查找聊天数据', req.body);
       // 按照时间倒叙查找100条
+      const d = new Date();
+      let month = d.getMonth() + 1;
+      let today = d.getDate();
+      let hour = d.getHours();
+      let min = d.getMinutes();
+      let second = d.getSeconds();
+      console.log(hour);
+      console.log(month, today);
+      if (req.body.page + 1 > today) {
+        if ((month - 1) === 1 || 3 || 5 || 7 || 8 || 10 || 12) {
+          month -= 1;
+          req.body.page -= 31;
+        } else if (month === 2) {
+          req.body.page -= 28;
+          month -= 1;
+        } else {
+          month -= 1;
+          req.body.page -= 30;
+        }
+      }
+
       if (req.body.target === 'friend') { // 用户聊天记录查询
-
-        Message.find({ $or: [{ userID: req.body.userID }, { friendID: req.body.userID }] }).sort({ time: -1 }).then(async result => {
+        Message.find({
+          $or: [{
+            userID: req.body.userID,  // 我是发送者，朋友是接收者
+            friendID: req.body.friendID,
+            time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
+          }, {
+            userID: req.body.friendID,  // 朋友是发送者，我是接收者
+            friendID: req.body.userID,
+            time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
+          }]
+        }).sort({ time: -1 }).then(result => {
+          // 因为mongodb存储的时间比东八区慢6个小时，所以需要手动加上
           // console.log(result);
-
-          await User.findOne({ _id: req.body.userID }).then(img => {
-            // console.log(img.imgurl);
-          });
-          await Message.find({ $or: [{ userID: req.body.friendID }, { friendID: req.body.friendID }] }).sort({ time: -1 }).limit(100).then(result2 => {
-
-            // console.log(result2);
-            res.send(result2);
-          })
+          res.send(result);
         })
       }
     })
