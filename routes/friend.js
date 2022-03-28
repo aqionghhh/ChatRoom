@@ -17,7 +17,7 @@ module.exports = function (app) {
   app.post('/friend/search', (req, res) => {
     console.log('frined', req.body);
     // 查询跟本人相关的id
-    Friend.find({ 'userID': req.body.id }).then(async result => {
+    Friend.find({ $or: [{ 'userID': req.body.id }, { 'friendID': req.body.id }] }).then(async result => {
       console.log('以本人为user时查询的数据', result);
       let userarr = result.filter((item) => {
         return item.state === "0";
@@ -65,11 +65,25 @@ module.exports = function (app) {
         for (let i = 0; i < info.length; i++) {
           let friendID = info[i].friendID; // 拿到每个friend的id
           // 再查找跟每个friendID相关的最后一条聊天记录
-          await Message.find({ $or: [{ 'userID': friendID }, { 'friendID': friendID }] }).sort({ time: -1 }).limit(1).then(result2 => {
+          await Message.find({ $or: [{ 'userID': friendID }, { 'friendID': friendID }] }).sort({ time: -1 }).limit(1).then(async result2 => {
+            // 查找所有的聊天记录，并计算state
+            let count = 0;
+
+            await Message.find({
+              userID: friendID,  // 我是发送者，朋友是接收者
+              friendID: req.body.id,
+            }).then(result3 => {
+              for (let i = 0; i < result3.length; i++) {
+                if (result3[i].tip === 1) { // 1为未读，0为已读
+                  count += 1;
+                }
+              }
+              console.log(count);
+            });
             info[i].message = result2[0].message,
               info[i].types = result2[0].types,
               info[i].time = result2[0].time,
-              info[i].state = result2[0].state
+              info[i].tip = count;
           })
         }
         console.log('userInfo', info);

@@ -20,11 +20,7 @@ const FriendSchema = new Schema({
     type: Date,
     default: new Date()
   },
-  tip: {  // 未读消息数
-    type: Number,
-    default: 0,
-  }
-});
+});4
 
 
 module.exports = db.model('Friend', FriendSchema);//暴露好友表

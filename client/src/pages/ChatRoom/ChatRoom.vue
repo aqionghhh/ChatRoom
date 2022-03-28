@@ -172,6 +172,7 @@ export default {
     this.friendName = localStorage.getItem("friendName");
     localStorage.setItem("target", this.$route.query.target);
     this.target = localStorage.getItem("target");
+    this.stateZero(); // 清空未读消息
     await this.getMsg(this.nowPage); // 把页码传进去
   },
   mounted() {
@@ -182,6 +183,8 @@ export default {
     console.log("friendName", this.friendName);
   },
   updated() {
+    this.stateZero(); // 清空未读消息
+
     this.$nextTick(() => {
       // this.init();
       this.scroll.refresh();
@@ -192,6 +195,7 @@ export default {
       }
     });
   },
+  beforeDestroy() {},
   sockets: {
     connet() {
       console.log("连接成功");
@@ -246,6 +250,20 @@ export default {
     },
   },
   methods: {
+    // 未读消息全部设为0
+    stateZero() {
+      this.$axios({
+        method: "post",
+        url: "api/chat/stateZero",
+        data: {
+          userID: this.userID,
+          friendID: this.friendID,
+          target: this.target,
+        },
+      }).then((res) => {
+        console.log(res.data);
+      });
+    },
     // 点击外面的部分，关闭弹窗
     closeTap() {
       if (this.mainHeight > 100) {
@@ -278,7 +296,7 @@ export default {
             message: name,
             types: "0",
             time: new Date(),
-            state: 1,
+            tip: 1,
           },
         }).then((res) => {
           console.log("res", res.data);
@@ -288,7 +306,7 @@ export default {
             message: res.data.message,
             types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
             time: res.data.time, // 发送时间
-            tip: len, // 类似消息的id
+            tip: 1, // 类似消息的id
           };
           this.msgs.push(data);
           console.log(this.msgs);
@@ -321,7 +339,7 @@ export default {
       formData.append("file", form);
       formData.append("types", type);
       formData.append("time", new Date());
-      formData.append("state", 1);
+      formData.append("tip", 1);
 
       this.$axios({
         method: "post",
@@ -335,7 +353,7 @@ export default {
           message: "http://localhost:8080/api/chatImg/" + res.data.message,
           types: "1", // 内容类型（0文字，1图片链接，2音频链接
           time: nowTime, // 发送时间
-          tip: len, // 类似消息的id
+          tip: 1, // 类似消息的id
         };
         console.log("图片", data);
         this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
@@ -370,7 +388,7 @@ export default {
       formData.append("time2", voice.time);
       formData.append("types", type);
       formData.append("time", new Date());
-      formData.append("state", 1);
+      formData.append("tip", 1);
       this.$axios({
         method: "post",
         url: "api/chat/add",
@@ -390,7 +408,7 @@ export default {
           },
           types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
           time: nowTime, // 发送时间
-          tip: len, // 类似消息的id
+          tip: 1, // 类似消息的id
         };
         this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
         console.log(data);

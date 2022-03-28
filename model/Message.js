@@ -27,6 +27,10 @@ const MessageSchema = new Schema({
   imgurl: {//接收状态(0已读，1未读)
     type: String,
   },
+  tip: {  // 未读消息数
+    type: Number,
+    default: 0,
+  }
 });
 
 module.exports = db.model('Message', MessageSchema);

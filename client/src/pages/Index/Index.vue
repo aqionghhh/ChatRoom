@@ -119,8 +119,6 @@ export default {
       }
       console.log(msg);
       for (let i = 0; i < this.friends.length; i++) {
-        this.$set(this.friends[i], "tip", msg[0].tip);
-
         if (this.friends[i]._id === msg[0].id) {
           console.log("好友收到了");
           let e = this.friends[i];

@@ -55,57 +55,64 @@ module.exports = function (app) {
         console.log(arr);
         res.send(arr);
       })
-
-
-      // for ( let i = 0; i < req.body.friends.length; i++) {
-      //   let friendID = req.body.friends[i]._id; // 拿到每个friend的id
-      //   Message.find({ userID: req.body.userID }).then(result => {
-      //     console.log(result);
-      //   })
-      // }
     }),
-
-    // 查找两个人的聊天记录
-    app.post('/chat/getMessage', (req, res) => {
-      console.log('查找聊天数据', req.body);
-      // 按照时间倒叙查找100条
-      const d = new Date();
-      let month = d.getMonth() + 1;
-      let today = d.getDate();
-      let hour = d.getHours();
-      let min = d.getMinutes();
-      let second = d.getSeconds();
-      console.log(hour);
-      console.log(month, today);
-      if (req.body.page + 1 > today) {
-        if ((month - 1) === 1 || 3 || 5 || 7 || 8 || 10 || 12) {
-          month -= 1;
-          req.body.page -= 31;
-        } else if (month === 2) {
-          req.body.page -= 28;
-          month -= 1;
-        } else {
-          month -= 1;
-          req.body.page -= 30;
-        }
-      }
-
-      if (req.body.target === 'friend') { // 用户聊天记录查询
-        Message.find({
-          $or: [{
-            userID: req.body.userID,  // 我是发送者，朋友是接收者
-            friendID: req.body.friendID,
-            time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
-          }, {
-            userID: req.body.friendID,  // 朋友是发送者，我是接收者
-            friendID: req.body.userID,
-            time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
-          }]
-        }).sort({ time: -1 }).then(result => {
-          // 因为mongodb存储的时间比东八区慢6个小时，所以需要手动加上
-          // console.log(result);
-          res.send(result);
+    // 清空未读消息
+    app.post('/chat/stateZero', (req, res) => {
+      console.log('要清空聊天state', req.body);
+      if (req.body.target === 'friend') {
+        Message.update({
+          userID: req.body.friendID, // 查找朋友发来的数据
+          friendID: req.body.userID
+        }, {
+          $set: { 'tip': 0 }
+        }).then(result => {
+          console.log(result);
         })
       }
+
     })
+
+  // 查找两个人的聊天记录
+  app.post('/chat/getMessage', (req, res) => {
+    console.log('查找聊天数据', req.body);
+    // 按照时间倒叙查找100条
+    const d = new Date();
+    let month = d.getMonth() + 1;
+    let today = d.getDate();
+    let hour = d.getHours();
+    let min = d.getMinutes();
+    let second = d.getSeconds();
+    console.log(hour);
+    console.log(month, today);
+    if (req.body.page + 1 > today) {
+      if ((month - 1) === 1 || 3 || 5 || 7 || 8 || 10 || 12) {
+        month -= 1;
+        req.body.page -= 31;
+      } else if (month === 2) {
+        req.body.page -= 28;
+        month -= 1;
+      } else {
+        month -= 1;
+        req.body.page -= 30;
+      }
+    }
+
+    if (req.body.target === 'friend') { // 用户聊天记录查询
+      Message.find({
+        $or: [{
+          userID: req.body.userID,  // 我是发送者，朋友是接收者
+          friendID: req.body.friendID,
+          time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
+        }, {
+          userID: req.body.friendID,  // 朋友是发送者，我是接收者
+          friendID: req.body.userID,
+          time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
+        }]
+      }).sort({ time: -1 }).then(result => {
+        // 因为mongodb存储的时间比东八区慢6个小时，所以需要手动加上
+        // console.log(result);
+        res.send(result);
+      })
+    }
+  })
 }
