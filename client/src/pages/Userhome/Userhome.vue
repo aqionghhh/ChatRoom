@@ -174,7 +174,7 @@ export default {
           this.user.sex = "未知";
         }
         this.user.sex = res.data.sex;
-        this.target = "user";
+        this.target = "friend";
       });
     }
 

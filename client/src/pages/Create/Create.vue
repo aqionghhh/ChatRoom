@@ -86,7 +86,9 @@ export default {
     }).then((res) => {
       console.log("获取到的好友列表", res.data);
       this.user = res.data.filter((item) => {
-        return item.state === "0";
+        return (
+          item.state === "0" && item.friendID !== localStorage.getItem("id")
+        );
       });
       console.log("临时变量user数组", this.user); // 这里面是自己的好友
 

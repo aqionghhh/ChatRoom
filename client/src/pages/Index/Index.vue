@@ -28,7 +28,11 @@
           <!-- 左边部分,即头像 -->
           <div class="friend-list-l">
             <span class="tip">1</span>
-            <img src="../../static/images/index/添加.png" alt="" />
+            <img
+              class="friend-list-l-img"
+              src="../../static/images/index/添加.png"
+              alt=""
+            />
           </div>
           <!-- 右边部分 -->
           <div class="friend-list-r">
@@ -288,6 +292,12 @@ export default {
   border-radius: 12px;
   background-color: #ffe431;
   margin-left: 8px;
+}
+.friend-list-l-img {
+  width: 48px;
+  height: 48px;
+  padding: 8px;
+  box-sizing: border-box;
 }
 .tip {
   position: absolute;

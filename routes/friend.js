@@ -107,7 +107,47 @@ module.exports = function (app) {
           })
         }
       })
-  })
+  }),
+
+    // 同意加为好友
+    app.post('/friend/confirm', (req, res) => {
+      console.log(req.body);
+      Friend.update({
+        userID: req.body.friendID, // 查找朋友发来的数据
+        friendID: req.body.userID
+      }, {
+        $set: { 'state': '0' }
+      }).then(result2 => {
+        console.log(result2);
+        Friend.find({
+          userID: req.body.userID,
+          friendID: req.body.friendID
+        }).then(result2 => {
+          if (result2 == []) {
+            Friend.insert({
+              userID: req.body.userID,
+              friendID: req.body.friendID,
+              state: '0',
+              time: new Date()
+            }).then(result3 => {
+              console.log(result3);
+              // res.send(result3);
+            })
+          } else if (result2[0].state === '1') {
+            Friend.update({
+              userID: req.body.userID,
+              friendID: req.body.friendID,
+            }, {
+              $set: { 'state': '0' }
+            }).then(result4 => {
+              console.log(result4);
+              res.send(result4);
+            })
+          }
+        })
+
+      })
+    })
 
   // 同意加为好友
   app.post('/friend/agree', (req, res) => {

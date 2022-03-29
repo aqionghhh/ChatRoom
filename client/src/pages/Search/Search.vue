@@ -29,7 +29,7 @@
           <router-link
             :to="{
               path: '/userhome',
-              query: { id: user._id, tip: user.usertip, target: 'user' },
+              query: { id: user._id, tip: user.usertip, target: 'friend' },
             }"
           >
             <img :src="user.imgurl" alt="" />

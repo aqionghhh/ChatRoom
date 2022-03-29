@@ -12,7 +12,7 @@
           query: { id: friendID },
         }"
       >
-        <div class="top-bar-right" v-if="type === 1">
+        <div class="top-bar-right" v-if="target === 'group'">
           <img src="../../static/images/img/one.jpg" alt="" />
         </div>
       </router-link>
@@ -171,6 +171,7 @@ export default {
     localStorage.setItem("friendName", this.$route.query.name);
     this.friendName = localStorage.getItem("friendName");
     localStorage.setItem("target", this.$route.query.target);
+    console.log("this.$route.query.target", this.$route.query.target);
     this.target = localStorage.getItem("target");
     this.stateZero(); // 清空未读消息
     await this.getMsg(this.nowPage); // 把页码传进去
