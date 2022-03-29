@@ -24,13 +24,14 @@ module.exports = function (app) {
       });
       let info = [];
       for (let i = 0; i < userarr.length; i++) {
-        await User.find({ _id: userarr[i].friendID }).then(find => {
+        await User.findOne({ _id: userarr[i].friendID }).then(find => {
+          console.log('find', find);
           let data = {
             state: '0',
-            friendID: find[i]._id,
-            imgurl: find[i].imgurl,
-            name: find[i].name,
-            email: find[i].email,
+            friendID: find._id,
+            imgurl: find.imgurl,
+            name: find.name,
+            email: find.email,
           }
           info.push(data);
         })

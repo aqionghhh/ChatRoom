@@ -29,7 +29,7 @@
           <router-link
             :to="{
               path: '/userhome',
-              query: { id: user._id, tip: user.tip, target: 'user' },
+              query: { id: user._id, tip: user.usertip, target: 'user' },
             }"
           >
             <img :src="user.imgurl" alt="" />
@@ -39,7 +39,7 @@
             </div>
 
             <!-- 右边是进行的操作 -->
-            <div class="right-btn send" v-if="user.tip === 1">发消息</div>
+            <div class="right-btn send" v-if="user.usertip === 1">发消息</div>
             <div class="right-btn adds" v-else>加好友</div>
           </router-link>
         </div>
@@ -82,8 +82,7 @@ export default {
   },
   created() {
     this.getWidth(); //页面创建时调用
-  },
-  mounted() {
+
     this.$axios({
       method: "post",
       url: "api/friend/search",
@@ -141,7 +140,7 @@ export default {
         for (let i = 0; i < arr.length; i++) {
           console.log("找出来的用户" + i, arr[i]);
           arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
-          this.$set(arr[i], "tip", 0); // 默认找出来的都不是好友
+          this.$set(arr[i], "usertip", 0); // 默认找出来的都不是好友
           if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
             this.isFriend(arr[i]);
             arr[i].name = arr[i].name.replace(
@@ -201,7 +200,7 @@ export default {
           //好友表中的id与搜索出来的用户id相同，则认为是好友关系
           console.log("到这了");
           // tip = 1; //是好友关系  注：这样加属性没有响应式
-          this.$set(e, "tip", 1); // 这样加才有响应式
+          this.$set(e, "usertip", 1); // 这样加才有响应式
         }
       }
       // e.tip = tip; //存入搜索出来的数组中
