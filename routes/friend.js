@@ -4,6 +4,10 @@ const db2 = require('../model/User');
 const User = db2.model('User');
 const db3 = require('../model/Message');
 const Message = db3.model('Message');
+const db4 = require('../model/Group');
+const Group = db4.model('Group');
+const db5 = require('../model/Groupmember');
+const Groupmember = db5.model('Groupmember');
 
 module.exports = function (app) {
   // 查找用户
@@ -22,6 +26,7 @@ module.exports = function (app) {
       let userarr = result.filter((item) => {
         return item.state === "0";
       });
+
       let info = [];
       for (let i = 0; i < userarr.length; i++) {
         await User.findOne({ _id: userarr[i].friendID }).then(find => {
@@ -50,6 +55,21 @@ module.exports = function (app) {
         let userarr = result.filter((item) => {
           return item.state === "0";
         });
+        let grouparr = [];
+        await Group.find({ 'master': req.body.id }).then(result2 => {
+          // console.log('result2', result2);
+          grouparr = userarr.concat(result2);
+        });
+
+        await Groupmember.find({ 'userID': req.body.id }).then(result3 => {
+          // console.log('result3', result3);
+          for (let i = 0; i < result3.length; i++) {
+            Group.find({ '_id': result3[i].groupID }).then(result4 => {
+              grouparr = grouparr.concat(result4);
+            })
+          }
+        })
+        console.log('grouparr', grouparr);
         let info = [];
         for (let i = 0; i < userarr.length; i++) {
           await User.find({ _id: userarr[i].friendID }).then(find => {

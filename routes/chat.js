@@ -102,11 +102,11 @@ module.exports = function (app) {
         $or: [{
           userID: req.body.userID,  // 我是发送者，朋友是接收者
           friendID: req.body.friendID,
-          time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
+          // time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
         }, {
           userID: req.body.friendID,  // 朋友是发送者，我是接收者
           friendID: req.body.userID,
-          time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
+          // time: { $gt: new Date(2022, month - 1, (today - req.body.page - 1), hour, min, second), $lte: new Date(2022, month - 1, (today - req.body.page), hour, min, second) }
         }]
         // .limit(20).skip((req.body.page) * 20)：这样可以按照刷新一次返回20条数据，但是这样可能造成重复渲染
       }).sort({ time: -1 }).then(result => {
