@@ -56,7 +56,7 @@
               query: {
                 id: friend.friendID,
                 name: friend.name,
-                target: 'friend',
+                target: friend.target,
               },
             }"
           >

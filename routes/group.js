@@ -69,7 +69,8 @@ module.exports = function (app) {
       console.log('传进来的群id：', req.body);
 
       Group.findOne({ _id: req.body.id }).then(result => {
-        res.send(result)
+        // res.send(result)
+        console.log(result);
       })
     })
 }

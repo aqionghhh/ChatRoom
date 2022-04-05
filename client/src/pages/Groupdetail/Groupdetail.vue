@@ -136,12 +136,14 @@ export default {
       modifyTitle: "", //弹窗的标题
       member: "", // 群成员信息
       groupimg: require("../../static/images/Userhome/成功.jpg"), // 群头像
+      friendID: "",
     };
   },
   created() {
     localStorage.setItem("friendID", this.$route.query.id);
     this.friendID = localStorage.getItem("friendID");
-    this.getMember();
+    // this.getMember();
+    this.getGroup();
   },
   methods: {
     //修改弹窗
@@ -214,6 +216,18 @@ export default {
       this.member = datas.friends();
       // console.log(this.member);
       for (let i = 0; i < this.member.length; i++) {}
+    },
+    // 获取群信息
+    getGroup() {
+      this.$axios({
+        method: "post",
+        url: "api/group/match",
+        data: {
+          id: this.friendID,
+        },
+      }).then((res) => {
+        console.log(res.data);
+      });
     },
 
     // 退出群聊

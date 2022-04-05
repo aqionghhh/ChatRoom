@@ -88,13 +88,13 @@ module.exports = function (app) {
                   grouparr = grouparr.concat(msg);
                 } else {  // 没有聊天记录
                   let msg = {
-                    id: result4._id,
+                    friendID: result4._id,
                     name: result4.name,
                     imgurl: result4.imgurl,
-                    tip: result3[i].tip,
-                    message: groupMsg,
+                    tip: 0,
+                    message: "你已加入群聊",
                     time: result4.time,
-                    types: groupMsg,
+                    types: "0",
                     target: 'group'
                   }
                   grouparr = grouparr.concat(msg);
@@ -142,7 +142,7 @@ module.exports = function (app) {
               info[i].types = result2[0].types,
               info[i].time = result2[0].time,
               info[i].tip = count;
-            info[i].target = 'user'
+            info[i].target = 'friend'
           })
         }
         console.log('userInfo', info);
