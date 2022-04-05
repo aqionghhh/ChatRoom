@@ -8,7 +8,7 @@ const Groupmember = db3.model('Groupmember');
 const multer = require("multer");
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, './uploads/groupImg');
+    cb(null, './uploads/userImg');
   },
   filename(req, file, cb) {
     let type = file.originalname.replace(/.+\./, '.');

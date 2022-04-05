@@ -49,27 +49,64 @@ module.exports = function (app) {
     // 首页查询好友和群聊
     app.post('/friend/render', (req, res) => {
       console.log(req.body);
+      let grouparr = [];
+
       // 查询以本人为userID的数据
       Friend.find({ 'userID': req.body.id }).then(async result => {
         console.log('以本人为user时查询的数据', result);
         let userarr = result.filter((item) => {
           return item.state === "0";
         });
-        let grouparr = [];
+        // 群
         await Group.find({ 'master': req.body.id }).then(result2 => {
           // console.log('result2', result2);
-          grouparr = userarr.concat(result2);
+          grouparr = grouparr.concat(result2);
         });
 
-        await Groupmember.find({ 'userID': req.body.id }).then(result3 => {
+        // 群成员（找我加入的、但不是群主的群）
+        await Groupmember.find({ 'userID': req.body.id }).then(async result3 => {
           // console.log('result3', result3);
           for (let i = 0; i < result3.length; i++) {
-            Group.find({ '_id': result3[i].groupID }).then(result4 => {
-              grouparr = grouparr.concat(result4);
+            // 群
+            await Group.findOne({ '_id': result3[i].groupID }).then(async result4 => {
+              console.log('result4', result4);
+              // 查找群里的最后一条聊天记录
+              // 数据库中的friendID在这里作为群id
+              await Message.findOne({ friendID: result4._id }).sort({ time: -1 }).limit(1).then(groupMsg => {
+                console.log(groupMsg);
+                if (groupMsg) { // 有聊天记录
+                  let msg = {
+                    friendID: result4._id,
+                    name: result4.name,
+                    imgurl: result4.imgurl,
+                    tip: result3[i].tip,
+                    message: groupMsg.message,
+                    time: groupMsg.time,
+                    types: groupMsg.types,
+                    target: 'group'
+                  }
+                  grouparr = grouparr.concat(msg);
+                } else {  // 没有聊天记录
+                  let msg = {
+                    id: result4._id,
+                    name: result4.name,
+                    imgurl: result4.imgurl,
+                    tip: result3[i].tip,
+                    message: groupMsg,
+                    time: result4.time,
+                    types: groupMsg,
+                    target: 'group'
+                  }
+                  grouparr = grouparr.concat(msg);
+                }
+                console.log(grouparr);
+              })
+
             })
           }
         })
-        console.log('grouparr', grouparr);
+
+
         let info = [];
         for (let i = 0; i < userarr.length; i++) {
           await User.find({ _id: userarr[i].friendID }).then(find => {
@@ -105,9 +142,11 @@ module.exports = function (app) {
               info[i].types = result2[0].types,
               info[i].time = result2[0].time,
               info[i].tip = count;
+            info[i].target = 'user'
           })
         }
         console.log('userInfo', info);
+        info = info.concat(grouparr);
         res.send(info);
       })
     })
