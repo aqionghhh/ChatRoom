@@ -11,22 +11,22 @@
     </div>
     <!-- 背景图片 -->
     <div class="bg">
-      <img class="bg-img" :src="groupimg" alt="" />
+      <img class="bg-img" :src="groupImgurl" alt="" />
     </div>
     <!-- 下面的内容 -->
     <div class="main">
       <div class="main-inner">
         <div class="gropu-info">
-          <div class="group-name">群名称</div>
-          <div class="group-time">2022年3月25日</div>
+          <div class="group-name">{{ groupName }}</div>
+          <div class="group-time">{{ createTime }}</div>
           <div class="group-notice">
-            这里是群简介群简介群简介群简介群简介群简介群简介群简介群简介群简介群简介群简介。
+            {{ groupNotice }}
           </div>
         </div>
         <div class="member">
           <div class="member-top">
             <div class="member-title">群成员</div>
-            <div class="member-more">管理群成员</div>
+            <div class="member-more" @click="manageMember">管理群成员</div>
             <img
               class="more-img"
               src="../../static/images/Userdetail/右箭头.png"
@@ -41,6 +41,8 @@
             >
               <div class="imgs">
                 <img
+                  v-show="deleteMember"
+                  @click="masterDelete(index)"
                   class="user-delete"
                   src="../../static/images/chatroom/叉叉.png"
                   alt=""
@@ -64,10 +66,10 @@
         <div class="group-detail">
           <div
             class="row"
-            @click="animationChange($event, '昵称', '传进来的群名')"
+            @click="animationChange($event, '群名称', groupName)"
           >
             <div class="row-title">群名称</div>
-            <div class="row-content">群名称</div>
+            <div class="row-content">{{ groupName }}</div>
             <div class="more">
               <img src="../../static/images/Userdetail/右箭头.png" alt="" />
             </div>
@@ -75,7 +77,12 @@
           <div class="row">
             <div class="row-title">群头像</div>
             <div class="row-content">
-              <img @click="toChange" class="group-img" :src="groupimg" alt="" />
+              <img
+                @click="toChange"
+                class="group-img"
+                :src="groupImgurl"
+                alt=""
+              />
               <input
                 type="file"
                 accept="image/*"
@@ -90,11 +97,11 @@
           </div>
           <div
             class="row"
-            @click="animationChange($event, '群公告', '传进来的群公告')"
+            @click="animationChange($event, '群公告', groupNotice)"
           >
             <div class="row-title">群公告</div>
             <div class="row-content">
-              这是一个群简介群简介群简介群简介群简介群简介群简介群简介群简介群简介
+              {{ groupNotice }}
             </div>
             <div class="more">
               <img src="../../static/images/Userdetail/右箭头.png" alt="" />
@@ -123,10 +130,12 @@
         </div>
       </div>
     </transition>
+    <Dialog :alertText="alertText" @closeTip="closeTip" v-show="showDialog" />
   </div>
 </template>
 
 <script>
+import Dialog from "../../components/Dialog/Dialog";
 import datas from "../../commons/js/datas.js";
 export default {
   data() {
@@ -134,10 +143,21 @@ export default {
       animation: false, //弹窗是否显示
       data: "修改的内容", //弹窗的内容
       modifyTitle: "", //弹窗的标题
-      member: "", // 群成员信息
-      groupimg: require("../../static/images/Userhome/成功.jpg"), // 群头像
+      member: [], // 群成员信息
       friendID: "",
+      groupName: "",
+      groupImgurl: "",
+      groupNotice: "",
+      createTime: "",
+      deleteMember: false, // 是否显示删除群成员的按钮
+      masterID: "", // 群主id
+      showDialog: false,
+      alertText: "", // 弹窗的文本
+      deleteMemberID: '', // 要删除的成员的id
     };
+  },
+  components: {
+    Dialog,
   },
   created() {
     localStorage.setItem("friendID", this.$route.query.id);
@@ -181,7 +201,7 @@ export default {
       reader.readAsDataURL(e.srcElement.files.item(0));
       reader.onload = () => {
         console.log(reader.result);
-        this.groupimg = reader.result;
+        this.groupImgurl = reader.result;
         // let formData = new FormData();
         // formData.append("file", e.srcElement.files.item(0));
         // formData.append("name", this.dataarr.name);
@@ -227,12 +247,71 @@ export default {
         },
       }).then((res) => {
         console.log(res.data);
+        this.groupName = res.data.msg[0].name; // 群名
+        this.groupImgurl =
+          "http://localhost:8080/api/userImg/" + res.data.msg[0].imgurl;
+        this.groupNotice = res.data.msg[0].notice;
+        this.createTime = res.data.msg[0].time;
+        this.masterID = res.data.member[0]._id;
+        this.member = res.data.member;
+        for (let i = 0; i < this.member.length; i++) {
+          this.member[i].imgurl =
+            "http://localhost:8080/api/userImg/" + this.member[i].imgurl;
+        }
       });
+    },
+
+    // 显示删除群成员的按钮
+    manageMember() {
+      if (localStorage.getItem("id") === this.masterID) {
+        this.deleteMember = !this.deleteMember; // 如果是群主，才显示叉叉按钮
+      }
+    },
+
+    // 删除群成员
+    masterDelete(index) {
+      console.log(index);
+      console.log(this.member[index]._id);
+      this.deleteMemberID = this.member[index]._id;
+      if (index === 0) {
+        this.showAlert("不能删除管理员");
+      } else {
+        this.showAlert("确认删除？");
+      }
+    },
+
+    // 展示弹窗
+    showAlert(text) {
+      this.showDialog = true;
+      this.alertText = text;
+    },
+    // 关闭弹窗
+    closeTip(tip) {
+      this.showDialog = false;
+      this.alertText = "";
+      if (tip === "deleteConfrim") {
+        // 确认删除群成员
+        console.log("deleteConfrim");
+        this.axios({
+          method: 'post',
+          url: 'api/group/delete',
+          data: {
+            userID: this.deleteMemberID,
+          }
+        }).then(res => {
+
+        })
+      } else if (tip === "exitConfrim") {
+        // 确认退出群聊
+        console.log("exitConfrim");
+      }
+      console.log(tip);
     },
 
     // 退出群聊
     logout() {
-      this.$router.replace("/index");
+      // this.$router.replace("/index");
+      this.showAlert("确定退出？");
     },
   },
 };

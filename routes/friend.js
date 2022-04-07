@@ -8,6 +8,8 @@ const db4 = require('../model/Group');
 const Group = db4.model('Group');
 const db5 = require('../model/Groupmember');
 const Groupmember = db5.model('Groupmember');
+const db6 = require('../model/Groupmessage');
+const Groupmessage = db6.model('Groupmessage');
 
 module.exports = function (app) {
   // 查找用户
@@ -59,8 +61,36 @@ module.exports = function (app) {
         });
         // 群
         await Group.find({ 'master': req.body.id }).then(result2 => {
-          // console.log('result2', result2);
-          grouparr = grouparr.concat(result2);
+          console.log('result2', result2);
+          for (let i = 0; i < result2.length; i++) {
+            Groupmessage.findOne({ groupID: result2[i]._id }).then(master => {
+              if (master) { // 有聊天记录
+                let msg = {
+                  friendID: master._id,
+                  name: master.name,
+                  imgurl: master.imgurl,
+                  tip: result2[i].tip,
+                  message: master.message,
+                  time: master.time,
+                  types: master.types,
+                  target: 'group'
+                }
+                grouparr = grouparr.concat(msg);
+              } else {  // 没有聊天记录
+                let msg = {
+                  friendID: result2[i]._id,
+                  name: result2[i].name,
+                  imgurl: result2[i].imgurl,
+                  tip: 0,
+                  message: "你已加入群聊",
+                  time: result2[i].time,
+                  types: "0",
+                  target: 'group'
+                }
+                grouparr = grouparr.concat(msg);
+              }
+            })
+          }
         });
 
         // 群成员（找我加入的、但不是群主的群）
@@ -71,8 +101,7 @@ module.exports = function (app) {
             await Group.findOne({ '_id': result3[i].groupID }).then(async result4 => {
               console.log('result4', result4);
               // 查找群里的最后一条聊天记录
-              // 数据库中的friendID在这里作为群id
-              await Message.findOne({ friendID: result4._id }).sort({ time: -1 }).limit(1).then(groupMsg => {
+              await Groupmessage.findOne({ groupID: result4._id }).sort({ time: -1 }).limit(1).then(groupMsg => {
                 console.log(groupMsg);
                 if (groupMsg) { // 有聊天记录
                   let msg = {
@@ -145,8 +174,8 @@ module.exports = function (app) {
             info[i].target = 'friend'
           })
         }
-        console.log('userInfo', info);
         info = info.concat(grouparr);
+        console.log('userInfo', info);
         res.send(info);
       })
     })

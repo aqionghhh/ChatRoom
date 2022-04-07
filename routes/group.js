@@ -4,6 +4,8 @@ const db2 = require('../model/Groupmessage');
 const Groupmessage = db2.model('Groupmessage');
 const db3 = require('../model/Groupmember');
 const Groupmember = db3.model('Groupmember');
+const db4 = require('../model/User');
+const User = db4.model('User');
 // 文件上传
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -64,13 +66,32 @@ module.exports = function (app) {
       });
     }),
 
+    // 进入群详情页
     // 根据群id搜索群
     app.post('/group/match', (req, res) => {
       console.log('传进来的群id：', req.body);
 
-      Group.findOne({ _id: req.body.id }).then(result => {
-        // res.send(result)
+      Group.findOne({ _id: req.body.id }).then(async result => {
+        let msg = []; // 群详情
+        let member = [];  // 群成员
+
         console.log(result);
+        msg = msg.concat(result);
+        await User.find({ _id: result.master }).then(user => {
+          member = member.concat(user);
+
+        })
+        await Groupmember.find({ groupID: req.body.id }).then(async result2 => {
+          for (let i = 0; i < result2.length; i++) {
+            await User.find({ _id: result2[i].userID }).then(result3 => {
+              member = member.concat(result3);
+              console.log('member', member);
+            })
+          }
+        })
+        res.send({ msg, member });
       })
     })
+
+
 }
