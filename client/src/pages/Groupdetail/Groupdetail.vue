@@ -153,7 +153,8 @@ export default {
       masterID: "", // 群主id
       showDialog: false,
       alertText: "", // 弹窗的文本
-      deleteMemberID: '', // 要删除的成员的id
+      deleteMemberID: "", // 要删除的成员的id
+      deleteMemberIndex: "", // 要删除的成员的索引
     };
   },
   components: {
@@ -176,20 +177,40 @@ export default {
 
     //点击弹窗的确定按钮
     determine() {
-      if (this.modifyTitle === "昵称") {
-        // 要修改的是昵称
+      // 要修改的是昵称
+      if (this.modifyTitle === "群名称") {
+        // 先发送请求再关闭弹窗
+        this.$axios({
+          method: "post",
+          url: "api/group/update1",
+          data: {
+            update: this.data,
+            id: localStorage.getItem("friendID"),
+          },
+        }).then((res) => {
+          console.log(res.data);
+          // this.$store.commit("setInfo", res.data);
+          this.groupName = res.data.msg;
+          this.animationChange();
+        });
+        console.log(111);
       } else {
+        // 要修改的是群公告
+        this.$axios({
+          method: "post",
+          url: "api/group/update2",
+          data: {
+            update: this.data,
+            id: localStorage.getItem("friendID"),
+          },
+        }).then((res) => {
+          console.log(res.data);
+          // this.$store.commit("setInfo", res.data);
+          this.groupNotice = res.data.msg;
+          this.animationChange();
+        });
+        console.log(222);
       }
-
-      // 先发送请求再关闭弹窗
-      // this.$axios({
-      //   method: "post",
-      //   data: {
-      //     arr: this.dataarr,
-      //   },
-      //   url: "api/user/update",
-      // });
-      this.animationChange();
     },
     // 打开图片上传
     toChange() {
@@ -202,23 +223,16 @@ export default {
       reader.onload = () => {
         console.log(reader.result);
         this.groupImgurl = reader.result;
-        // let formData = new FormData();
-        // formData.append("file", e.srcElement.files.item(0));
-        // formData.append("name", this.dataarr.name);
-        // formData.append("sign", this.dataarr.sign);
-        // formData.append("time", this.dataarr.time);
-        // formData.append("sex", this.dataarr.sex);
-        // formData.append("pwd", this.dataarr.pwd);
-        // formData.append("birthday", this.dataarr.birthday);
-        // console.log("formData", formData);
-        // this.$axios({
-        //   method: "post",
-        //   data: formData,
-        //   url: "api/user/updatefile",
-        // })
-        // .then((res) => {
-        //   console.log("res.data", res.data);
-        // })
+        let formData = new FormData();
+        formData.append("file", e.srcElement.files.item(0));
+        formData.append("id", localStorage.getItem("friendID"));
+        this.$axios({
+          method: "post",
+          data: formData,
+          url: "api/group/updatefile",
+        }).then((res) => {
+          console.log("res.data", res.data);
+        });
       };
     },
 
@@ -272,6 +286,7 @@ export default {
     masterDelete(index) {
       console.log(index);
       console.log(this.member[index]._id);
+      this.deleteMemberIndex = index;
       this.deleteMemberID = this.member[index]._id;
       if (index === 0) {
         this.showAlert("不能删除管理员");
@@ -292,25 +307,34 @@ export default {
       if (tip === "deleteConfrim") {
         // 确认删除群成员
         console.log("deleteConfrim");
-        this.axios({
-          method: 'post',
-          url: 'api/group/delete',
+        this.$axios({
+          method: "post",
+          url: "api/group/delete",
           data: {
             userID: this.deleteMemberID,
-          }
-        }).then(res => {
-
-        })
+          },
+        }).then((res) => {
+          console.log(res.data);
+          this.member.splice(this.deleteMemberIndex, 1);
+        });
       } else if (tip === "exitConfrim") {
         // 确认退出群聊
+        this.$axios({
+          method: "post",
+          url: "api/group/delete",
+          data: {
+            userID: localStorage.getItem("id"),
+          },
+        }).then((res) => {
+          console.log(res.data);
+          this.$router.replace("/index");
+        });
         console.log("exitConfrim");
       }
-      console.log(tip);
     },
 
     // 退出群聊
     logout() {
-      // this.$router.replace("/index");
       this.showAlert("确定退出？");
     },
   },

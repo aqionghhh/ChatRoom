@@ -91,7 +91,51 @@ module.exports = function (app) {
         })
         res.send({ msg, member });
       })
-    })
+    }),
 
+    // 删除群成员按钮、退出群聊
+    app.post('/group/delete', (req, res) => {
+      console.log(req.body);
+      Groupmember.deleteOne({ userID: req.body.userID }).then(result => {
+        console.log(result);
+        res.send({ msg: 'ok' });
+      })
+    }),
+
+    app.post('/group/update1', (req, res) => {
+      console.log(req.body);
+      Group.update({
+        _id: req.body.id, // 查找朋友发来的数据
+      }, {
+        $set: { 'name': req.body.update }
+      }).then(result => {
+        console.log(result);
+        res.send({ msg: req.body.update });
+      })
+    }),
+    app.post('/group/update2', (req, res) => {
+      console.log(req.body);
+      Group.update({
+        _id: req.body.id, // 查找朋友发来的数据
+      }, {
+        $set: { 'notice': req.body.update }
+      }).then(result => {
+        console.log(result);
+        res.send({ msg: req.body.update });
+      })
+    }),
+
+    app.post('/group/updatefile', upload.single('file'), (req, res) => {
+      console.log(req.file.filename);
+      console.log(req.body);
+      Group.update({
+        _id: req.body.id, // 查找朋友发来的数据
+      }, {
+        $set: { 'imgurl': req.file.filename }
+      }).then(result => {
+        console.log(result);
+        res.send({ msg: 'ok' });
+      })
+    })
 
 }

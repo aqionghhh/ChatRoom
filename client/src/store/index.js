@@ -15,6 +15,8 @@ const store = new Vuex.Store({
     email: '',
     canTap: false, // 弹窗是否展示，false就是不展示，true就是可以展示
     isBlur: true,   // 输入框是否失焦，默认是不失焦
+    groupName: '',  // 群名
+    groupNotice: '',  // 群公告
   },
   mutations: { // 增加nutations属性
     setInfo(state, back) {  // 增加一个mutations的方法，方法的作用是让num从0变成5，state是必须默认参数
@@ -46,6 +48,15 @@ const store = new Vuex.Store({
     setName(state, back) {
       state.name = back;
     },
+    // 修改群名称
+    setName(state, back) {
+      state.groupName = back;
+    },
+    // 修改群公告
+    setName(state, back) {
+      state.groupNotice = back;
+    },
+    
     changeTap(state) {  // 弹窗是否展示
       state.canTap = !state.canTap;
     },
