@@ -43,5 +43,17 @@ module.exports = function (io) {
       // 这样写好像没用，只能在index页面渲染完成之后把最后一条用户的聊天信息一起渲染出来
       // socket.to(users[userID]).emit('msg1', msg, friendID);
     })
+
+    // 群聊
+    socket.on('group', (data) => {
+      console.log('group', data);
+      socket.join(data);
+    })
+    // 接收群消息
+    socket.on('groupMsg', (msg, fromid, gid) => { // 发送的消息、来自哪个用户id、发到哪个群id
+      // 群内广播消息
+      console.log('群消息', msg);
+      socket.to(gid).emit('groupmsg', msg, gid);  // 发送的消息、发给哪个群
+    })
   })
 }

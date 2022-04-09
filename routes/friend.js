@@ -63,12 +63,13 @@ module.exports = function (app) {
         await Group.find({ 'master': req.body.id }).then(result2 => {
           console.log('result2', result2);
           for (let i = 0; i < result2.length; i++) {
-            Groupmessage.findOne({ groupID: result2[i]._id }).then(master => {
+            Groupmessage.findOne({ groupID: result2[i]._id }).sort({ time: -1 }).limit(1).then(master => {
+              console.log('master', master);
               if (master) { // 有聊天记录
                 let msg = {
-                  friendID: master._id,
-                  name: master.name,
-                  imgurl: master.imgurl,
+                  friendID: result2[i]._id,
+                  name: result2[i].name,
+                  imgurl: result2[i].imgurl,
                   tip: result2[i].tip,
                   message: master.message,
                   time: master.time,
@@ -95,7 +96,7 @@ module.exports = function (app) {
 
         // 群成员（找我加入的、但不是群主的群）
         await Groupmember.find({ 'userID': req.body.id }).then(async result3 => {
-          // console.log('result3', result3);
+          console.log('result3', result3);
           for (let i = 0; i < result3.length; i++) {
             // 群
             await Group.findOne({ '_id': result3[i].groupID }).then(async result4 => {
@@ -174,9 +175,9 @@ module.exports = function (app) {
             info[i].target = 'friend'
           })
         }
-        info = info.concat(grouparr);
+        // info = info.concat(grouparr);
         console.log('userInfo', info);
-        res.send(info);
+        res.send({ info, grouparr });
       })
     })
 

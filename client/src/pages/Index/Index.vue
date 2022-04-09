@@ -123,7 +123,38 @@ export default {
       }
       console.log(msg);
       for (let i = 0; i < this.friends.length; i++) {
-        if (this.friends[i]._id === msg[0].id) {
+        if (this.friends[i].friendID === msg[0].userID) {
+          console.log("好友收到了");
+          let e = this.friends[i];
+          e.tip += 1; // 未读消息累加
+          e.time = new Date(); // 接收到消息的时间
+          e.message = middleMsg; // 显示在页面上的最后一条消息
+          // 删除原来的数据项
+          this.friends.splice(i, 1);
+          // 接收到消息的用户插入到最顶部
+          this.friends.unshift(e);
+        }
+      }
+    },
+    // 接收群socket
+    groupmsg(msg) {
+      console.log("我在前端收到了群消息", msg);
+      let middleMsg = ""; // 拿一个变量来显示在主页上的文字信息
+      // 判断接收的message类型是图片、文字还是语音
+      if (msg[0].types === "0") {
+        console.log("发过来的是文字");
+        // 文字
+        middleMsg = msg[0].message;
+      } else if (msg[0].types === "1") {
+        // 图片
+        middleMsg = "[图片]";
+      } else {
+        // 语音
+        middleMsg = "[语音]";
+      }
+      console.log(msg);
+      for (let i = 0; i < this.friends.length; i++) {
+        if (this.friends[i].friendID === msg[1]) {
           console.log("好友收到了");
           let e = this.friends[i];
           e.tip += 1; // 未读消息累加
@@ -162,7 +193,8 @@ export default {
       })
         .then((res) => {
           console.log("获取到的好友列表", res.data);
-          this.friends = res.data;
+          this.friends = res.data.info;
+          this.friends = this.friends.concat(res.data.grouparr);
           for (let i = 0; i < this.friends.length; i++) {
             this.friends[i].imgurl =
               "http://localhost:8080/api/userImg/" + this.friends[i].imgurl;
@@ -174,6 +206,15 @@ export default {
               this.friends[i].message = "[语音]";
             }
           }
+
+          if (res.data.grouparr.length !== 0) {
+            for (let i = 0; i < res.data.grouparr.length; i++) {
+              // 把每个群的群id传过去
+              this.$socket.emit("group", res.data.grouparr[i].friendID);
+            }
+          }
+
+          console.log(this.friends);
         })
         .catch((err) => {
           console.log(err);

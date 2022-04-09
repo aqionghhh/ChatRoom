@@ -4,6 +4,8 @@ const Message = db.model('Message');
 const multer = require("multer");
 const User = require('../model/User');
 const user = require('./user');
+const Group = require('../model/Group');
+const Groupmessage = require('../model/Groupmessage');
 // const upload = multer({ dest: 'uploads/userImg/' })
 const storage = multer.diskStorage({
   destination(req, file, cb) {
@@ -26,16 +28,30 @@ module.exports = function (app) {
     req.body.message = req.file.filename;
     console.log(req.body);
 
-    Message.create(req.body).then(created => {
-      res.send(created);
-    })
+    if (req.body.target === 'friend') {
+      Message.create(req.body).then(created => {
+        res.send(created);
+      })
+    } else {
+      Groupmessage.create(req.body).then(created => {
+        console.log('created', created);
+        res.send(created);
+      })
+    }
   }),
 
     app.post('/chat/text', (req, res) => {
       console.log(req.body);
-      Message.create(req.body).then(created => {
-        res.send(created);
-      })
+      if (req.body.target === 'friend') {
+        Message.create(req.body).then(created => {
+          res.send(created);
+        })
+      } else {
+        Groupmessage.create(req.body).then(created => {
+          console.log('created', created);
+          res.send(created);
+        })
+      }
     }),
 
     // 查找两个用户的最后一条聊天记录
@@ -112,6 +128,12 @@ module.exports = function (app) {
       }).sort({ time: -1 }).then(result => {
         // 因为mongodb存储的时间比东八区慢6个小时，所以需要手动加上
         // console.log(result);
+        res.send(result);
+
+      })
+    } else {  // 群聊
+      Groupmessage.find({ friendID: req.body.friendID }).sort({ time: -1 }).then(result => {
+        console.log('length', result.length);
         res.send(result);
       })
     }

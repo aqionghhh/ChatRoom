@@ -42,7 +42,41 @@
           <div class="chat-time" v-if="item.time != ''">
             {{ changeTime(item.time) }}
           </div>
-          <div class="msg-m msg-left" v-if="item.userID == friendID">
+          <div class="msg-m msg-right" v-if="item.userID == userID">
+            <img v-cloak :src="item.imgurl" class="user-img" alt="" />
+            <div class="message" v-if="item.types === '0'">
+              <div class="msg-text">
+                {{ item.message }}
+              </div>
+            </div>
+            <div class="message" v-else-if="item.types === '1'">
+              <img
+                preview="1"
+                :src="item.message"
+                class="message-img"
+                @load="imageLoad"
+              />
+            </div>
+            <div
+              class="message"
+              v-if="item.types === '2'"
+              @click="listenVoice(item.message.voice)"
+            >
+              <div
+                ref="time"
+                class="msg-text voice"
+                :style="{ width: item.message.time * 20 + 'px' }"
+              >
+                <img
+                  class="voice-img"
+                  src="../../static/images/chatroom/音频.png"
+                  alt=""
+                />
+                {{ item.message.time }}″
+              </div>
+            </div>
+          </div>
+          <div class="msg-m msg-left" v-else>
             <img :src="item.imgurl" class="user-img" alt="" />
             <!-- 文字 -->
             <div class="message" v-if="item.types === '0'">
@@ -80,40 +114,6 @@
               </div>
             </div>
           </div>
-          <div class="msg-m msg-right" v-else-if="item.userID == userID">
-            <img v-cloak :src="item.imgurl" class="user-img" alt="" />
-            <div class="message" v-if="item.types === '0'">
-              <div class="msg-text">
-                {{ item.message }}
-              </div>
-            </div>
-            <div class="message" v-else-if="item.types === '1'">
-              <img
-                preview="1"
-                :src="item.message"
-                class="message-img"
-                @load="imageLoad"
-              />
-            </div>
-            <div
-              class="message"
-              v-if="item.types === '2'"
-              @click="listenVoice(item.message.voice)"
-            >
-              <div
-                ref="time"
-                class="msg-text voice"
-                :style="{ width: item.message.time * 20 + 'px' }"
-              >
-                <img
-                  class="voice-img"
-                  src="../../static/images/chatroom/音频.png"
-                  alt=""
-                />
-                {{ item.message.time }}″
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -127,7 +127,6 @@
   </div>
 </template>
 <script>
-import datas from "../../commons/js/datas.js";
 import myfun from "../../commons/js/myfun.js";
 
 import BScroll from "@better-scroll/core";
@@ -248,6 +247,46 @@ export default {
         console.log("后端传来的数据", msg[1]); // id
       }
     },
+    groupmsg(msg) {
+      console.log("我在聊天页收到了群消息", msg);
+      let len = this.msgs.length;
+      console.log(msg);
+      // 进行一个判断，当后端传进来的好友id等于当前页面的好友id，再进行消息的接收
+      if (msg[1] === this.friendID) {
+        console.log("id相等");
+        if (msg[0].types === "2") {
+          let data = {
+            userID: msg[0].userID, // 发送方用户id
+            imgurl: msg[0].imgurl,
+            message: {
+              voice: msg[0].message.voice,
+              time: msg[0].message.time,
+            },
+            types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
+            time: msg[0].time, // 发送时间
+            tip: len, // 类似消息的id
+          };
+          console.log("socketdata", data);
+          this.msgs.push(data);
+        } else {
+          let data = {
+            userID: msg[0].userID, // 发送方用户id
+            imgurl: msg[0].imgurl,
+            message: msg[0].message,
+            types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
+            time: msg[0].time, // 发送时间
+            tip: len, // 类似消息的id
+          };
+          console.log("socketdata", data);
+          this.msgs.push(data);
+        }
+
+        this.$nextTick(() => {
+          this.scroll.refresh();
+          this.scrollToBottom(); // 页面更新之后滚动到下方
+        });
+      }
+    },
   },
   methods: {
     // 未读消息全部设为0
@@ -297,6 +336,7 @@ export default {
             types: "0",
             time: new Date(),
             tip: 1,
+            target: this.target,
           },
         }).then((res) => {
           console.log("res", res.data);
@@ -340,6 +380,7 @@ export default {
       formData.append("types", type);
       formData.append("time", new Date());
       formData.append("tip", 1);
+      formData.append("target", this.target);
 
       this.$axios({
         method: "post",
@@ -389,6 +430,7 @@ export default {
       formData.append("types", type);
       formData.append("time", new Date());
       formData.append("tip", 1);
+      formData.append("target", this.target);
       this.$axios({
         method: "post",
         url: "api/chat/add",
@@ -425,14 +467,14 @@ export default {
     sendSocket(e) {
       // 接收聊天信息
       // 判断这是私聊还是群聊
-      if (this.type === 0) {
+      if (this.target === "friend") {
         // 私聊
         console.log("aaa");
         this.$socket.emit(
           "msg",
           e,
           localStorage.getItem("id"),
-          localStorage.getItem("friendID")
+          localStorage.getItem("friendID") // 这里是好友id
         ); // 事件、消息的内容、发送方、接收方
       } else {
         // 群聊
@@ -440,7 +482,7 @@ export default {
           "groupMsg",
           e,
           localStorage.getItem("id"),
-          this.groupID
+          localStorage.getItem("friendID") // 这里是群id
         ); // 事件、消息的内容、发送方、接收方
       }
     },

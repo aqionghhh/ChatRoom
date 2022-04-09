@@ -171,7 +171,7 @@ export default {
         let exp = eval("/" + e + "/g"); //封装在正则里面
         for (let i = 0; i < arr.length; i++) {
           console.log("找出来的群" + i, arr[i]);
-          arr[i].imgurl = "http://localhost:8080/api/groupImg/" + arr[i].imgurl;
+          arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
           this.$set(arr[i], "tips", 0); // 默认找出来的都不是自己的群
           if (arr[i].name.search(e) != -1) {
             this.isGroup(arr[i]);

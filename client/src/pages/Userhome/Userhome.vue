@@ -146,10 +146,11 @@ export default {
           id: this.friendID,
         },
       }).then((res) => {
-        console.log(res.data);
-        this.user.name = res.data.name;
-        this.user.img = "http://localhost:8080/api/groupImg/" + res.data.imgurl;
-        this.user.notice = res.data.notice;
+        console.log(res.data.msg);
+        this.user.name = res.data.msg[0].name;
+        this.user.img =
+          "http://localhost:8080/api/userImg/" + res.data.msg[0].imgurl;
+        this.user.notice = res.data.msg[0].notice;
         this.target = "group";
       });
     } else {

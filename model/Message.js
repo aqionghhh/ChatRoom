@@ -24,7 +24,7 @@ const MessageSchema = new Schema({
   time: {//发送时间
     type: Date,
   },
-  imgurl: {//接收状态(0已读，1未读)
+  imgurl: {// 用户头像
     type: String,
   },
   tip: {  // 未读消息数
