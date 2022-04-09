@@ -35,14 +35,16 @@
         <!-- 签名 -->
         <div class="row">
           <div class="title">签名</div>
-          <div
-            class="cont"
-            @click="animationChange($event, '签名', dataarr.sign, !isName)"
-          >
+          <div class="cont">
             {{ dataarr.sign }}
           </div>
           <div class="more">
-            <img src="../../static/images/Userdetail/右箭头.png" alt="" />
+            <img
+              v-show="isMe"
+              @click="animationChange($event, '签名', dataarr.sign, !isName)"
+              src="../../static/images/Userdetail/右箭头.png"
+              alt=""
+            />
           </div>
         </div>
         <!-- 注册 -->
@@ -53,14 +55,16 @@
         <!-- 昵称 -->
         <div class="row">
           <div class="title">昵称</div>
-          <div
-            class="cont"
-            @click="animationChange($event, '昵称', dataarr.name, isName)"
-          >
+          <div class="cont">
             {{ dataarr.name }}
           </div>
           <div class="more">
-            <img src="../../static/images/Userdetail/右箭头.png" alt="" />
+            <img
+              @click="animationChange($event, '昵称', dataarr.name, isName)"
+              v-show="isMe"
+              src="../../static/images/Userdetail/右箭头.png"
+              alt=""
+            />
           </div>
         </div>
         <!-- 性别 -->
@@ -82,6 +86,7 @@
             <img
               src="../../static/images/Userdetail/右箭头.png"
               @click="showPicker = !showPicker"
+              v-show="isMe"
               alt=""
             />
           </div>
@@ -103,12 +108,12 @@
               />
             </van-popup>
           </div>
-          <div class="more" @click="timePop = true">
+          <div class="more" v-show="isMe" @click="timePop = true">
             <img src="../../static/images/Userdetail/右箭头.png" alt="" />
           </div>
         </div>
       </div>
-      <div class="btn2" @click="logout">退出登录</div>
+      <div class="btn2" @click="logout" v-if="isMe">退出登录</div>
     </div>
 
     <!-- 修改的弹出层 -->
@@ -145,7 +150,8 @@ export default {
         sex: "", //性别input框内显示的值
         birthday: "", //日期input框内显示的时间
       },
-      id: "",
+      id: "", // 自己的id
+      isMe: false, // 点进来的是本人
       isName: true, // 需要修改 名字
       animation: false, //弹窗是否显示
       data: "修改的内容", //弹窗的内容
@@ -161,11 +167,12 @@ export default {
   },
   created() {
     this.id = localStorage.getItem("id");
+    console.log(this.$route.query.id);
     console.log(this.id);
     this.$axios({
       method: "post",
       data: {
-        id: this.id, // 把id作为索引传给后端
+        id: this.$route.query.id, // 把id作为索引传给后端
       },
       url: "api/user/detail",
     }).then((res) => {
@@ -192,12 +199,18 @@ export default {
       console.log(this.dataarr.imgurl);
       this.$store.commit("setInfo", res.data);
     });
+
+    // 判断与自己的id是否相等
+    this.isMe = this.$route.query.id === this.id;
+    console.log(this.isMe);
   },
   methods: {
     // 打开图片上传
     uploadHeadImg() {
-      this.$refs.hidden.click(); // 点击图片，实际上点击的是input按钮
-      console.log("input");
+      if (this.isMe) {
+        this.$refs.hidden.click(); // 点击图片，实际上点击的是input按钮
+        console.log("input");
+      }
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
@@ -296,9 +309,6 @@ export default {
         minute = `0${minute}`;
       }
       this.dataarr.birthday = `${year}-${month}-${day}`;
-
-      this.timePop = false; //隐藏弹出层
-      console.log(this.dataarr.birthday);
       this.$axios({
         method: "post",
         data: {
@@ -307,6 +317,9 @@ export default {
         },
         url: "api/user/update",
       });
+      this.timePop = false; //隐藏弹出层
+      console.log(this.dataarr.birthday);
+
       this.$store.commit("setBirth", this.dataarr.birthday);
     },
     //修改弹窗
@@ -330,12 +343,11 @@ export default {
         console.log("sign", this.dataarr.sign);
         this.$store.commit("setSign", this.dataarr.sign);
       }
-
-      // 先发送请求再关闭弹窗
       this.$axios({
         method: "post",
         data: {
           arr: this.dataarr,
+          // data: this.data,
         },
         url: "api/user/update",
       });

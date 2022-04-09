@@ -239,9 +239,13 @@ module.exports = function (app) {
     })
 
   // 同意加为好友
-  app.post('/friend/agree', (req, res) => {
-    console.log('同意请求', req.body);
-
-    Friend.find()
+  app.post('/friend/compare', (req, res) => {
+    Friend.find({ userID: req.body.userID, friendID: req.body.friendID }).then(result => {
+      if (result.length === 0) {
+        res.send({ msg: 'not found' });
+      } else {
+        res.send({ msg: 'ok' });
+      }
+    })
   })
 }

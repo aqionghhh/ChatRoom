@@ -2,7 +2,7 @@
   <div class="content">
     <!-- 头部 -->
     <div class="top-bar">
-      <router-link class="top-bar-left" to="/userdetail">
+      <router-link class="top-bar-left" :to="`/userdetail?id=${id}`">
         <!-- 头像 -->
         <img :src="getImg" alt="" />
       </router-link>
@@ -91,6 +91,7 @@ export default {
       getImg: "",
       friends: [],
       img: "",
+      id: "",
     };
   },
   // 注册socket
@@ -173,6 +174,7 @@ export default {
   },
   mounted() {
     this.tips();
+    this.id = localStorage.getItem("id");
     // 往服务端发送自己的id
     this.$socket.emit("register", localStorage.getItem("id"));
     this.getImg = localStorage.getItem("imgurl");

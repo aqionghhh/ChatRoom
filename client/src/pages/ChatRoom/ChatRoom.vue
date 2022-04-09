@@ -43,7 +43,13 @@
             {{ changeTime(item.time) }}
           </div>
           <div class="msg-m msg-right" v-if="item.userID == userID">
-            <img v-cloak :src="item.imgurl" class="user-img" alt="" />
+            <img
+              v-cloak
+              :src="item.imgurl"
+              @click="toUserHome(index)"
+              class="user-img"
+              alt=""
+            />
             <div class="message" v-if="item.types === '0'">
               <div class="msg-text">
                 {{ item.message }}
@@ -77,7 +83,12 @@
             </div>
           </div>
           <div class="msg-m msg-left" v-else>
-            <img :src="item.imgurl" class="user-img" alt="" />
+            <img
+              :src="item.imgurl"
+              @click="toUserHome(index)"
+              class="user-img"
+              alt=""
+            />
             <!-- 文字 -->
             <div class="message" v-if="item.types === '0'">
               <div class="msg-text">
@@ -572,6 +583,36 @@ export default {
     // 处理时间
     changeTime(data) {
       return myfun.dateTime1(data);
+    },
+    // 跳转到userhome页
+    toUserHome(index) {
+      console.log(this.msgs[index].userID); // 获取到当前用户的id
+      let path = "";
+      if (localStorage.getItem("target") === "friend") {
+        // 是一对一聊天
+        path = `/userhome?id=${this.msgs[index].userID}&tip=1&target=friend`;
+        this.$router.push({ path });
+      } else if (this.msgs[index].userID === localStorage.getItem("id")) {
+        // 点击的是自己
+        path = `/userhome?id=${this.msgs[index].userID}&tip=2&target=friend`;
+        this.$router.push({ path });
+      } else {
+        // 点击的是群里的陌生人
+        this.$axios({
+          method: "post",
+          url: "api/friend/compare",
+          data: {
+            userID: this.userID,
+            friendID: this.msgs[index].userID,
+          },
+        }).then((res) => {
+          console.log(res.data);
+          if (res.data.msg === "ok") {
+            path = `/userhome?id=${this.msgs[index].userID}&tip=1&target=friend`;
+          }
+          this.$router.push({ path });
+        });
+      }
     },
 
     init() {

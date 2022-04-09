@@ -22,12 +22,12 @@ const upload = multer({ storage: storage });
 // 查询用户详情
 module.exports = function (app) {
   app.post('/user/detail', (req, res) => {
-    console.log('传进来的id', req.body.id);
+    // console.log('传进来的id', req.body.id);
     User.findOne({ _id: req.body.id }, (err, data) => {
       if (err) {
         console.log('出错了', err)
       }
-      console.log('找到的data', data)
+      // console.log('找到的data', data);
       res.send(data);  // 把查询到的用户信息传回去
     })
   }),
@@ -61,6 +61,15 @@ module.exports = function (app) {
         // console.log('查找用户', data);
         res.send(data);
       })
+    }),
+
+    app.post('/user/update', (req, res) => {
+      console.log(req.body);
+      User.updateOne({ pwd: req.body.arr.pwd }, { $set: { sign: req.body.arr.sign, name: req.body.arr.name, sex: req.body.arr.sex, birthday: req.body.arr.birthday } })
+        .then(result => {
+          console.log('ok', result);
+          res.send({ msg: '修改成功' });  // 把查询到的用户信息传回去
+        })
     })
 }
 

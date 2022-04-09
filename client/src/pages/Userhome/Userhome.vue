@@ -10,7 +10,11 @@
         />
       </div>
       <div class="top-bar-right">
-        <img src="../../static/images/Userhome/三点.png" alt="" />
+        <img
+          @click="toUserDetail"
+          src="../../static/images/Userhome/三点.png"
+          alt=""
+        />
       </div>
     </div>
     <!-- 内容 -->
@@ -221,6 +225,12 @@ export default {
           });
         }
         this.animation = false;
+      });
+    },
+    // 去用户详情页
+    toUserDetail() {
+      this.$router.push({
+        path: `/userdetail?id=${this.friendID}`,
       });
     },
   },
