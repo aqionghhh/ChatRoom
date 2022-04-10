@@ -23,7 +23,7 @@
 
     <!-- 消息列表 -->
     <div class="main">
-      <div class="friends">
+      <div class="friends" v-if="requests.length !== 0">
         <div @click="toFriendRequest" class="friend-list">
           <!-- 左边部分,即头像 -->
           <div class="friend-list-l">

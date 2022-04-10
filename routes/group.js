@@ -41,7 +41,7 @@ module.exports = function (app) {
 
     //搜索所有群
     app.post('/group/search', (req, res) => {
-      console.log(req.body);
+      console.log('req.body', req.body);
       Group.find((err, data) => {
         res.send(data);
       })
@@ -55,7 +55,7 @@ module.exports = function (app) {
           arr = arr.concat(find);
         };
       });
-      await Groupmember.find({ userID: req.body.id }).then(async member => {
+      await Groupmember.find({ userID: req.body.id, state: '0' }).then(async member => {
         for (let i = 0; i < member.length; i++) {
           await Group.find({ _id: member[i].groupID }).then(group => {
             arr = arr.concat(group);
@@ -81,7 +81,7 @@ module.exports = function (app) {
           member = member.concat(user);
 
         })
-        await Groupmember.find({ groupID: req.body.id }).then(async result2 => {
+        await Groupmember.find({ groupID: req.body.id, state: '0' }).then(async result2 => {
           for (let i = 0; i < result2.length; i++) {
             await User.find({ _id: result2[i].userID }).then(result3 => {
               member = member.concat(result3);

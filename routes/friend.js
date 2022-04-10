@@ -94,8 +94,8 @@ module.exports = function (app) {
           }
         });
 
-        // 群成员（找我加入的、但不是群主的群）
-        await Groupmember.find({ 'userID': req.body.id }).then(async result3 => {
+        // 群成员（找我加入的（状态为0）、但不是群主的群）
+        await Groupmember.find({ 'userID': req.body.id, state: '0' }).then(async result3 => {
           console.log('result3', result3);
           for (let i = 0; i < result3.length; i++) {
             // 群
