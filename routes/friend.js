@@ -179,11 +179,10 @@ module.exports = function (app) {
         for (let i = 0; i < userarr.length; i++) {
           await User.find({ _id: userarr[i].friendID }).then(find => {
             let data = {
-              friendID: find[i]._id,
-              imgurl: find[i].imgurl,
-              name: find[i].name,
+              friendID: find[0]._id,
+              imgurl: find[0].imgurl,
+              name: find[0].name,
             }
-            console.log('find', find);
             info.push(data);
           })
         }
@@ -207,11 +206,14 @@ module.exports = function (app) {
               }
               console.log(count);
             });
-            info[i].message = result2[0].message,
-              info[i].types = result2[0].types,
-              info[i].time = result2[0].time,
-              info[i].tip = count;
-            info[i].target = 'friend'
+            if (result2.length > 0) {
+              info[i].message = result2[0].message,
+                info[i].types = result2[0].types,
+                info[i].time = result2[0].time,
+                info[i].tip = count;
+              info[i].target = 'friend'
+            }
+
           })
         }
         // info = info.concat(grouparr);
@@ -260,7 +262,6 @@ module.exports = function (app) {
               time: new Date()
             }).then(result3 => {
               console.log(result3);
-              res.send({ msg: 'ok' });
             })
           } else if (result2[0].state === '1') {
             Friend.update({
@@ -270,9 +271,10 @@ module.exports = function (app) {
               $set: { 'state': '0' }
             }).then(result4 => {
               console.log(result4);
-              res.send({ msg: 'ok' });
             })
           }
+          Message.create({ userID: req.body.friendID, friendID: req.body.id, message: '好友添加成功，快来聊天吧~', types: '0', imgurl: req.body.imgurl, time: new Date(), tip: 1 });
+          res.send({ msg: 'ok' });
         })
 
       })

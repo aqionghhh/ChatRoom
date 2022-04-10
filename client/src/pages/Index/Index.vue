@@ -23,7 +23,7 @@
 
     <!-- 消息列表 -->
     <div class="main">
-      <div class="friends" v-if="requests[1] !== 0">
+      <div class="friends" v-if="requests[1] > 0">
         <div @click="toFriendRequest" class="friend-list">
           <!-- 左边部分,即头像 -->
           <div class="friend-list-l">
@@ -68,6 +68,12 @@
             <div class="friend-list-l">
               <span class="tip" v-if="friend.tip">{{ friend.tip }}</span>
               <img :src="friend.imgurl" alt="" />
+              <img
+                v-if="friend.target === 'group'"
+                class="group"
+                src="../../static/images/Userhome/群聊.png"
+                alt=""
+              />
             </div>
             <!-- 右边部分 -->
             <div class="friend-list-r">
@@ -391,5 +397,12 @@ export default {
   display: -webkit-box;
   -webkit-line-clamp: 1; /**数值代表是几行 */
   -webkit-box-orient: vertical;
+}
+.group {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  width: 15px !important;
+  height: 15px !important;
 }
 </style>

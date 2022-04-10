@@ -97,6 +97,7 @@ export default {
           id: this.requestArr[index].id,
           target: this.requestArr[index].target,
           friendID: this.requestArr[index].friendID,
+          imgurl: this.requestArr[index].imgurl,
         },
       }).then((res) => {
         console.log(res.data);
