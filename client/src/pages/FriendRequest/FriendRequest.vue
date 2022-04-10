@@ -14,74 +14,96 @@
 
     <!-- 主体部分 -->
     <div class="artical">
-      <div class="requester">
+      <div
+        class="requester"
+        v-for="(request, index) in requestArr"
+        :key="index"
+      >
         <div class="request-top">
-          <div class="reject btn">拒绝</div>
+          <div class="reject btn" @click="disagree(index)">拒绝</div>
           <div class="header">
-            <img src="../../static/images/img/one.jpg" />
+            <img :src="request.imgurl" />
           </div>
-          <div class="agree btn">同意</div>
+          <div class="agree btn" @click="agree(index)">同意</div>
         </div>
         <div class="request-center">
-          <div class="title">昵称</div>
-          <div class="time">2022年3月14日</div>
+          <div class="title">{{ request.name }}</div>
+          <div class="time">{{ changeTime(request.time) }}</div>
         </div>
-        <div class="notic">留言：你好，xxx想加您为好友，谢谢您的通过</div>
-      </div>
-      <div class="requester">
-        <div class="request-top">
-          <div class="reject btn">拒绝</div>
-          <div class="header">
-            <img src="../../static/images/img/one.jpg" />
-          </div>
-          <div class="agree btn">同意</div>
-        </div>
-        <div class="request-center">
-          <div class="title">昵称</div>
-          <div class="time">2022年3月14日</div>
-        </div>
-        <div class="notic">留言：你好，xxx想加您为好友，谢谢您的通过</div>
-      </div>
-      <div class="requester">
-        <div class="request-top">
-          <div class="reject btn">拒绝</div>
-          <div class="header">
-            <img src="../../static/images/img/one.jpg" />
-          </div>
-          <div class="agree btn">同意</div>
-        </div>
-        <div class="request-center">
-          <div class="title">昵称</div>
-          <div class="time">2022年3月14日</div>
-        </div>
-        <div class="notic">留言：你好，xxx想加您为好友，谢谢您的通过</div>
-      </div>
-      <div class="requester">
-        <div class="request-top">
-          <div class="reject btn">拒绝</div>
-          <div class="header">
-            <img src="../../static/images/img/one.jpg" />
-          </div>
-          <div class="agree btn">同意</div>
-        </div>
-        <div class="request-center">
-          <div class="title">昵称</div>
-          <div class="time">2022年3月14日</div>
-        </div>
-        <div class="notic">留言：你好，xxx想加您为好友，谢谢您的通过</div>
+        <div class="notic">留言：{{ request.message }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import myfun from "../../commons/js/myfun.js";
 export default {
   data() {
-    return {};
+    return {
+      requestArr: [],
+    };
+  },
+  created() {
+    this.$axios({
+      method: "post",
+      url: "api/friend/show",
+      data: {
+        id: localStorage.getItem("id"),
+      },
+    }).then((res) => {
+      console.log(res.data);
+      for (let i = 0; i < res.data.length; i++) {
+        res.data[i].imgurl =
+          "http://localhost:8080/api/userImg/" + res.data[i].imgurl;
+      }
+      this.requestArr = res.data;
+    });
   },
   methods: {
+    //转换时间
+    changeTime(date) {
+      return myfun.dateTime(date);
+    },
     back() {
       this.$router.back();
+    },
+    // 拒绝
+    disagree(index) {
+      console.log(this.requestArr[index].id);
+      console.log(this.requestArr[index].target);
+      this.$axios({
+        method: "post",
+        url: "api/friend/disagree",
+        data: {
+          id: this.requestArr[index].id,
+          target: this.requestArr[index].target,
+          friendID: this.requestArr[index].friendID,
+        },
+      }).then((res) => {
+        console.log(res.data);
+        if (res.data.msg === "ok") {
+          this.requestArr.splice(this.requestArr[index], 1);
+        }
+      });
+    },
+    // 同意
+    agree(index) {
+      console.log(this.requestArr[index].id);
+      this.$axios({
+        method: "post",
+        url: "api/friend/agree",
+        data: {
+          id: this.requestArr[index].id,
+          target: this.requestArr[index].target,
+          friendID: this.requestArr[index].friendID,
+        },
+      }).then((res) => {
+        console.log(res.data);
+        if (res.data.msg === "ok") {
+          this.requestArr.splice(this.requestArr[index], 1);
+        }
+      });
     },
   },
 };

@@ -16,7 +16,7 @@ module.exports = {
   devServer: {//指定多个代理
     proxy: {
       '/api': {//'/api'是请求前缀，要走代理就要加/api
-        target: 'http://localhost:5000',//如果前缀是/api，就把请求发送给该url
+        target: 'http://127.0.0.1:5000',//如果前缀是/api，就把请求发送给该url
         pathRewrite: { '^/api': '' },//匹配路径：把/api的路径转换成空字符串，不写的话转发给5000端口找不到正确的路径
         ws: true,//用于支持websocket
         changeOrigin: true//默认为true,用于控制请求头中的host值
