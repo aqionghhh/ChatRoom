@@ -136,6 +136,22 @@ module.exports = function (app) {
         console.log(result);
         res.send({ msg: 'ok' });
       })
+    }),
+
+    // 加群请求
+    app.post('/group/request', (req, res) => {
+      console.log(req.body);
+      Groupmember.find({ userID: req.body.userID, groupID: req.body.friendID })
+        .then(result => {
+          console.log('result', result);
+          if (result[0]) {   // 如果找到了，就返回一个状态
+            res.send({ status: 501 });
+          } else {  // 没有找到
+            Groupmember.create({ userID: req.body.userID, groupID: req.body.friendID, message: req.body.message }).then(created => {
+              res.send({ title: '申请成功' });
+            })
+          }
+        })
     })
 
 }

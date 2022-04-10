@@ -20,7 +20,10 @@ const FriendSchema = new Schema({
     type: Date,
     default: new Date()
   },
-});4
+  message: {  // 留言
+    type: String
+  }
+});
 
 
 module.exports = db.model('Friend', FriendSchema);//暴露好友表

@@ -134,8 +134,35 @@ module.exports = function (app) {
 
             })
           }
-        })
-
+        });
+        let requestLength = 0;  // 请求数量
+        let requestArr = []; // 请求的内容
+        Friend.find({ friendID: req.body.id }).sort({ time: -1 }).then(request => {
+          request = request.filter((item) => {
+            return item.state === "1";  // 返回没有通过的好友请求
+          });
+          requestLength = request.length;  // 返回没有通过好友请求的人数
+          Group.find({ master: req.body.id }).then(groupMaster => { // 查找自己是群主的群
+            // 如果自己是群主， 才能收到对应群的加群请求
+            if (groupMaster.length > 0) {
+              for (let i = 0; i < groupMaster.length; i++) {
+                // 找这个群里state为1的成员（即申请加群的成员）
+                Groupmember.find({ groupID: groupMaster[i]._id }).sort({ time: -1 }).then(grouprequest => {
+                  grouprequest = grouprequest.filter((item) => {
+                    return item.state === "1";  // 返回没有通过的好友请求
+                  });
+                  requestLength += grouprequest.length;
+                  if (grouprequest[0].time > request[0].time) {
+                    requestArr[0] = grouprequest[0];
+                  } else if (grouprequest[0].time < request[0].time) {
+                    requestArr[0] = request[0];
+                  }
+                  requestArr[1] = requestLength;
+                });
+              }
+            }
+          })
+        });
 
         let info = [];
         for (let i = 0; i < userarr.length; i++) {
@@ -177,7 +204,7 @@ module.exports = function (app) {
         }
         // info = info.concat(grouparr);
         console.log('userInfo', info);
-        res.send({ info, grouparr });
+        res.send({ info, grouparr, requestArr });
       })
     })
 

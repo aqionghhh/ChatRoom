@@ -27,7 +27,7 @@
         <div @click="toFriendRequest" class="friend-list">
           <!-- 左边部分,即头像 -->
           <div class="friend-list-l">
-            <span class="tip">1</span>
+            <span class="tip">{{ requests[1] }}</span>
             <img
               class="friend-list-l-img"
               src="../../static/images/index/添加.png"
@@ -38,9 +38,13 @@
           <div class="friend-list-r">
             <div class="top">
               <div class="name">好友申请</div>
-              <div class="time">23点50分</div>
+              <div v-if="requests[0]" class="time">
+                {{ changeTime(requests[0].time) }}
+              </div>
             </div>
-            <div class="message">你好</div>
+            <div v-if="requests[0]" class="message">
+              {{ requests[0].message }}
+            </div>
           </div>
         </div>
       </div>
@@ -90,6 +94,7 @@ export default {
     return {
       getImg: "",
       friends: [],
+      requests: [],
       img: "",
       id: "",
     };
@@ -196,6 +201,7 @@ export default {
         .then((res) => {
           console.log("获取到的好友列表", res.data);
           this.friends = res.data.info;
+          this.requests = res.data.requestArr;
           this.friends = this.friends.concat(res.data.grouparr);
           for (let i = 0; i < this.friends.length; i++) {
             this.friends[i].imgurl =

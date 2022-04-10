@@ -85,15 +85,15 @@
         <!-- :style="{ height: height + 'px', bottom: '-' + height + 'px' -->
         <div class="name">{{ user.name }}</div>
         <textarea
-          v-if="target === 'user'"
+          v-if="target === 'friend'"
           class="add-main"
-          :value="myname + '请求加为好友~'"
+          v-model="friendRequest"
           maxlength="120"
         ></textarea>
         <textarea
           v-if="target === 'group'"
           class="add-main"
-          :value="myname + '请求加群~'"
+          v-model="groupRequest"
           maxlength="120"
         ></textarea>
       </div>
@@ -117,7 +117,6 @@ export default {
   data() {
     return {
       sexBg: ["rgb(255,93,91)", "rgb(25,144,254)", "rgb(255,228,49)"], // 分别对应女、男、未知
-      myname: "",
       user: {
         img: "", // 头像
         name: "", //名字
@@ -126,11 +125,14 @@ export default {
         sex: "", // 性别
         notice: "", // 群公告
       },
+      myname: "",
       height: 0,
       animation: false, //添加好友弹窗
       tip: "", // 根据传进来的tip判断当前用户是否为好友，1为好友，0为陌生人；1为群成员，0为未加群
       friendID: "", // 朋友id或群id
       target: "", // 表示当前是群还是好友
+      friendRequest: "请求加为好友~",
+      groupRequest: "请求加群~",
     };
   },
   created() {
@@ -176,9 +178,12 @@ export default {
           this.user.intr = res.data.sign;
         }
         if (res.data.sex === "asexual") {
+          console.log(1111111);
           this.user.sex = "未知";
+          console.log(this.user.sex);
+        } else {
+          this.user.sex = res.data.sex;
         }
-        this.user.sex = res.data.sex;
         this.target = "friend";
       });
     }
@@ -193,7 +198,7 @@ export default {
     },
     //动态获取元素的高度
     getHeight() {
-      this.height = window.innerHeight - 186; // 高
+      this.height = window.innerHeight - 200; // 高
       console.log(this.height);
     },
     //添加好友动画
@@ -203,29 +208,57 @@ export default {
     },
     // 发送好友请求
     sendRequest() {
-      this.$axios({
-        method: "post",
-        url: "api/friend/request",
-        data: {
-          userID: localStorage.getItem("id"), // 自己的id
-          friendID: this.$route.query.id, // 好友的id
-          state: "1", // 发送请求
-        },
-      }).then((res) => {
-        console.log(res.data);
-        if (res.data.status === 501) {
-          this.$toast({
-            message: "别发那么多次！",
-            icon: require("../../static/images/Userhome/成功.jpg"),
-          });
-        } else {
-          this.$toast({
-            message: "发送成功",
-            icon: require("../../static/images/Userhome/成功.jpg"),
-          });
-        }
-        this.animation = false;
-      });
+      if (this.target === "friend") {
+        this.$axios({
+          method: "post",
+          url: "api/friend/request",
+          data: {
+            userID: localStorage.getItem("id"), // 自己的id
+            friendID: this.$route.query.id, // 好友的id
+            state: "1", // 发送请求
+            message: this.myname + "" + this.friendRequest,
+          },
+        }).then((res) => {
+          console.log(res.data);
+          if (res.data.status === 501) {
+            this.$toast({
+              message: "别发那么多次！",
+              icon: require("../../static/images/Userhome/成功.jpg"),
+            });
+          } else {
+            this.$toast({
+              message: "发送成功",
+              icon: require("../../static/images/Userhome/成功.jpg"),
+            });
+          }
+          this.animation = false;
+        });
+      } else {
+        this.$axios({
+          method: "post",
+          url: "api/group/request",
+          data: {
+            userID: localStorage.getItem("id"), // 自己的id
+            friendID: this.$route.query.id, // 群的id
+            state: "1", // 发送请求
+            message: this.myname + "" + this.groupRequest,
+          },
+        }).then((res) => {
+          console.log(res.data);
+          if (res.data.status === 501) {
+            this.$toast({
+              message: "别发那么多次！",
+              icon: require("../../static/images/Userhome/成功.jpg"),
+            });
+          } else {
+            this.$toast({
+              message: "发送成功",
+              icon: require("../../static/images/Userhome/成功.jpg"),
+            });
+          }
+          this.animation = false;
+        });
+      }
     },
     // 去用户详情页
     toUserDetail() {

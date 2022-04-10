@@ -20,6 +20,13 @@ const GroupmemberSchema = new Schema({
     type: Date,
     default: new Date(),
   },
+  state: {// 当前加群的状态
+    type: String,
+    default: '1'  // 默认没有通过（0：通过，1：没有通过）
+  },
+  message: {  // 加群的信息
+    type: String,
+  }
 });
 
 module.exports = db.model('Groupmember', GroupmemberSchema);
