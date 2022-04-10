@@ -7,7 +7,6 @@ import Register from '../pages/Register/Register';
 import Search from '../pages/Search/Search';
 import Userhome from '../pages/Userhome/Userhome';
 import Userdetail from '../pages/Userdetail/Userdetail';
-import Cropper from '../pages/Cropper/Cropper';
 import FriendRequest from '../pages/FriendRequest/FriendRequest';
 import ChatRoom from '../pages/ChatRoom/ChatRoom';
 import Test from '../pages/Test/Test';
@@ -51,10 +50,6 @@ const router = new VueRouter({
     {
       path: '/userdetail',
       component: Userdetail,
-    },
-    {
-      path: '/cropper',
-      component: Cropper,
     },
     {
       path: '/friendrequest',

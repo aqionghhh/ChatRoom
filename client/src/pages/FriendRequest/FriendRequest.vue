@@ -84,6 +84,10 @@ export default {
         console.log(res.data);
         if (res.data.msg === "ok") {
           this.requestArr.splice(this.requestArr[index], 1);
+          this.$toast({
+            message: "已拒绝",
+            icon: require("../../static/images/Userhome/成功.jpg"),
+          });
         }
       });
     },
@@ -103,6 +107,10 @@ export default {
         console.log(res.data);
         if (res.data.msg === "ok") {
           this.requestArr.splice(this.requestArr[index], 1);
+          this.$toast({
+            message: "已同意",
+            icon: require("../../static/images/Userhome/成功.jpg"),
+          });
         }
       });
     },

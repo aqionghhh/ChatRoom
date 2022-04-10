@@ -60,7 +60,8 @@
     <!-- 底部按钮 -->
     <div class="bottom-bar">
       <div v-if="tip === '0'" @click="addFriendAnimate" class="bottom-btn">
-        加为好友
+        <div v-if="target === 'friend'">加为好友</div>
+        <div v-else>申请加群</div>
       </div>
       <router-link
         :to="{

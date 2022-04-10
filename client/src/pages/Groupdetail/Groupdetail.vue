@@ -18,7 +18,7 @@
       <div class="main-inner">
         <div class="gropu-info">
           <div class="group-name">{{ groupName }}</div>
-          <div class="group-time">{{ createTime }}</div>
+          <div class="group-time">{{ changeTime(createTime) }}</div>
           <div class="group-notice">
             {{ groupNotice }}
           </div>
@@ -137,6 +137,8 @@
 <script>
 import Dialog from "../../components/Dialog/Dialog";
 import datas from "../../commons/js/datas.js";
+import myfun from "../../commons/js/myfun.js";
+
 export default {
   data() {
     return {
@@ -167,6 +169,10 @@ export default {
     this.getGroup();
   },
   methods: {
+    //转换时间
+    changeTime(date) {
+      return myfun.dateTime(date);
+    },
     //修改弹窗
     animationChange(e, type, data) {
       console.log("type", type);

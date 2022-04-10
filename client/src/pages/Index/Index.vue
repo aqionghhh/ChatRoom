@@ -401,8 +401,8 @@ export default {
 .group {
   position: absolute;
   right: 0px;
-  bottom: 0px;
-  width: 15px !important;
-  height: 15px !important;
+  bottom: 2px;
+  width: 20px !important;
+  height: 20px !important;
 }
 </style>
