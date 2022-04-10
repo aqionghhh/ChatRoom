@@ -13,7 +13,7 @@
         }"
       >
         <div class="top-bar-right" v-if="target === 'group'">
-          <img src="../../static/images/img/one.jpg" alt="" />
+          <img :src="img" alt="" />
         </div>
       </router-link>
     </div>
@@ -166,6 +166,7 @@ export default {
       userID: "", // 本人的id
       friendID: "",
       friendName: "", // 要对话的人的名字
+      img: "", // 群头像
     };
   },
   components: {
@@ -183,6 +184,7 @@ export default {
     localStorage.setItem("target", this.$route.query.target);
     console.log("this.$route.query.target", this.$route.query.target);
     this.target = localStorage.getItem("target");
+    this.img = "http://localhost:8080/api/userImg/" + this.$route.query.imgurl;
     this.stateZero(); // 清空未读消息
     await this.getMsg(this.nowPage); // 把页码传进去
   },

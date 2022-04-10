@@ -61,6 +61,7 @@
                 id: friend.friendID,
                 name: friend.name,
                 target: friend.target,
+                imgurl: friend.imgurl.slice(-17),
               },
             }"
           >
