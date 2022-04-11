@@ -9,7 +9,6 @@ import Userhome from '../pages/Userhome/Userhome';
 import Userdetail from '../pages/Userdetail/Userdetail';
 import FriendRequest from '../pages/FriendRequest/FriendRequest';
 import ChatRoom from '../pages/ChatRoom/ChatRoom';
-import Test from '../pages/Test/Test';
 import Create from '../pages/Create/Create';
 import Groupdetail from '../pages/Groupdetail/Groupdetail';
 import Invite from '../pages/Invite/Invite';
@@ -20,10 +19,6 @@ Vue.use(VueRouter)
 const router = new VueRouter({
   //所有路由
   routes: [
-    {
-      path: '/test',
-      component: Test,
-    },
     {
       path: '/',
       redirect: '/index',
