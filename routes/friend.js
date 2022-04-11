@@ -242,42 +242,53 @@ module.exports = function (app) {
     // 同意加为好友
     app.post('/friend/agree', (req, res) => {
       console.log(req.body);
-      Friend.update({
-        userID: req.body.id, // 查找朋友发来的数据
-        friendID: req.body.friendID
-      }, {
-        $set: { 'state': '0' }
-      }).then(result2 => {
-        console.log(result2);
-        Friend.find({
-          userID: req.body.friendID,
-          friendID: req.body.id
-        }).then(result2 => {
-          console.log(result2);
-          if (result2.length === 0) {
-            Friend.create({
-              userID: req.body.friendID,
-              friendID: req.body.id,
-              state: '0',
-              time: new Date()
-            }).then(result3 => {
-              console.log(result3);
-            })
-          } else if (result2[0].state === '1') {
-            Friend.update({
-              userID: req.body.userID,
-              friendID: req.body.friendID,
-            }, {
-              $set: { 'state': '0' }
-            }).then(result4 => {
-              console.log(result4);
-            })
+      if (req.body.target === 'group') {
+        Groupmember.update({ groupID: req.body.friendID, userID: req.body.id }, {
+          $set: {
+            'state': '0'
           }
-          Message.create({ userID: req.body.friendID, friendID: req.body.id, message: '好友添加成功，快来聊天吧~', types: '0', imgurl: req.body.imgurl, time: new Date(), tip: 1 });
+        }).then(groupUpdate => {
           res.send({ msg: 'ok' });
         })
+      } else if (req.body.target === 'friend') {
+        Friend.update({
+          userID: req.body.id, // 查找朋友发来的数据
+          friendID: req.body.friendID
+        }, {
+          $set: { 'state': '0' }
+        }).then(result2 => {
+          console.log(result2);
+          Friend.find({
+            userID: req.body.friendID,
+            friendID: req.body.id
+          }).then(result2 => {
+            console.log(result2);
+            if (result2.length === 0) {
+              Friend.create({
+                userID: req.body.friendID,
+                friendID: req.body.id,
+                state: '0',
+                time: new Date()
+              }).then(result3 => {
+                console.log(result3);
+              })
+            } else if (result2[0].state === '1') {
+              Friend.update({
+                userID: req.body.userID,
+                friendID: req.body.friendID,
+              }, {
+                $set: { 'state': '0' }
+              }).then(result4 => {
+                console.log(result4);
+              })
+            }
+            Message.create({ userID: req.body.friendID, friendID: req.body.id, message: '好友添加成功，快来聊天吧~', types: '0', imgurl: req.body.imgurl, time: new Date(), tip: 1 });
+            res.send({ msg: 'ok' });
+          })
 
-      })
+        })
+      }
+
     }),
     // 拒接加好友
     app.post('/friend/disagree', (req, res) => {
