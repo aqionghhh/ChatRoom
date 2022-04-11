@@ -245,6 +245,7 @@ export default {
     // 邀请成员
     inviteMember() {
       console.log("邀请成员");
+      this.$router.push("/invite");
     },
     // 返回上一页
     back() {

@@ -6,6 +6,8 @@ const db3 = require('../model/Groupmember');
 const Groupmember = db3.model('Groupmember');
 const db4 = require('../model/User');
 const User = db4.model('User');
+const db5 = require('../model/Friend');
+const Friend = db5.model('Friend');
 // 文件上传
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -152,6 +154,74 @@ module.exports = function (app) {
             })
           }
         })
+    }),
+
+    // 展示好友和群信息
+    app.post('/group/show', (req, res) => {
+      console.log(req.body);
+      let group = [];
+      Group.find({ _id: req.body.friendID }).then(find => {
+        let data = {
+          name: find[0].name,
+          groupImgurl: find[0].imgurl
+        }
+        group.push(data);
+      });
+
+      Friend.find({ 'userID': req.body.id, state: '0' }).then(async result => {
+        // console.log('以本人为user时查询的数据', result);
+        for (let j = 0; j < result.length; j++) {
+          await Group.find({ _id: req.body.id, master: result[j].friendID }).then(master => {
+            if (master.length > 0) {
+              result[j].state = '1';  // 代表这个好友是群主
+            }
+          })
+          await Groupmember.find({ groupID: req.body.friendID, userID: result[j].friendID }).then(member => {
+            if (member.length > 0) {
+              result[j].state = '1';  // 代表这个好友已经在群里了
+            }
+          })
+        }
+        result = result.filter((item) => {
+          return item.state === "0";
+        });
+        console.log(result);
+        let info = [];
+        for (let i = 0; i < result.length; i++) {
+          await User.findOne({ _id: result[i].friendID }).then(find2 => {
+            let data = {
+              friendID: find2._id,
+              imgurl: find2.imgurl,
+              name: find2.name,
+              email: find2.email,
+            }
+            info.push(data);
+          })
+        }
+        res.send({ group, info });
+      })
+    }),
+
+    // 邀请群成员
+    app.post('/group/inviteMember', async (req, res) => {
+      console.log(req.body);
+      let state = '1';  // 默认是不能直接加群
+      await Group.find({ _id: req.body.groupID, master: req.body.inviteID }).then(master => {
+        if (master.length > 0) {
+          state = '0'; // 如果是群主邀请，就直接进群 
+        }
+      })
+      for (let i = 0; i < req.body.friendID.length; i++) {
+        Groupmember.create({
+          groupID: req.body.groupID,
+          userID: req.body.friendID[i],
+          tip: 0,
+          time: new Date(),
+          state
+        }).then(result => {
+          res.send({ msg: 'ok' });
+        })
+      }
     })
 
 }

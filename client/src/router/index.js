@@ -12,6 +12,7 @@ import ChatRoom from '../pages/ChatRoom/ChatRoom';
 import Test from '../pages/Test/Test';
 import Create from '../pages/Create/Create';
 import Groupdetail from '../pages/Groupdetail/Groupdetail';
+import Invite from '../pages/Invite/Invite';
 
 //声明使用插件
 Vue.use(VueRouter)
@@ -66,6 +67,10 @@ const router = new VueRouter({
     {
       path: '/groupdetail',
       component: Groupdetail,
+    },
+    {
+      path: '/invite',
+      component: Invite,
     }
   ]
 });
