@@ -1,10 +1,17 @@
 <template>
   <div>
-    <div class="top-bar">
-      <div class="top-left" @click="back">取消</div>
-      <div class="top-bar-center">创建群聊</div>
-      <div class="top-bar-right"></div>
-    </div>
+    <TopBar>
+      <template v-slot:left>
+        <img
+          @click="back"
+          src="../../static/images/Userhome/左箭头.png"
+          alt=""
+        />
+      </template>
+      <template v-slot:center>
+        <div>创建群聊</div>
+      </template>
+    </TopBar>
     <!-- 正文 -->
     <div class="main">
       <div class="top">
@@ -65,6 +72,7 @@
 </template>
 
 <script>
+import TopBar from "../../components/TopBar/TopBar.vue";
 export default {
   data() {
     return {
@@ -74,6 +82,9 @@ export default {
       groupName: "", // 群名
       form: "",
     };
+  },
+  components: {
+    TopBar,
   },
   created() {
     // 获取好友列表
@@ -101,9 +112,8 @@ export default {
     });
   },
   methods: {
-    // 返回首页
     back() {
-      this.$router.replace("/index");
+      this.$router.back();
     },
     // 点击头像按钮
     uploadImg() {

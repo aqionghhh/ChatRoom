@@ -1,17 +1,18 @@
 <template>
   <div class="content">
     <!-- 头部 -->
-    <div class="top-bar">
-      <div class="top-left">
+    <TopBar>
+      <template v-slot:left>
         <img
-          src="../../static/images/Userhome/左箭头.png"
           @click="back"
+          src="../../static/images/Userhome/左箭头.png"
           alt=""
         />
-      </div>
-      <div class="top-bar-center">详情</div>
-      <div class="top-bar-right"></div>
-    </div>
+      </template>
+      <template v-slot:center>
+        <div>详情</div>
+      </template>
+    </TopBar>
     <!-- 主体 -->
     <div class="main">
       <div class="column heads">
@@ -139,6 +140,7 @@
 </template>
 
 <script>
+import TopBar from "../../components/TopBar/TopBar.vue";
 export default {
   data() {
     return {
@@ -164,6 +166,9 @@ export default {
       maxDate: new Date(2025, 10, 1), //最大日期
       currentDate: new Date(), //当前日期
     };
+  },
+  components: {
+    TopBar,
   },
   created() {
     this.id = localStorage.getItem("id");
@@ -205,6 +210,9 @@ export default {
     console.log(this.isMe);
   },
   methods: {
+    back() {
+      this.$router.back();
+    },
     // 打开图片上传
     uploadHeadImg() {
       if (this.isMe) {
@@ -266,9 +274,7 @@ export default {
           });
       };
     },
-    back() {
-      this.$router.replace("/index");
-    },
+
     // 注册时间处理
     timeChange(date) {
       return date.slice(0, 10);
@@ -378,24 +384,7 @@ export default {
   justify-content: center;
   align-items: center;
 }
-.vue-cropper {
-  background: #000;
-}
-.cropper-view-box {
-  outline: 1px solid #fff !important;
-  outline-color: #fff !important;
-}
-van-popup {
-  padding: 0;
-  margin: 0;
-}
-.top-bar-center {
-  text-align: center;
-  color: #272832;
-  font-weight: 550;
-  font-size: 20px;
-  line-height: 44px;
-}
+
 .main {
   padding-top: 59px;
   display: flex;

@@ -1,3 +1,22 @@
+<template>
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <slot name="left"></slot>
+    </div>
+    <div class="top-bar-center">
+      <slot name="center"></slot>
+    </div>
+    <div class="top-bar-right">
+      <slot name="right"></slot>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {};
+</script>
+
+<style scoped>
 /* 头部共用样式 */
 .top-bar {
   z-index: 100;
@@ -11,28 +30,39 @@
   box-sizing: border-box;
 }
 
-.top-bar-center img {
-  width: 44px;
-  height: 21px;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-  margin: auto;
-}
-
-.top-bar-right {
-  float: right;
-}
-
-.top-left {
+.top-bar-left {
   float: left;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   box-sizing: border-box;
+}
+.top-bar-left img {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 10px;
+  left: 12px;
+}
+.top-bar-center {
+  text-align: center;
+  color: #272832;
+  font-weight: 550;
+  font-size: 20px;
+  line-height: 44px;
+}
+
+.top-bar-right {
+  padding-right: 16px;
+  font-size: 18px;
+  font-weight: 550;
+  font-family: PingFangSC-Medium;
+  color: black;
+  position: absolute;
+  right: 0;
+  top: 0;
+  line-height: 44px;
 }
 
 .top-bar-right img {
@@ -41,14 +71,6 @@
   height: 30px;
   right: 16px;
   top: 8px;
-}
-
-.top-left img {
-  width: 24px;
-  height: 24px;
-  position: absolute;
-  top: 10px;
-  left: 12px;
 }
 
 .main {
@@ -84,3 +106,4 @@
   /* background: white; */
   border-radius: 5px;
 }
+</style>

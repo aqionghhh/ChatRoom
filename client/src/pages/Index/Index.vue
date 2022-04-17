@@ -94,7 +94,6 @@
 </template>
 
 <script>
-// import datas from "../../commons/js/datas.js";
 import myfun from "../../commons/js/myfun.js";
 export default {
   data() {
@@ -106,7 +105,6 @@ export default {
       id: "",
     };
   },
-  // 注册socket
   sockets: {
     connet() {
       console.log("连接成功");

@@ -5,9 +5,6 @@
       <div class="top-left" @click="back">
         <img src="../../static/images/Userhome/左箭头.png" alt="" />
       </div>
-      <div class="top-bar-right">
-        <img src="../../static/images/Userhome/三点.png" alt="" />
-      </div>
     </div>
     <!-- 背景图片 -->
     <div class="bg">

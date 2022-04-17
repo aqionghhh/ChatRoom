@@ -1,10 +1,17 @@
 <template>
   <div>
-    <div class="top-bar">
-      <div class="top-left" @click="back">取消</div>
-      <div class="top-bar-center">邀请好友</div>
-      <div class="top-bar-right"></div>
-    </div>
+    <TopBar>
+      <template v-slot:left>
+        <img
+          @click="back"
+          src="../../static/images/Userhome/左箭头.png"
+          alt=""
+        />
+      </template>
+      <template v-slot:center>
+        <div>邀请好友</div>
+      </template>
+    </TopBar>
     <!-- 正文 -->
     <div class="main">
       <div class="top">
@@ -58,6 +65,7 @@
 </template>
 
 <script>
+import TopBar from "../../components/TopBar/TopBar.vue";
 export default {
   data() {
     return {
@@ -65,6 +73,9 @@ export default {
       user: [], // 关于好友的信息
       number: 0, // 选择的好友数，默认值为0
     };
+  },
+  components: {
+    TopBar,
   },
   created() {
     // 获取好友列表
@@ -90,7 +101,6 @@ export default {
     });
   },
   methods: {
-    // 返回首页
     back() {
       this.$router.back();
     },
@@ -141,22 +151,6 @@ export default {
 </script>
 
 <style scoped>
-.top-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.top-left {
-  font-size: 18px;
-  padding: 12px 0 0 16px;
-}
-.top-bar-center {
-  text-align: center;
-  color: #272832;
-  font-weight: 550;
-  font-size: 20px;
-  line-height: 44px;
-}
 .main {
   display: flex;
   flex-direction: column;

@@ -1,22 +1,31 @@
 <template>
   <div class="content">
     <!-- 头部 -->
-    <div class="top-bar">
-      <div class="top-left" @click="goback">
-        <img src="../../static/images/Userhome/左箭头.png" alt="" />
-      </div>
-      <div class="top-bar-center">{{ friendName }}</div>
-      <router-link
-        :to="{
-          path: '/groupdetail',
-          query: { id: friendID },
-        }"
-      >
-        <div class="top-bar-right" v-if="target === 'group'">
-          <img :src="img" alt="" />
-        </div>
-      </router-link>
-    </div>
+
+    <TopBar>
+      <template v-slot:left>
+        <img
+          @click="goback"
+          src="../../static/images/Userhome/左箭头.png"
+          alt=""
+        />
+      </template>
+      <template v-slot:center>
+        <div>{{ friendName }}</div>
+      </template>
+      <template v-slot:right>
+        <router-link
+          :to="{
+            path: '/groupdetail',
+            query: { id: friendID },
+          }"
+        >
+          <div class="top-bar-right" v-if="target === 'group'">
+            <img :src="img" alt="" />
+          </div>
+        </router-link>
+      </template>
+    </TopBar>
     <!-- 主体部分 -->
     <div class="chat" ref="scroll" :style="{ height: height + 'px' }">
       <div
@@ -145,6 +154,7 @@ import MouseWheel from "@better-scroll/mouse-wheel";
 import PullDown from "@better-scroll/pull-down";
 
 import Submit from "../../components/Submit/Submit";
+import TopBar from "../../components/TopBar/TopBar.vue";
 
 BScroll.use(MouseWheel);
 BScroll.use(PullDown);
@@ -171,6 +181,7 @@ export default {
   },
   components: {
     Submit,
+    TopBar,
   },
 
   async created() {
