@@ -1,17 +1,17 @@
 <template>
   <div class="content">
-    <!-- 头部 -->
-    <div class="top-bar">
-      <div class="top-left">
+    <TopBar>
+      <template v-slot:left>
         <img
           @click="back"
           src="../../static/images/Userhome/左箭头.png"
           alt=""
         />
-      </div>
-      <div class="top-bar-center">好友请求</div>
-    </div>
-
+      </template>
+      <template v-slot:center>
+        <div>好友请求</div>
+      </template>
+    </TopBar>
     <!-- 主体部分 -->
     <div class="artical">
       <div
@@ -38,11 +38,16 @@
 
 <script>
 import myfun from "../../commons/js/myfun.js";
+import TopBar from "../../components/TopBar/TopBar.vue";
+
 export default {
   data() {
     return {
       requestArr: [],
     };
+  },
+  components: {
+    TopBar,
   },
   created() {
     this.$axios({
@@ -119,17 +124,6 @@ export default {
 </script>
 
 <style scoped>
-@import "../../commons/css/index.css";
-.top-bar-center {
-  flex: auto;
-  text-align: center;
-  font-size: 20px;
-  line-height: 44px;
-}
-.top {
-  background: rgba(255, 255, 255, 0.96);
-  border-bottom: 1px solid #ccc;
-}
 .artical {
   padding: 54px 16px;
 }

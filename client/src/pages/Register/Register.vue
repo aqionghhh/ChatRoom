@@ -132,7 +132,6 @@ export default {
         }
       }
       this.isOk();
-      // console.log(e.target.value);//打印出input框的值
     },
     //跳转到的登录页面
     toLogin() {
@@ -169,15 +168,12 @@ export default {
           url: "api/register/judge",
           method: "post",
         }).then((res) => {
-          console.log(this.email);
           if (res.data.status === 400) {
             // 该邮箱已经注册
             this.emailemploy = true;
             this.invalid = false;
             this.isemail = false;
-            console.log(res);
           } else {
-            // this.$router.replace("/register");
           }
         });
       }
@@ -194,8 +190,6 @@ export default {
           method: "post",
         }).then((res) => {
           if (res.data) {
-            // this.emailemploy = true;
-            console.log(res.data);
             this.$router.replace("/login");
           }
         });

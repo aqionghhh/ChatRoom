@@ -162,7 +162,6 @@ export default {
   created() {
     localStorage.setItem("friendID", this.$route.query.id);
     this.friendID = localStorage.getItem("friendID");
-    // this.getMember();
     this.getGroup();
   },
   methods: {
@@ -233,15 +232,12 @@ export default {
           method: "post",
           data: formData,
           url: "api/group/updatefile",
-        }).then((res) => {
-          console.log("res.data", res.data);
-        });
+        }).then((res) => {});
       };
     },
 
     // 邀请成员
     inviteMember() {
-      console.log("邀请成员");
       this.$router.push("/invite");
     },
     // 返回上一页
@@ -252,7 +248,6 @@ export default {
     // 获取群成员
     getMember() {
       this.member = datas.friends();
-      // console.log(this.member);
       for (let i = 0; i < this.member.length; i++) {}
     },
     // 获取群信息
@@ -318,7 +313,6 @@ export default {
             userID: this.deleteMemberID,
           },
         }).then((res) => {
-          console.log(res.data);
           this.member.splice(this.deleteMemberIndex, 1);
         });
       } else if (tip === "exitConfrim") {
@@ -330,10 +324,8 @@ export default {
             userID: localStorage.getItem("id"),
           },
         }).then((res) => {
-          console.log(res.data);
           this.$router.replace("/index");
         });
-        console.log("exitConfrim");
       }
     },
 

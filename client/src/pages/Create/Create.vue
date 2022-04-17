@@ -95,20 +95,17 @@ export default {
         id: localStorage.getItem("id"),
       },
     }).then((res) => {
-      console.log("获取到的好友列表", res.data);
       this.user = res.data.filter((item) => {
         return (
           item.state === "0" && item.friendID !== localStorage.getItem("id")
         );
       });
-      console.log("临时变量user数组", this.user); // 这里面是自己的好友
 
       for (let i = 0; i < this.user.length; i++) {
         this.user[i].imgurl =
           "http://localhost:8080/api/userImg/" + this.user[i].imgurl;
         this.$set(this.user[i], "selected", false);
       }
-      console.log("临时变量user数组", this.user); // 这里面是自己的好友
     });
   },
   methods: {
@@ -124,7 +121,6 @@ export default {
       this.form = e.srcElement.files.item(0);
       console.log(this.form);
 
-      console.log("头像", e.srcElement.files.item(0));
       let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
       console.log("blob", url);
       this.groupImg = url;
@@ -149,7 +145,6 @@ export default {
         });
         // 在这里发送请求
         let groupname = this.groupName.trim();
-        console.log(groupname);
 
         let formData = new FormData();
         formData.append("file", this.form);
@@ -166,7 +161,6 @@ export default {
           data: formData,
         }).then((res) => {
           if (res.data.message === "ok") {
-            console.log("创建成功", res.data);
             this.$router.replace("/index");
           }
         });

@@ -222,7 +222,6 @@ export default {
     },
     // 结束录音
     voiceEnd() {
-      console.log("结束");
       clearInterval(this.timer); // 清除定时器
       console.log("一共有多少秒：", this.i);
       // 录音时间小于2s
@@ -244,13 +243,11 @@ export default {
     },
     // 获取点击的emoji
     getEmoji(ele) {
-      // console.log(ele);
       this.$refs.content.innerHTML += ele;
     },
     // 获取弹窗的高度
     getHeight(ele) {
       this.Height = document.querySelector(ele).offsetHeight + 20;
-      console.log(this.Height);
       this.$emit("Height", this.Height);
     },
     // 发送文本框中的内容
@@ -266,14 +263,10 @@ export default {
     },
     // 发送图片
     photo() {
-      console.log("photo");
       this.$refs.hidden.click(); // 点击图片，时机上点击的是input按钮
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
-      // let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
-      // let formData = new FormData();
-      // formData.append("file", e.srcElement.files.item(0));
       this.$emit("sendPhoto", e.srcElement.files.item(0), 1); // 图片的类型是1
     },
     // 文件

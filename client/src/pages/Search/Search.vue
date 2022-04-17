@@ -91,7 +91,6 @@ export default {
       },
     }).then((res) => {
       this.friendarr = res.data;
-      console.log("本人的好友列表", this.friendarr);
     });
 
     this.$axios({
@@ -102,7 +101,6 @@ export default {
       },
     }).then((res) => {
       this.memberarr = res.data;
-      console.log("本人的群聊列表", this.memberarr);
     });
   },
   methods: {
@@ -138,7 +136,6 @@ export default {
         console.log("arr", arr); // 除了自己的所有用户
         let exp = eval("/" + e + "/g"); //封装在正则里面
         for (let i = 0; i < arr.length; i++) {
-          console.log("找出来的用户" + i, arr[i]);
           arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
           this.$set(arr[i], "usertip", 0); // 默认找出来的都不是好友
           if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
@@ -154,7 +151,6 @@ export default {
             this.userarr.push(arr[i]);
           }
         }
-        console.log("this.userarr", this.userarr);
       });
 
       // console.log(this.userarr);
@@ -166,11 +162,9 @@ export default {
         method: "post",
         url: "api/group/search",
       }).then((res) => {
-        console.log(res.data);
         arr = res.data;
         let exp = eval("/" + e + "/g"); //封装在正则里面
         for (let i = 0; i < arr.length; i++) {
-          console.log("找出来的群" + i, arr[i]);
           arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
           this.$set(arr[i], "tips", 0); // 默认找出来的都不是自己的群
           if (arr[i].name.search(e) != -1) {
@@ -181,24 +175,17 @@ export default {
             );
             this.grouparr.push(arr[i]);
           }
-          console.log(this.grouparr);
         }
       });
     },
     //判断是否为为好友
     isFriend(e) {
-      let tip = 0; //先默认搜索出来的每个人都不是好友(0不是好友,1是好友)
-
-      console.log("好友", this.friendarr);
-      console.log("e", e); // 这的e是除了自己的所有的用户
-
       for (let i = 0; i < this.friendarr.length; i++) {
         console.log(e._id);
         console.log("this.friendarr[i].friendID", this.friendarr[i].friendID);
         // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
         if (this.friendarr[i].friendID === e._id) {
           //好友表中的id与搜索出来的用户id相同，则认为是好友关系
-          console.log("到这了");
           // tip = 1; //是好友关系  注：这样加属性没有响应式
           this.$set(e, "usertip", 1); // 这样加才有响应式
         }
@@ -212,7 +199,6 @@ export default {
         // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
         if (this.memberarr[i]._id === e._id) {
           //好友表中的id与搜索出来的用户id相同，则认为是好友关系
-          console.log("到这了");
           // tip = 1; //是好友关系  注：这样加属性没有响应式
           this.$set(e, "tips", 1); // 这样加才有响应式
         }
@@ -247,6 +233,7 @@ export default {
   font-family: PingFangSC-Medium;
   color: black;
   line-height: 44px;
+  float: right;
 }
 .search {
   float: none;

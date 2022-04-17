@@ -58,7 +58,6 @@ export default {
     login() {
       if (this.user && this.pwd) {
         //用户名和密码都存在才提交给后台
-        console.log("提交");
         this.$axios({
           data: {
             data: this.user,
@@ -72,7 +71,6 @@ export default {
             //获取response，里面包含了表格数据
             if (res.data.status === 300 || res.data.status === 400) {
               this.compare = true;
-              console.log("用户名或密码错误");
             } else {
               console.log(res);
               this.token = res.data.back.token;

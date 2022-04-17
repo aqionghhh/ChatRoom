@@ -193,7 +193,6 @@ export default {
     localStorage.setItem("friendName", this.$route.query.name);
     this.friendName = localStorage.getItem("friendName");
     localStorage.setItem("target", this.$route.query.target);
-    console.log("this.$route.query.target", this.$route.query.target);
     this.target = localStorage.getItem("target");
     this.img = "http://localhost:8080/api/userImg/" + this.$route.query.imgurl;
     this.stateZero(); // 清空未读消息
@@ -207,8 +206,6 @@ export default {
     console.log("friendName", this.friendName);
   },
   updated() {
-    // this.stateZero(); // 清空未读消息
-
     this.$nextTick(() => {
       // this.init();
       this.scroll.refresh();
@@ -493,7 +490,6 @@ export default {
       // 判断这是私聊还是群聊
       if (this.target === "friend") {
         // 私聊
-        console.log("aaa");
         this.$socket.emit(
           "msg",
           e,
@@ -525,7 +521,6 @@ export default {
       })
         .then((res) => {
           let msg = res.data;
-          console.log(msg);
           if (msg[0]) {
             for (let i = 0; i < msg.length; i++) {
               if (i < msg.length) {
@@ -555,16 +550,13 @@ export default {
           }
           console.log(this.msgs);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
       // 一次渲染十条
 
       this.nowPage += 1;
     },
     // 听语音
     listenVoice(e) {
-      console.log("音频文件", e); // 传进来的是mp3文件
       audio.src = e;
       audio.play();
       console.log("播放");
@@ -581,7 +573,6 @@ export default {
     },
     imageLoad() {
       this.scroll.refresh(); // 当src资源加载完成之后调用refresh方法
-      console.log("onload");
       this.scrollToBottom();
     },
     // 返回上一级路由
@@ -685,9 +676,6 @@ export default {
     // 完成刷新
     async finishPullDown() {
       this.scroll.finishPullDown();
-      // this.a = document.querySelectorAll(".chat-cont");
-      // console.log(this.a[0]);
-      // this.scroll.scrollToElement(this.a[0]);
       setTimeout(() => {
         this.beforePullDown = true;
       }, 900);
@@ -704,20 +692,6 @@ export default {
 .top-bar {
   background-color: rgb(243, 243, 243);
 }
-.top-bar-center {
-  flex: auto;
-  text-align: center;
-  font-size: 20px;
-  line-height: 44px;
-}
-.top-bar-right img {
-  width: 30px;
-  position: absolute;
-  height: 30px;
-  right: 16px;
-  top: 6px;
-  border-radius: 20%;
-}
 .chat {
   overflow: hidden;
 }
@@ -731,8 +705,6 @@ export default {
   color: #999;
 }
 .chat-main {
-  /* margin-left: 16px; */
-  /* padding-right: 16px; */
   padding-top: 50px;
   flex-direction: column;
 }

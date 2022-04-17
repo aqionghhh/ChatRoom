@@ -149,11 +149,9 @@ export default {
     },
     // 接收群socket
     groupmsg(msg) {
-      console.log("我在前端收到了群消息", msg);
       let middleMsg = ""; // 拿一个变量来显示在主页上的文字信息
       // 判断接收的message类型是图片、文字还是语音
       if (msg[0].types === "0") {
-        console.log("发过来的是文字");
         // 文字
         middleMsg = msg[0].message;
       } else if (msg[0].types === "1") {
@@ -163,10 +161,8 @@ export default {
         // 语音
         middleMsg = "[语音]";
       }
-      console.log(msg);
       for (let i = 0; i < this.friends.length; i++) {
         if (this.friends[i].friendID === msg[1]) {
-          console.log("好友收到了");
           let e = this.friends[i];
           e.tip += 1; // 未读消息累加
           e.time = new Date(); // 接收到消息的时间
@@ -204,7 +200,6 @@ export default {
         },
       })
         .then((res) => {
-          console.log("获取到的好友列表", res.data);
           this.friends = res.data.info;
           this.requests = res.data.requestArr;
           this.friends = this.friends.concat(res.data.grouparr);
@@ -259,7 +254,6 @@ export default {
 </script>
 
 <style scoped>
-/* @import "../../commons/css/index.css"; */
 .top-bar {
   z-index: 100;
   position: fixed;

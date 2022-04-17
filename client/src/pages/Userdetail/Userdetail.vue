@@ -172,8 +172,6 @@ export default {
   },
   created() {
     this.id = localStorage.getItem("id");
-    console.log(this.$route.query.id);
-    console.log(this.id);
     this.$axios({
       method: "post",
       data: {
@@ -181,7 +179,6 @@ export default {
       },
       url: "api/user/detail",
     }).then((res) => {
-      console.log(res.data);
       if (res.data.sex === "asexual") {
         this.dataarr.sex = this.projectListArr[2];
       } else {
@@ -201,13 +198,11 @@ export default {
       // this.dataarr.imgurl = res.data.imgurl;
       res.data.imgurl = "userImg/" + res.data.imgurl;
       this.dataarr.imgurl = "http://localhost:8080/api/" + res.data.imgurl;
-      console.log(this.dataarr.imgurl);
       this.$store.commit("setInfo", res.data);
     });
 
     // 判断与自己的id是否相等
     this.isMe = this.$route.query.id === this.id;
-    console.log(this.isMe);
   },
   methods: {
     back() {
@@ -217,7 +212,6 @@ export default {
     uploadHeadImg() {
       if (this.isMe) {
         this.$refs.hidden.click(); // 点击图片，实际上点击的是input按钮
-        console.log("input");
       }
     },
     // 将头像显示，并且传到后端
@@ -245,9 +239,6 @@ export default {
         console.log("formData", formData);
         this.$axios({
           method: "post",
-          // data: {
-          //   arr: this.dataarr,
-          // },
           data: formData,
           url: "api/user/updatefile",
         })
@@ -263,11 +254,9 @@ export default {
               }).then((res) => {
                 this.dataarr.imgurl =
                   "http://localhost:8080/api/userImg/" + res.data.imgurl; // 因为做了代理，不要忘记加上/api！
-                console.log("this.dataarr.imgurl", this.dataarr.imgurl);
                 localStorage.setItem("imgurl", this.dataarr.imgurl);
               });
             }
-            // console.log(this.dataarr);
           })
           .catch(() => {
             console.log("error");
@@ -287,7 +276,6 @@ export default {
         method: "post",
         data: {
           arr: this.dataarr,
-          // data: this.data,
         },
         url: "api/user/update",
       });
@@ -296,7 +284,6 @@ export default {
     },
     //日期选择器
     getTime(e) {
-      // console.log(e);
       let year = e.getFullYear(); //年
       let month = e.getMonth() + 1; //月
       let day = e.getDate(); //日
@@ -319,7 +306,6 @@ export default {
         method: "post",
         data: {
           arr: this.dataarr,
-          // data: this.data,
         },
         url: "api/user/update",
       });
@@ -353,7 +339,6 @@ export default {
         method: "post",
         data: {
           arr: this.dataarr,
-          // data: this.data,
         },
         url: "api/user/update",
       });
@@ -370,8 +355,6 @@ export default {
 </script>
 
 <style scoped>
-@import "../../commons/css/index.css";
-/* @import "../../commons/css/headimg.css"; */
 .content {
   box-sizing: border-box;
 }

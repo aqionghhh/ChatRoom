@@ -87,7 +87,6 @@ export default {
         friendID: localStorage.getItem("friendID"),
       },
     }).then((res) => {
-      console.log("获取到的好友列表", res.data);
       this.user = res.data.info;
       res.data.group[0].groupImgurl =
         "http://localhost:8080/api/userImg/" + res.data.group[0].groupImgurl;
@@ -97,7 +96,6 @@ export default {
           "http://localhost:8080/api/userImg/" + this.user[i].imgurl;
         this.$set(this.user[i], "selected", false);
       }
-      // console.log("临时变量user数组", this.user); // 这里面是自己的好友
     });
   },
   methods: {
@@ -106,11 +104,9 @@ export default {
     },
     // 选择群成员
     select(e) {
-      console.log(e);
       this.user[e].selected = !this.user[e].selected;
       if (this.user[e].selected === true) {
         this.number += 1;
-        console.log(this.user[e].selected);
       } else {
         this.number -= 1;
       }
@@ -129,7 +125,6 @@ export default {
             ids.push(this.user[i].friendID);
           }
         }
-        console.log(ids);
         this.$axios({
           method: "post",
           url: "api/group/inviteMember",
@@ -139,7 +134,6 @@ export default {
             friendID: ids,
           },
         }).then((res) => {
-          console.log(res.data);
           if (res.data.msg === "ok") {
             this.$router.back();
           }

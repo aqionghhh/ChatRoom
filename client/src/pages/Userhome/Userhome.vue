@@ -141,9 +141,6 @@ export default {
     this.getHeight(); //页面创建时调用
     this.tip = this.$route.query.tip; // 传进来的是字符串
     this.friendID = this.$route.query.id;
-    console.log("传过来的id", this.$route.query.id);
-    console.log("传过来的tip", this.$route.query.tip);
-    console.log("传过来的target", this.$route.query.target);
     if (this.$route.query.target === "group") {
       // 群聊天
       this.$axios({
@@ -200,12 +197,10 @@ export default {
     //动态获取元素的高度
     getHeight() {
       this.height = window.innerHeight - 200; // 高
-      console.log(this.height);
     },
     //添加好友动画
     addFriendAnimate() {
       this.animation = !this.animation;
-      console.log(this.animation);
     },
     // 发送好友请求
     sendRequest() {
