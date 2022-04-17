@@ -17,6 +17,8 @@ const store = new Vuex.Store({
     isBlur: true,   // 输入框是否失焦，默认是不失焦
     groupName: '',  // 群名
     groupNotice: '',  // 群公告
+    number: 1,  // 选中的成员数
+    inviteNumber: 0,  // 邀请的成员数
   },
   mutations: { // 增加nutations属性
     setInfo(state, back) {  // 增加一个mutations的方法，方法的作用是让num从0变成5，state是必须默认参数
@@ -56,7 +58,15 @@ const store = new Vuex.Store({
     setName(state, back) {
       state.groupNotice = back;
     },
-    
+    // 选择成员
+    setNumber(state, back) {
+      state.number = back;
+    },
+    // 选择成员
+    setInviteNumber(state, back) {
+      state.inviteNumber = back;
+    },
+
     changeTap(state) {  // 弹窗是否展示
       state.canTap = !state.canTap;
     },

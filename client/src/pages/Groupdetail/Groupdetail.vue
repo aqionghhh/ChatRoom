@@ -338,6 +338,21 @@ export default {
 </script>
 
 <style scoped>
+.top-left {
+  float: left;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+.top-left img {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 10px;
+  left: 12px;
+}
 .bg-img {
   width: 100%;
   height: auto;

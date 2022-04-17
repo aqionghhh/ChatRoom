@@ -20,7 +20,7 @@
             query: { id: friendID },
           }"
         >
-          <div class="top-bar-right" v-if="target === 'group'">
+          <div class="top-right" v-if="target === 'group'">
             <img :src="img" alt="" />
           </div>
         </router-link>
@@ -687,6 +687,24 @@ export default {
 }
 .top-bar {
   background-color: rgb(243, 243, 243);
+}
+.top-right {
+  padding-right: 16px;
+  font-size: 18px;
+  font-weight: 550;
+  font-family: PingFangSC-Medium;
+  color: black;
+  position: absolute;
+  right: 0;
+  top: 0;
+  line-height: 44px;
+}
+.top-right img {
+  width: 30px;
+  position: absolute;
+  height: 30px;
+  right: 16px;
+  top: 8px;
 }
 .chat {
   overflow: hidden;

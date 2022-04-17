@@ -39,32 +39,15 @@
         <div class="title">用户</div>
       </div>
       <!-- 选择用户 -->
-      <div class="friends">
-        <div
-          @click="select(index)"
-          class="user"
-          v-for="(item, index) in user"
-          :key="index"
-        >
-          <div class="selected" :class="{ isselected: item.selected }">
-            <img
-              src="../../static/images/Register/Group 3.png"
-              v-if="item.selected"
-              alt=""
-            />
-          </div>
-          <img class="user-img" :src="item.imgurl" alt="" />
-          <div class="name">{{ item.name }}</div>
-        </div>
-      </div>
+      <UserList :user="user" />
       <!-- 底部按钮 -->
       <div class="bottom-bar">
         <div
           @click="createGroup"
-          :class="{ canCreate: number > 1 && groupName && form }"
+          :class="{ canCreate: getNumber > 1 && groupName && form }"
           class="bottom-btn"
         >
-          创建（{{ number }}）
+          创建（{{ getNumber }}）
         </div>
       </div>
     </div>
@@ -73,18 +56,19 @@
 
 <script>
 import TopBar from "../../components/TopBar/TopBar.vue";
+import UserList from "../../components/UserList/UserList.vue";
 export default {
   data() {
     return {
       groupImg: require("../../static/images/chatroom/加号.png"), // 群头像
       user: [],
-      number: 1, // 选择的成员数，默认值为1，因为包括了自己
       groupName: "", // 群名
       form: "",
     };
   },
   components: {
     TopBar,
+    UserList,
   },
   created() {
     // 获取好友列表
@@ -108,6 +92,11 @@ export default {
       }
     });
   },
+  computed: {
+    getNumber() {
+      return this.$store.state.number;
+    },
+  },
   methods: {
     back() {
       this.$router.back();
@@ -125,17 +114,7 @@ export default {
       console.log("blob", url);
       this.groupImg = url;
     },
-    // 选择群成员
-    select(e) {
-      console.log(e);
-      this.user[e].selected = !this.user[e].selected;
-      if (this.user[e].selected === true) {
-        this.number += 1;
-        console.log(this.user[e].selected);
-      } else {
-        this.number -= 1;
-      }
-    },
+
     // 创建群聊
     createGroup() {
       if (this.number > 1 && this.groupName && this.form) {
@@ -171,28 +150,12 @@ export default {
 </script>
 
 <style scoped>
-.top-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.top-left {
-  font-size: 18px;
-  padding: 12px 0 0 16px;
-}
-.top-bar-center {
-  text-align: center;
-  color: #272832;
-  font-weight: 550;
-  font-size: 20px;
-  line-height: 44px;
-}
 .main {
   display: flex;
   flex-direction: column;
 }
 .top {
-  padding-top: 48px;
+  padding-top: 28px;
   position: fixed;
   background-color: #fff;
   width: 100%;
@@ -234,55 +197,15 @@ export default {
   text-align: center;
   color: rgba(255, 0, 0, 0.6);
 }
-.friends {
-  padding: 300px 20px 80px 20px;
-}
+
 .title {
   padding: 20px 0 0 20px;
-
   font-size: 22px;
   font-weight: 600;
   color: #272832;
   line-height: 30px;
 }
-.user {
-  display: flex;
-  flex-direction: row;
-  height: 60px;
-  align-items: center;
-}
-.selected {
-  flex: none;
-  margin-right: 10px;
-  width: 24px;
-  height: 24px;
-  background: rgba(255, 228, 49, 0.5);
-  border-radius: 12px;
-}
-.isselected {
-  background: rgba(255, 228, 49, 1);
-}
-.selected img {
-  width: 15px;
-  height: 15px;
-  padding-left: 5px;
-  padding-top: 5px;
-}
-.user-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  flex: none;
-}
-.name {
-  padding-left: 16px;
-  font-size: 20px;
-  color: #272832;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-}
+
 .bottom-bar {
   position: fixed;
   bottom: 0;
