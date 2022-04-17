@@ -31,6 +31,8 @@
 </template>
 
 <script>
+import { logIn } from "../../request/post";
+console.log(logIn);
 export default {
   data() {
     return {
@@ -59,13 +61,17 @@ export default {
       if (this.user && this.pwd) {
         //用户名和密码都存在才提交给后台
         console.log("提交");
-        this.$axios({
-          data: {
-            data: this.user,
-            pwd: this.pwd,
-          },
-          url: "api/login/match",
-          method: "post",
+        // this.$axios({
+        //   data: {
+        //     data: this.user,
+        //     pwd: this.pwd,
+        //   },
+        //   url: "api/login/match",
+        //   method: "post",
+        // })
+        logIn({
+          data: this.user,
+          pwd: this.pwd,
         })
           .then((res) => {
             console.log(res);
