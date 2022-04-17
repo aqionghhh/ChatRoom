@@ -8,7 +8,7 @@
     </div>
     <!-- logo -->
     <div class="logo">
-      <img @click="testToken" src="../../static/images/login/logo.gif" alt="" />
+      <img src="../../static/images/login/logo.gif" alt="" />
     </div>
     <!-- 主体部分 -->
     <div class="main">
@@ -31,8 +31,6 @@
 </template>
 
 <script>
-import { logIn } from "../../request/post";
-console.log(logIn);
 export default {
   data() {
     return {
@@ -61,17 +59,13 @@ export default {
       if (this.user && this.pwd) {
         //用户名和密码都存在才提交给后台
         console.log("提交");
-        // this.$axios({
-        //   data: {
-        //     data: this.user,
-        //     pwd: this.pwd,
-        //   },
-        //   url: "api/login/match",
-        //   method: "post",
-        // })
-        logIn({
-          data: this.user,
-          pwd: this.pwd,
+        this.$axios({
+          data: {
+            data: this.user,
+            pwd: this.pwd,
+          },
+          url: "api/login/match",
+          method: "post",
         })
           .then((res) => {
             console.log(res);
@@ -99,25 +93,6 @@ export default {
               this.$router.push("/index");
               //设置分页数据
             }
-          })
-          .catch((err) => console.log(err));
-      }
-    },
-    //测试token
-    testToken() {
-      if (this.user && this.pwd) {
-        //用户名和密码都存在才提交给后台
-        console.log("提交");
-        this.$axios({
-          data: {
-            token: this.token,
-          },
-          url: "api/login/token",
-          method: "post",
-        })
-          .then((res) => {
-            console.log(res);
-            //设置分页数据
           })
           .catch((err) => console.log(err));
       }
