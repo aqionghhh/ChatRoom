@@ -159,6 +159,7 @@ import TopBar from "../../components/TopBar/TopBar.vue";
 BScroll.use(MouseWheel);
 BScroll.use(PullDown);
 let audio = new Audio(); // 把变量放在外面可以防止同时播放多个音频
+import { getHeight } from "../../mixin/getHeight";
 
 export default {
   data() {
@@ -183,10 +184,10 @@ export default {
     Submit,
     TopBar,
   },
-
+  mixins: [getHeight],
   async created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
-    this.getHeight(); //页面创建时调用
+    this.getHeight(50); //页面创建时调用
     this.userID = localStorage.getItem("id");
     localStorage.setItem("friendID", this.$route.query.id);
     this.friendID = localStorage.getItem("friendID");
@@ -578,11 +579,6 @@ export default {
     // 返回上一级路由
     goback() {
       this.$router.back();
-    },
-    //动态获取元素的高度
-    getHeight() {
-      this.height = window.innerHeight - 50; // 高
-      console.log(this.height);
     },
     // 处理时间
     changeTime(data) {

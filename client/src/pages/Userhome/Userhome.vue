@@ -114,6 +114,7 @@
 </template>
 
 <script>
+import { getHeight } from "../../mixin/getHeight";
 export default {
   data() {
     return {
@@ -138,7 +139,7 @@ export default {
   },
   created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
-    this.getHeight(); //页面创建时调用
+    this.getHeight(200); //页面创建时调用
     this.tip = this.$route.query.tip; // 传进来的是字符串
     this.friendID = this.$route.query.id;
     if (this.$route.query.target === "group") {
@@ -189,14 +190,11 @@ export default {
     this.myname = localStorage.getItem("name");
     // 获取用户信息
   },
+  mixins: [getHeight],
   methods: {
     //返回上一页
     back() {
       this.$router.back();
-    },
-    //动态获取元素的高度
-    getHeight() {
-      this.height = window.innerHeight - 200; // 高
     },
     //添加好友动画
     addFriendAnimate() {

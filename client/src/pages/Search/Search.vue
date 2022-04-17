@@ -128,29 +128,11 @@ export default {
         method: "post",
         url: "api/user/search",
       }).then((res) => {
-        console.log("res.data", res.data);
         arr = res.data.filter((item) => {
           // 后端返回所有的数据，在这里进行过滤
           return item._id !== localStorage.getItem("id"); // 返回id不等于自身的数组
         });
-        console.log("arr", arr); // 除了自己的所有用户
-        let exp = eval("/" + e + "/g"); //封装在正则里面
-        for (let i = 0; i < arr.length; i++) {
-          arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
-          this.$set(arr[i], "usertip", 0); // 默认找出来的都不是好友
-          if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
-            this.isFriend(arr[i]);
-            arr[i].name = arr[i].name.replace(
-              exp,
-              '<span style="color:#4aaaff">' + e + "</span>"
-            );
-            arr[i].email = arr[i].email.replace(
-              exp,
-              '<span style="color:#4aaaff">' + e + "</span>"
-            );
-            this.userarr.push(arr[i]);
-          }
-        }
+        this.findHaha("usertip", arr, e);
       });
 
       // console.log(this.userarr);
@@ -163,10 +145,30 @@ export default {
         url: "api/group/search",
       }).then((res) => {
         arr = res.data;
-        let exp = eval("/" + e + "/g"); //封装在正则里面
-        for (let i = 0; i < arr.length; i++) {
-          arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
-          this.$set(arr[i], "tips", 0); // 默认找出来的都不是自己的群
+        this.findHaha("tips", res.data, e);
+      });
+    },
+    // 封装函数
+    findHaha(role, response, e) {
+      let arr = response;
+      let exp = eval("/" + e + "/g"); //封装在正则里面
+      for (let i = 0; i < arr.length; i++) {
+        arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
+        this.$set(arr[i], role, 0); // 默认找出来的都不是自己的群
+        if (role === "usertip") {
+          if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
+            this.isFriend(arr[i]);
+            arr[i].name = arr[i].name.replace(
+              exp,
+              '<span style="color:#4aaaff">' + e + "</span>"
+            );
+            arr[i].email = arr[i].email.replace(
+              exp,
+              '<span style="color:#4aaaff">' + e + "</span>"
+            );
+            this.userarr.push(arr[i]);
+          }
+        } else {
           if (arr[i].name.search(e) != -1) {
             this.isGroup(arr[i]);
             arr[i].name = arr[i].name.replace(
@@ -176,13 +178,11 @@ export default {
             this.grouparr.push(arr[i]);
           }
         }
-      });
+      }
     },
     //判断是否为为好友
     isFriend(e) {
       for (let i = 0; i < this.friendarr.length; i++) {
-        console.log(e._id);
-        console.log("this.friendarr[i].friendID", this.friendarr[i].friendID);
         // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
         if (this.friendarr[i].friendID === e._id) {
           //好友表中的id与搜索出来的用户id相同，则认为是好友关系
@@ -195,7 +195,6 @@ export default {
     // 判断是否为自己的群
     isGroup(e) {
       for (let i = 0; i < this.memberarr.length; i++) {
-        console.log(e._id);
         // 好友表中跟本人id相关的好友数据全部取出来，即数组arr
         if (this.memberarr[i]._id === e._id) {
           //好友表中的id与搜索出来的用户id相同，则认为是好友关系
@@ -203,7 +202,6 @@ export default {
           this.$set(e, "tips", 1); // 这样加才有响应式
         }
       }
-      // e.tip = tip; //存入搜索出来的数组中
     },
     //返回上一页
     back() {
