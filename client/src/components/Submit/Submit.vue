@@ -66,10 +66,6 @@ import Emoji from "../Emoji/Emoji";
 
 import { mapState } from "vuex";
 
-// import Recorder from "recorder-js"; // 引入录音插件
-// const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-// const recorder = new Recorder(audioContext, {});
-
 export default {
   data() {
     return {
@@ -178,7 +174,6 @@ export default {
         .getUserMedia({ audio: true })
         .then((stream) => {
           this.recorder = new window.MediaRecorder(stream);
-          // recorder.init(stream);
           // 录音
           this.recorder.start();
           this.recorder.ondataavailable = this.getRecordingData;
@@ -209,13 +204,11 @@ export default {
       console.log("chunks", this.chunks);
       let blob = new Blob(this.chunks, { type: "audio/ogg; codecs=opus" }); // 获取blob
       console.log("blob", blob);
-      // let audioStream = URL.createObjectURL(blob); // 给blob一个url
-      // console.log("audioStream", audioStream);
       let data = {
         blob: blob,
         time: this.i,
       };
-      this.$emit("sendVoice", data, 2);
+      this.$emit("sendMsg", data, 2);
       this.$toast.clear(); // 清除弹窗
       this.i = 0;
       this.chunks = [];
@@ -267,7 +260,7 @@ export default {
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
-      this.$emit("sendPhoto", e.srcElement.files.item(0), 1); // 图片的类型是1
+      this.$emit("sendMsg", e.srcElement.files.item(0), 1); // 图片的类型是1
     },
     // 文件
     file() {

@@ -137,13 +137,7 @@
         </div>
       </div>
     </div>
-    <Submit
-      class="submit"
-      @sendMsg="getMessage"
-      @Height="getPoupHeight"
-      @sendPhoto="getPhoto"
-      @sendVoice="getVoice"
-    />
+    <Submit class="submit" @sendMsg="getMessage" @Height="getPoupHeight" />
   </div>
 </template>
 <script>
@@ -261,12 +255,7 @@ export default {
           this.msgs.push(data);
         }
 
-        this.$nextTick(() => {
-          this.scroll.refresh();
-          this.scrollToBottom(); // 页面更新之后滚动到下方
-        });
-        console.log("后端传来的数据", msg[0]); //接收的消息
-        console.log("后端传来的数据", msg[1]); // id
+        this.scrollBottom();
       }
     },
     groupmsg(msg) {
@@ -302,15 +291,18 @@ export default {
           console.log("socketdata", data);
           this.msgs.push(data);
         }
-
-        this.$nextTick(() => {
-          this.scroll.refresh();
-          this.scrollToBottom(); // 页面更新之后滚动到下方
-        });
+        this.scrollBottom();
       }
     },
   },
   methods: {
+    // 页面更新后滚动到下方
+    scrollBottom() {
+      this.$nextTick(() => {
+        this.scroll.refresh();
+        this.scrollToBottom(); // 页面更新之后滚动到下方
+      });
+    },
     // 未读消息全部设为0
     stateZero() {
       this.$axios({
@@ -335,8 +327,6 @@ export default {
     },
     // 接收文本内容
     getMessage(name, type) {
-      name = name.replace(/(&nbsp;)/g, " "); // 把$nbsp;转换成空格
-      console.log("内容和类型", name, type);
       let nowTime = new Date();
       let t = myfun.spaceTime(this.oldTime, nowTime);
       if (t) {
@@ -345,144 +335,104 @@ export default {
       }
       nowTime = t;
 
-      if (name.trim().length) {
-        let len = this.msgs.length;
+      if (type === 0) {
+        name = name.replace(/(&nbsp;)/g, " "); // 把$nbsp;转换成空格
+        if (name.trim().length) {
+          this.$axios({
+            method: "post",
+            url: "api/chat/text",
+            data: {
+              userID: this.userID,
+              friendID: localStorage.getItem("friendID"),
+              imgurl: localStorage.getItem("imgurl"),
+              message: name,
+              types: type,
+              time: new Date(),
+              tip: 1,
+              target: this.target,
+            },
+          }).then((res) => {
+            let data = {
+              userID: this.userID, // 用户id
+              imgurl: localStorage.getItem("imgurl"),
+              message: res.data.message,
+              types: "0", // 内容类型（0文字，1图片链接，2音频链接
+              time: res.data.time, // 发送时间
+              tip: 1, // 类似消息的id
+            };
+            this.msgs.push(data);
+            this.sendSocket(data); // socket
+
+            this.scrollToBottom();
+          });
+        }
+      } else if (type === 1) {
+        let formData = new FormData();
+        formData.append("userID", this.userID);
+        formData.append("imgurl", localStorage.getItem("imgurl"));
+        formData.append("friendID", localStorage.getItem("friendID"));
+        formData.append("file", name);
+        formData.append("types", type);
+        formData.append("time", new Date());
+        formData.append("tip", 1);
+        formData.append("target", this.target);
+
         this.$axios({
           method: "post",
-          url: "api/chat/text",
-          data: {
-            userID: this.userID,
-            friendID: localStorage.getItem("friendID"),
-            imgurl: localStorage.getItem("imgurl"),
-            message: name,
-            types: "0",
-            time: new Date(),
-            tip: 1,
-            target: this.target,
-          },
+          url: "api/chat/add",
+          data: formData,
         }).then((res) => {
-          console.log("res", res.data);
+          console.log("res.data", res.data);
           let data = {
             userID: this.userID, // 用户id
             imgurl: localStorage.getItem("imgurl"),
-            message: res.data.message,
-            types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
+            message: "http://localhost:8080/api/chatImg/" + res.data.message,
+            types: "1", // 内容类型（0文字，1图片链接，2音频链接
             time: res.data.time, // 发送时间
             tip: 1, // 类似消息的id
           };
-          this.msgs.push(data);
-          console.log(this.msgs);
-          this.sendSocket(data); // socket
+          this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
+          this.sendSocket(data);
+        });
 
-          this.$nextTick(() => {
-            this.scroll.refresh();
-            this.scrollToBottom(); // 页面更新之后滚动到下方
-          });
+        this.scrollBottom();
+      } else {
+        let formData = new FormData();
+        formData.append("userID", this.userID);
+        formData.append("imgurl", localStorage.getItem("imgurl"));
+        formData.append("friendID", localStorage.getItem("friendID"));
+        formData.append("file", name.blob, "file.mp3"); // 转成mp3格式
+        formData.append("time2", name.time);
+        formData.append("types", type);
+        formData.append("time", new Date());
+        formData.append("tip", 1);
+        formData.append("target", this.target);
+        this.$axios({
+          method: "post",
+          url: "api/chat/add",
+          data: formData,
+        }).then((res) => {
+          console.log("res.data", res.data);
+          let voiceMsg =
+            "http://localhost:8080/api/chatImg/" + res.data.message;
+          console.log(voiceMsg);
+          let data = {
+            userID: this.userID, // 用户id
+            imgurl: localStorage.getItem("imgurl"),
+            message: {
+              voice: voiceMsg,
+              time: name.time,
+            },
+            types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
+            time: nowTime, // 发送时间
+            tip: 1, // 类似消息的id
+          };
+          this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
+          this.sendSocket(data);
+
+          this.scrollBottom();
         });
       }
-    },
-    // 接收图片
-    getPhoto(form, type) {
-      console.log("接收到的消息", form, type);
-      let len = this.msgs.length;
-      let nowTime = new Date();
-      let t = myfun.spaceTime(this.oldTime, nowTime);
-      if (t) {
-        // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
-        this.oldTime = t;
-      }
-      nowTime = t;
-
-      // 需要先把图片和音频上传到文件夹中
-      let formData = new FormData();
-      formData.append("userID", this.userID);
-      formData.append("imgurl", localStorage.getItem("imgurl"));
-      formData.append("friendID", localStorage.getItem("friendID"));
-      formData.append("file", form);
-      formData.append("types", type);
-      formData.append("time", new Date());
-      formData.append("tip", 1);
-      formData.append("target", this.target);
-
-      this.$axios({
-        method: "post",
-        url: "api/chat/add",
-        data: formData,
-      }).then((res) => {
-        console.log("res.data", res.data);
-        let data = {
-          userID: this.userID, // 用户id
-          imgurl: localStorage.getItem("imgurl"),
-          message: "http://localhost:8080/api/chatImg/" + res.data.message,
-          types: "1", // 内容类型（0文字，1图片链接，2音频链接
-          time: nowTime, // 发送时间
-          tip: 1, // 类似消息的id
-        };
-        console.log("图片", data);
-        this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
-        console.log(this.msgs);
-        this.sendSocket(data);
-      });
-
-      this.$nextTick(() => {
-        this.scroll.refresh();
-        this.scrollToBottom(); // 页面更新之后滚动到下方
-        this.$previewRefresh(); // 如果图片是异步生成的，需要在图片数据更新之后调用
-      });
-    },
-    // 接收音频文件
-    getVoice(voice, type) {
-      console.log("接收来的blob", voice);
-      // 时间间隔
-      let nowTime = new Date();
-      let t = myfun.spaceTime(this.oldTime, nowTime);
-      if (t) {
-        // 根据在myfun里写的方法，如果有返回值，就替换掉最新的值
-        this.oldTime = t;
-      }
-      nowTime = t;
-
-      // 需要先把图片和音频上传到文件夹中
-      let formData = new FormData();
-      formData.append("userID", this.userID);
-      formData.append("imgurl", localStorage.getItem("imgurl"));
-      formData.append("friendID", localStorage.getItem("friendID"));
-      formData.append("file", voice.blob, "file.mp3"); // 转成mp3格式
-      formData.append("time2", voice.time);
-      formData.append("types", type);
-      formData.append("time", new Date());
-      formData.append("tip", 1);
-      formData.append("target", this.target);
-      this.$axios({
-        method: "post",
-        url: "api/chat/add",
-        data: formData,
-      }).then((res) => {
-        console.log("res.data", res.data);
-        // res.data.message = "chatImg/" + res.data.message;
-        let voiceMsg = "http://localhost:8080/api/chatImg/" + res.data.message;
-        console.log(voiceMsg);
-        let len = this.msgs.length;
-        let data = {
-          userID: this.userID, // 用户id
-          imgurl: localStorage.getItem("imgurl"),
-          message: {
-            voice: voiceMsg,
-            time: voice.time,
-          },
-          types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
-          time: nowTime, // 发送时间
-          tip: 1, // 类似消息的id
-        };
-        this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
-        console.log(data);
-        this.sendSocket(data);
-
-        this.$nextTick(() => {
-          this.scroll.refresh();
-          this.scrollToBottom(); // 页面更新之后滚动到下方
-        });
-      });
     },
 
     // socket提交 发送给后端
