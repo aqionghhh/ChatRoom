@@ -76,7 +76,7 @@ export default {
       msg: "", // 发送出去的信息
       Height: "", // 弹窗的高度
       timer: "", // 定时器，用于记录按下鼠标到松开的时间
-      i: 0, // 记录音频的秒数
+      i: 1, // 记录音频的秒数
       isRecording: false,
       chunks: [], // 保存blob语音流相关数据
     };

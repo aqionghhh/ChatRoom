@@ -118,6 +118,7 @@ export default {
         }).then((res) => {
           if (res.data.msg === "ok") {
             this.$router.back();
+            this.$store.state.inviteNumber = 0;
           }
         });
       }

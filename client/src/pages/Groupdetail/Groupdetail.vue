@@ -23,7 +23,9 @@
         <div class="member">
           <div class="member-top">
             <div class="member-title">群成员</div>
-            <div class="member-more" @click="manageMember">管理群成员</div>
+            <div class="member-more" v-show="isMember" @click="manageMember">
+              管理群成员
+            </div>
             <img
               class="more-img"
               src="../../static/images/Userdetail/右箭头.png"
@@ -48,7 +50,7 @@
               </div>
               <div class="user-name">{{ item.name }}</div>
             </div>
-            <div class="member-list">
+            <div class="member-list" v-show="isMember">
               <div class="imgs" @click="inviteMember">
                 <img
                   class="user-add"
@@ -61,13 +63,14 @@
           </div>
         </div>
         <div class="group-detail">
-          <div
-            class="row"
-            @click="animationChange($event, '群名称', groupName)"
-          >
+          <div class="row">
             <div class="row-title">群名称</div>
             <div class="row-content">{{ groupName }}</div>
-            <div class="more">
+            <div
+              class="more"
+              v-show="isMember"
+              @click="animationChange($event, '群名称', groupName)"
+            >
               <img src="../../static/images/Userdetail/右箭头.png" alt="" />
             </div>
           </div>
@@ -92,20 +95,21 @@
               <img src="../../static/images/Userdetail/右箭头.png" alt="" />
             </div>
           </div>
-          <div
-            class="row"
-            @click="animationChange($event, '群公告', groupNotice)"
-          >
+          <div class="row">
             <div class="row-title">群公告</div>
             <div class="row-content">
               {{ groupNotice }}
             </div>
-            <div class="more">
+            <div
+              v-show="isMember"
+              class="more"
+              @click="animationChange($event, '群公告', groupNotice)"
+            >
               <img src="../../static/images/Userdetail/右箭头.png" alt="" />
             </div>
           </div>
         </div>
-        <div class="btn2" @click="logout">退出群聊</div>
+        <div v-show="isMember" class="btn2" @click="logout">退出群聊</div>
       </div>
     </div>
     <!-- 修改的弹出层 -->
@@ -154,6 +158,7 @@ export default {
       alertText: "", // 弹窗的文本
       deleteMemberID: "", // 要删除的成员的id
       deleteMemberIndex: "", // 要删除的成员的索引
+      isMember: false, // 判断点击进来的是否是群里的人
     };
   },
   components: {
@@ -216,7 +221,9 @@ export default {
     },
     // 打开图片上传
     toChange() {
-      this.$refs.hidden.click(); // 点击图片，实际上点击的是input按钮
+      if (this.isMember) {
+        this.$refs.hidden.click(); // 点击图片，实际上点击的是input按钮
+      }
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
@@ -270,6 +277,9 @@ export default {
         for (let i = 0; i < this.member.length; i++) {
           this.member[i].imgurl =
             "http://localhost:8080/api/userImg/" + this.member[i].imgurl;
+          if (localStorage.getItem("id") === this.member[i]._id) {
+            this.isMember = true;
+          }
         }
       });
     },
@@ -317,15 +327,22 @@ export default {
         });
       } else if (tip === "exitConfrim") {
         // 确认退出群聊
-        this.$axios({
-          method: "post",
-          url: "api/group/delete",
-          data: {
-            userID: localStorage.getItem("id"),
-          },
-        }).then((res) => {
-          this.$router.replace("/index");
-        });
+        if (this.masterID === localStorage.getItem("id")) {
+          this.$toast({
+            message: "群主不能退群",
+            icon: require("../../static/images/Userhome/成功.jpg"),
+          });
+        } else {
+          this.$axios({
+            method: "post",
+            url: "api/group/delete",
+            data: {
+              userID: localStorage.getItem("id"),
+            },
+          }).then((res) => {
+            this.$router.replace("/index");
+          });
+        }
       }
     },
 

@@ -256,9 +256,15 @@ export default {
     },
     // 去用户详情页
     toUserDetail() {
-      this.$router.push({
-        path: `/userdetail?id=${this.friendID}`,
-      });
+      if (this.$route.query.target === "group") {
+        this.$router.push({
+          path: `/groupdetail?id=${this.friendID}`,
+        });
+      } else {
+        this.$router.push({
+          path: `/userdetail?id=${this.friendID}`,
+        });
+      }
     },
   },
 };

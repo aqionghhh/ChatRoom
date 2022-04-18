@@ -141,6 +141,7 @@ export default {
         }).then((res) => {
           if (res.data.message === "ok") {
             this.$router.replace("/index");
+            this.$store.state.number = 1;
           }
         });
       }

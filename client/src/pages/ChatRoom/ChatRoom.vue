@@ -1,7 +1,6 @@
 <template>
   <div class="content">
     <!-- 头部 -->
-
     <TopBar>
       <template v-slot:left>
         <img
@@ -255,7 +254,7 @@ export default {
           this.msgs.push(data);
         }
 
-        this.scrollBottom();
+        this.scrollToBottom();
       }
     },
     groupmsg(msg) {
@@ -291,12 +290,12 @@ export default {
           console.log("socketdata", data);
           this.msgs.push(data);
         }
-        this.scrollBottom();
+        this.scrollToBottom();
       }
     },
   },
   methods: {
-    // 页面更新后滚动到下方
+    // 滑动到底部
     scrollBottom() {
       this.$nextTick(() => {
         this.scroll.refresh();
@@ -325,7 +324,7 @@ export default {
       // 只要点击了外面的部分，就会失焦
       this.$store.commit("changeBlur");
     },
-    // 接收文本内容
+    // 接收内容
     getMessage(name, type) {
       let nowTime = new Date();
       let t = myfun.spaceTime(this.oldTime, nowTime);
@@ -355,81 +354,57 @@ export default {
             let data = {
               userID: this.userID, // 用户id
               imgurl: localStorage.getItem("imgurl"),
-              message: res.data.message,
+              message: name,
               types: "0", // 内容类型（0文字，1图片链接，2音频链接
-              time: res.data.time, // 发送时间
+              time: nowTime, // 发送时间
               tip: 1, // 类似消息的id
             };
             this.msgs.push(data);
             this.sendSocket(data); // socket
 
-            this.scrollToBottom();
+            this.scrollBottom();
           });
         }
-      } else if (type === 1) {
-        let formData = new FormData();
-        formData.append("userID", this.userID);
-        formData.append("imgurl", localStorage.getItem("imgurl"));
-        formData.append("friendID", localStorage.getItem("friendID"));
-        formData.append("file", name);
-        formData.append("types", type);
-        formData.append("time", new Date());
-        formData.append("tip", 1);
-        formData.append("target", this.target);
-
-        this.$axios({
-          method: "post",
-          url: "api/chat/add",
-          data: formData,
-        }).then((res) => {
-          console.log("res.data", res.data);
-          let data = {
-            userID: this.userID, // 用户id
-            imgurl: localStorage.getItem("imgurl"),
-            message: "http://localhost:8080/api/chatImg/" + res.data.message,
-            types: "1", // 内容类型（0文字，1图片链接，2音频链接
-            time: res.data.time, // 发送时间
-            tip: 1, // 类似消息的id
-          };
-          this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
-          this.sendSocket(data);
-        });
-
-        this.scrollBottom();
       } else {
         let formData = new FormData();
         formData.append("userID", this.userID);
         formData.append("imgurl", localStorage.getItem("imgurl"));
         formData.append("friendID", localStorage.getItem("friendID"));
-        formData.append("file", name.blob, "file.mp3"); // 转成mp3格式
-        formData.append("time2", name.time);
         formData.append("types", type);
         formData.append("time", new Date());
         formData.append("tip", 1);
         formData.append("target", this.target);
+        if (type === 1) {
+          formData.append("file", name);
+        } else {
+          formData.append("file", name.blob, "file.mp3"); // 转成mp3格式
+          formData.append("time2", name.time);
+        }
         this.$axios({
           method: "post",
           url: "api/chat/add",
           data: formData,
         }).then((res) => {
           console.log("res.data", res.data);
-          let voiceMsg =
-            "http://localhost:8080/api/chatImg/" + res.data.message;
-          console.log(voiceMsg);
+          let message = "";
+          if (type === 1) {
+            message = "http://localhost:8080/api/chatImg/" + res.data.message;
+          } else {
+            message = {
+              voice: "http://localhost:8080/api/chatImg/" + res.data.message,
+              time: name.time,
+            };
+          }
           let data = {
             userID: this.userID, // 用户id
             imgurl: localStorage.getItem("imgurl"),
-            message: {
-              voice: voiceMsg,
-              time: name.time,
-            },
+            message: message,
             types: res.data.types, // 内容类型（0文字，1图片链接，2音频链接
             time: nowTime, // 发送时间
             tip: 1, // 类似消息的id
           };
           this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
           this.sendSocket(data);
-
           this.scrollBottom();
         });
       }
@@ -571,7 +546,6 @@ export default {
         this.scroll = new BScroll(this.$refs.scroll, {
           click: true, // 不添加的话会和vue-photo-preview插件发生冲突
           tap: true, // 不添加的话会和vue-photo-preview插件发生冲突
-          // probeType: 2, //因为惯性滑动不会触发
           scrollY: true,
           mouseWheel: true,
 
