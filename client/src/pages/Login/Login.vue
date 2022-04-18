@@ -82,7 +82,7 @@ export default {
               localStorage.setItem("name", res.data.back.name);
               localStorage.setItem(
                 "imgurl",
-                "http://localhost:8080/api/userImg/" + res.data.back.imgurl
+                this.$store.state.userImg + res.data.back.imgurl
               );
               console.log(this.$store.state);
               // 把用户信息存到vuex中

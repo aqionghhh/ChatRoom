@@ -154,7 +154,7 @@ export default {
         console.log(res.data.msg);
         this.user.name = res.data.msg[0].name;
         this.user.img =
-          "http://localhost:8080/api/userImg/" + res.data.msg[0].imgurl;
+          this.$store.state.userImg + res.data.msg[0].imgurl;
         this.user.notice = res.data.msg[0].notice;
         this.target = "group";
       });
@@ -170,7 +170,7 @@ export default {
         console.log(res.data);
         this.user.name = res.data.name;
         this.user.email = res.data.email;
-        this.user.img = "http://localhost:8080/api/userImg/" + res.data.imgurl;
+        this.user.img = this.$store.state.userImg + res.data.imgurl;
         if (res.data.sign === "编辑你的个人签名") {
           this.user.intr = "无";
         } else {

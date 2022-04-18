@@ -59,8 +59,7 @@ export default {
     }).then((res) => {
       console.log(res.data);
       for (let i = 0; i < res.data.length; i++) {
-        res.data[i].imgurl =
-          "http://localhost:8080/api/userImg/" + res.data[i].imgurl;
+        res.data[i].imgurl = this.$store.state.userImg + res.data[i].imgurl;
       }
       this.requestArr = res.data;
     });

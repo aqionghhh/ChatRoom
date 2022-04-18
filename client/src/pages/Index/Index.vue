@@ -205,7 +205,7 @@ export default {
           this.friends = this.friends.concat(res.data.grouparr);
           for (let i = 0; i < this.friends.length; i++) {
             this.friends[i].imgurl =
-              "http://localhost:8080/api/userImg/" + this.friends[i].imgurl;
+              this.$store.state.userImg + this.friends[i].imgurl;
             if (this.friends[i].types === "1") {
               // 图片
               this.friends[i].message = "[图片]";

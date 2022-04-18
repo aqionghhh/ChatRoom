@@ -188,7 +188,7 @@ export default {
     this.friendName = localStorage.getItem("friendName");
     localStorage.setItem("target", this.$route.query.target);
     this.target = localStorage.getItem("target");
-    this.img = "http://localhost:8080/api/userImg/" + this.$route.query.imgurl;
+    this.img = this.$store.state.userImg + this.$route.query.imgurl;
     this.stateZero(); // 清空未读消息
     await this.getMsg(this.nowPage); // 把页码传进去
   },
@@ -388,10 +388,10 @@ export default {
           console.log("res.data", res.data);
           let message = "";
           if (type === 1) {
-            message = "http://localhost:8080/api/chatImg/" + res.data.message;
+            message = this.$store.state.chatImg + res.data.message;
           } else {
             message = {
-              voice: "http://localhost:8080/api/chatImg/" + res.data.message,
+              voice: this.$store.state.chatImg + res.data.message,
               time: name.time,
             };
           }
@@ -459,10 +459,8 @@ export default {
                 }
                 msg[i].time = t; // 要放到页面上展示的时间，如果没有返回值就是不显示，有返回值就显示
               }
-              // msg[i].imgurl = "http://localhost:8080/api/userImg/" + msg[i].imgurl;
               if (msg[i].types === "1" || msg[i].types === "2") {
-                msg[i].message =
-                  "http://localhost:8080/api/chatImg/" + msg[i].message;
+                msg[i].message = this.$store.state.chatImg + msg[i].message;
               }
               if (msg[i].types === "2") {
                 msg[i].message = {
@@ -507,7 +505,7 @@ export default {
     },
     // 处理时间
     changeTime(data) {
-      return myfun.dateTime1(data);
+      return myfun.dateTime(data);
     },
     // 跳转到userhome页
     toUserHome(index) {

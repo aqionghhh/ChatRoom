@@ -79,11 +79,11 @@ export default {
     }).then((res) => {
       this.user = res.data.info;
       res.data.group[0].groupImgurl =
-        "http://localhost:8080/api/userImg/" + res.data.group[0].groupImgurl;
+        this.$store.state.userImg + res.data.group[0].groupImgurl;
       this.group = res.data.group[0];
       for (let i = 0; i < this.user.length; i++) {
         this.user[i].imgurl =
-          "http://localhost:8080/api/userImg/" + this.user[i].imgurl;
+          this.$store.state.userImg + this.user[i].imgurl;
         this.$set(this.user[i], "selected", false);
       }
     });

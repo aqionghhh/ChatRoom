@@ -153,7 +153,7 @@ export default {
       let arr = response;
       let exp = eval("/" + e + "/g"); //封装在正则里面
       for (let i = 0; i < arr.length; i++) {
-        arr[i].imgurl = "http://localhost:8080/api/userImg/" + arr[i].imgurl;
+        arr[i].imgurl = this.$store.state.userImg + arr[i].imgurl;
         this.$set(arr[i], role, 0); // 默认找出来的都不是自己的群
         if (role === "usertip") {
           if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {

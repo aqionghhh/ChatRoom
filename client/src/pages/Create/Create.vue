@@ -86,8 +86,7 @@ export default {
       });
 
       for (let i = 0; i < this.user.length; i++) {
-        this.user[i].imgurl =
-          "http://localhost:8080/api/userImg/" + this.user[i].imgurl;
+        this.user[i].imgurl = this.$store.state.userImg + this.user[i].imgurl;
         this.$set(this.user[i], "selected", false);
       }
     });

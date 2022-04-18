@@ -141,6 +141,8 @@
 
 <script>
 import TopBar from "../../components/TopBar/TopBar.vue";
+import { animationChange } from "../../mixin/animation";
+
 export default {
   data() {
     return {
@@ -167,6 +169,7 @@ export default {
       currentDate: new Date(), //当前日期
     };
   },
+  mixins: [animationChange],
   components: {
     TopBar,
   },
@@ -195,10 +198,7 @@ export default {
       this.dataarr.name = res.data.name;
       this.dataarr.pwd = res.data.pwd;
       this.dataarr.time = res.data.time;
-      // this.dataarr.imgurl = res.data.imgurl;
-      res.data.imgurl = "userImg/" + res.data.imgurl;
-      this.dataarr.imgurl = "http://localhost:8080/api/" + res.data.imgurl;
-      this.$store.commit("setInfo", res.data);
+      this.dataarr.imgurl = this.$store.state.userImg + res.data.imgurl;
     });
 
     // 判断与自己的id是否相等
@@ -216,26 +216,13 @@ export default {
     },
     // 将头像显示，并且传到后端
     handleFile(e) {
-      console.log("e", e.srcElement.files.item(0)); // 图片文件
-      // let url = window.URL.createObjectURL(e.srcElement.files.item(0)); // 把图片转成blob格式
-      // console.log("blob", url);
-      // this.dataarr.imgurl = url;
       let reader = new FileReader();
       reader.readAsDataURL(e.srcElement.files.item(0));
       reader.onload = () => {
-        console.log(reader.result);
-        console.log(this.dataarr.imgurl);
         this.dataarr.imgurl = reader.result;
-        // console.log("this.imgurl", this.imgurl);
-
         let formData = new FormData();
         formData.append("file", e.srcElement.files.item(0));
-        formData.append("name", this.dataarr.name);
-        formData.append("sign", this.dataarr.sign);
-        formData.append("time", this.dataarr.time);
-        formData.append("sex", this.dataarr.sex);
         formData.append("pwd", this.dataarr.pwd);
-        formData.append("birthday", this.dataarr.birthday);
         console.log("formData", formData);
         this.$axios({
           method: "post",
@@ -253,7 +240,7 @@ export default {
                 url: "api/user/detail",
               }).then((res) => {
                 this.dataarr.imgurl =
-                  "http://localhost:8080/api/userImg/" + res.data.imgurl; // 因为做了代理，不要忘记加上/api！
+                  this.$store.state.userImg + res.data.imgurl; // 因为做了代理，不要忘记加上/api！
                 localStorage.setItem("imgurl", this.dataarr.imgurl);
               });
             }
@@ -271,7 +258,6 @@ export default {
     //性别选择器
     changeConfirm(val, index) {
       this.dataarr.sex = val; //传值
-      console.log(val);
       this.$axios({
         method: "post",
         data: {
@@ -280,7 +266,6 @@ export default {
         url: "api/user/update",
       });
       this.showPicker = false;
-      this.$store.commit("setSex", this.dataarr.sex);
     },
     //日期选择器
     getTime(e) {
@@ -310,16 +295,6 @@ export default {
         url: "api/user/update",
       });
       this.timePop = false; //隐藏弹出层
-      console.log(this.dataarr.birthday);
-
-      this.$store.commit("setBirth", this.dataarr.birthday);
-    },
-    //修改弹窗
-    // 当点击取消按钮的时候，会默认传event事件进来，所以需要一个参数接着
-    animationChange(e, type, data) {
-      this.data = data; // 在文本框中显示内容
-      this.modifyTitle = type; // 弹窗的标题
-      this.animation = !this.animation;
     },
 
     //点击弹窗的确定按钮
@@ -328,12 +303,10 @@ export default {
         // 要修改的是昵称
         this.dataarr.name = this.data;
         console.log("name", this.dataarr.name);
-        this.$store.commit("setName", this.dataarr.name);
         localStorage.setItem("name", this.data);
       } else {
         this.dataarr.sign = this.data;
         console.log("sign", this.dataarr.sign);
-        this.$store.commit("setSign", this.dataarr.sign);
       }
       this.$axios({
         method: "post",

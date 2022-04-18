@@ -139,6 +139,7 @@
 import Dialog from "../../components/Dialog/Dialog";
 import datas from "../../commons/js/datas.js";
 import myfun from "../../commons/js/myfun.js";
+import { animationChange } from "../../mixin/animation";
 
 export default {
   data() {
@@ -161,6 +162,7 @@ export default {
       isMember: false, // 判断点击进来的是否是群里的人
     };
   },
+  mixins: [animationChange],
   components: {
     Dialog,
   },
@@ -173,13 +175,6 @@ export default {
     //转换时间
     changeTime(date) {
       return myfun.dateTime(date);
-    },
-    //修改弹窗
-    animationChange(e, type, data) {
-      console.log("type", type);
-      this.data = data; // 在文本框中显示内容
-      this.modifyTitle = type; // 弹窗的标题
-      this.animation = !this.animation;
     },
 
     //点击弹窗的确定按钮
@@ -230,7 +225,6 @@ export default {
       let reader = new FileReader();
       reader.readAsDataURL(e.srcElement.files.item(0));
       reader.onload = () => {
-        console.log(reader.result);
         this.groupImgurl = reader.result;
         let formData = new FormData();
         formData.append("file", e.srcElement.files.item(0));
@@ -239,7 +233,7 @@ export default {
           method: "post",
           data: formData,
           url: "api/group/updatefile",
-        }).then((res) => {});
+        });
       };
     },
 
@@ -269,14 +263,14 @@ export default {
         console.log(res.data);
         this.groupName = res.data.msg[0].name; // 群名
         this.groupImgurl =
-          "http://localhost:8080/api/userImg/" + res.data.msg[0].imgurl;
+          this.$store.state.userImg + res.data.msg[0].imgurl;
         this.groupNotice = res.data.msg[0].notice;
         this.createTime = res.data.msg[0].time;
         this.masterID = res.data.member[0]._id;
         this.member = res.data.member;
         for (let i = 0; i < this.member.length; i++) {
           this.member[i].imgurl =
-            "http://localhost:8080/api/userImg/" + this.member[i].imgurl;
+            this.$store.state.userImg + this.member[i].imgurl;
           if (localStorage.getItem("id") === this.member[i]._id) {
             this.isMember = true;
           }
