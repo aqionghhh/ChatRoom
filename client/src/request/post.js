@@ -1,12 +1,11 @@
 // 封装post请求
-import { request } from './index';
-export function logIn(params) {
-  let url = 'api/login/match';
-  console.log('url', url);
-  console.log('params', params);
-  return request({
-    url: url,
+import axios from 'axios'
+export function post(url, params) {
+  url = 'api/' + url;
+  console.log(url, params);
+  return axios({
     method: 'post',
+    url,
     data: params
   })
 }

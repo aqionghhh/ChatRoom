@@ -115,6 +115,13 @@
 
 <script>
 import { getHeight } from "../../mixin/getHeight";
+import {
+  userMsg,
+  groupMsg,
+  friendRequest,
+  groupRequest,
+} from "../../request/http";
+
 export default {
   data() {
     return {
@@ -144,28 +151,19 @@ export default {
     this.friendID = this.$route.query.id;
     if (this.$route.query.target === "group") {
       // 群聊天
-      this.$axios({
-        method: "post",
-        url: "api/group/match",
-        data: {
-          id: this.friendID,
-        },
+      groupMsg({
+        id: this.friendID,
       }).then((res) => {
         console.log(res.data.msg);
         this.user.name = res.data.msg[0].name;
-        this.user.img =
-          this.$store.state.userImg + res.data.msg[0].imgurl;
+        this.user.img = this.$store.state.userImg + res.data.msg[0].imgurl;
         this.user.notice = res.data.msg[0].notice;
         this.target = "group";
       });
     } else {
       // 好友
-      this.$axios({
-        method: "post",
-        url: "api/user/detail",
-        data: {
-          id: this.$route.query.id,
-        },
+      userMsg({
+        id: this.$route.query.id,
       }).then((res) => {
         console.log(res.data);
         this.user.name = res.data.name;
@@ -203,15 +201,11 @@ export default {
     // 发送好友请求
     sendRequest() {
       if (this.target === "friend") {
-        this.$axios({
-          method: "post",
-          url: "api/friend/request",
-          data: {
-            userID: localStorage.getItem("id"), // 自己的id
-            friendID: this.$route.query.id, // 好友的id
-            state: "1", // 发送请求
-            message: this.myname + "" + this.friendRequest,
-          },
+        friendRequest({
+          userID: localStorage.getItem("id"), // 自己的id
+          friendID: this.$route.query.id, // 好友的id
+          state: "1", // 发送请求
+          message: this.myname + "" + this.friendRequest,
         }).then((res) => {
           console.log(res.data);
           if (res.data.status === 501) {
@@ -228,15 +222,11 @@ export default {
           this.animation = false;
         });
       } else {
-        this.$axios({
-          method: "post",
-          url: "api/group/request",
-          data: {
-            userID: localStorage.getItem("id"), // 自己的id
-            friendID: this.$route.query.id, // 群的id
-            state: "1", // 发送请求
-            message: this.myname + "" + this.groupRequest,
-          },
+        groupRequest({
+          userID: localStorage.getItem("id"), // 自己的id
+          friendID: this.$route.query.id, // 群的id
+          state: "1", // 发送请求
+          message: this.myname + "" + this.groupRequest,
         }).then((res) => {
           console.log(res.data);
           if (res.data.status === 501) {

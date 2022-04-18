@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { logIn } from "../../request/http";
 export default {
   data() {
     return {
@@ -58,23 +59,25 @@ export default {
     login() {
       if (this.user && this.pwd) {
         //用户名和密码都存在才提交给后台
-        this.$axios({
-          data: {
-            data: this.user,
-            pwd: this.pwd,
-          },
-          url: "api/login/match",
-          method: "post",
+        logIn({
+          data: this.user,
+          pwd: this.pwd,
         })
+          // this.$axios({
+          //   method: "post",
+          //   data: {
+          //     data: this.user,
+          //     pwd: this.pwd,
+          //   },
+          //   url: "api/login/match",
+          // })
           .then((res) => {
             console.log(res);
             //获取response，里面包含了表格数据
             if (res.data.status === 300 || res.data.status === 400) {
               this.compare = true;
             } else {
-              console.log(res);
               this.token = res.data.back.token;
-              console.log(this.token);
 
               // 把token存储到localstorage
               localStorage.setItem("token", this.token);
@@ -84,9 +87,6 @@ export default {
                 "imgurl",
                 this.$store.state.userImg + res.data.back.imgurl
               );
-              console.log(this.$store.state);
-              // 把用户信息存到vuex中
-              this.$store.commit("setInfo", res.data.back);
               // 页面跳转
               this.$router.push("/index");
               //设置分页数据
@@ -100,7 +100,6 @@ export default {
 </script>
 
 <style scoped>
-/* @import "../../commons/css/index.css"; */
 .contents {
   display: flex;
   flex-direction: column;

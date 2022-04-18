@@ -83,6 +83,7 @@
 </template>
 
 <script>
+import { register, canRegister } from "../../request/http";
 export default {
   data() {
     return {
@@ -161,12 +162,8 @@ export default {
     },
     emailIsOk() {
       if (this.isemail) {
-        this.$axios({
-          data: {
-            email: this.email,
-          },
-          url: "api/register/judge",
-          method: "post",
+        canRegister({
+          email: this.email,
         }).then((res) => {
           if (res.data.status === 400) {
             // 该邮箱已经注册
@@ -180,14 +177,10 @@ export default {
     },
     register() {
       if (this.isok === true) {
-        this.$axios({
-          data: {
-            name: this.user,
-            email: this.email,
-            pwd: this.pwd,
-          },
-          url: "api/register/add",
-          method: "post",
+        register({
+          name: this.user,
+          email: this.email,
+          pwd: this.pwd,
         }).then((res) => {
           if (res.data) {
             this.$router.replace("/login");
