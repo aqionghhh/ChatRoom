@@ -75,6 +75,7 @@ import {
   searchUser,
   searchGroup,
 } from "../../request/http";
+import { throttle } from "../../util/throttle.js";
 export default {
   data() {
     return {
@@ -108,7 +109,7 @@ export default {
       console.log(this.width);
     },
     //获取关键词
-    search() {
+    search: throttle(function () {
       this.userarr = [];
       this.grouparr = [];
       let searchVal = this.find;
@@ -117,7 +118,7 @@ export default {
         this.searchUser(searchVal);
         this.searchGroup(searchVal);
       }
-    },
+    }, 1000),
     //寻找关键词匹配的用户.
     searchUser(e) {
       let arr = []; // 只有第一次点击搜索的时候才请求数据库

@@ -51,6 +51,8 @@
 import TopBar from "../../components/TopBar/TopBar.vue";
 import UserList from "../../components/UserList/UserList.vue";
 import { friendShow, inviteFriend } from "../../request/http";
+import { throttle } from "../../util/throttle.js";
+
 export default {
   data() {
     return {
@@ -90,7 +92,7 @@ export default {
     },
 
     // 邀请成员
-    inviteMember() {
+    inviteMember: throttle(function () {
       if (this.getNumber > 0) {
         this.$toast({
           message: "邀请成功",
@@ -114,7 +116,7 @@ export default {
           }
         });
       }
-    },
+    }, 1000),
   },
 };
 </script>

@@ -58,6 +58,7 @@
 import TopBar from "../../components/TopBar/TopBar.vue";
 import UserList from "../../components/UserList/UserList.vue";
 import { findFriend, createGroup } from "../../request/http";
+import { throttle } from "../../util/throttle.js";
 
 export default {
   data() {
@@ -113,7 +114,7 @@ export default {
     },
 
     // 创建群聊
-    createGroup() {
+    createGroup: throttle(function () {
       if (this.number > 1 && this.groupName && this.form) {
         this.$toast({
           message: "创建成功",
@@ -121,7 +122,6 @@ export default {
         });
         // 在这里发送请求
         let groupname = this.groupName.trim();
-
         let formData = new FormData();
         formData.append("file", this.form);
         formData.append("groupMaster", localStorage.getItem("id"));
@@ -142,7 +142,7 @@ export default {
           }
         });
       }
-    },
+    }, 1000),
   },
 };
 </script>

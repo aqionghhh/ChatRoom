@@ -28,7 +28,7 @@ axios.interceptors.response.use(response => {
   if (status == 401) {//状态码为401代表token已经失效
     Message.error("token失效，请重新登陆！")
     //清除token
-    localStorage.removeItem("eleToken");
+    localStorage.removeItem("token");
     //跳转到登录页面
     router.push("/login")
   }
