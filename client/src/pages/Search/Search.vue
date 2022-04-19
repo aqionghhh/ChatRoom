@@ -69,6 +69,12 @@
 </template>
 
 <script>
+import {
+  findFriend,
+  findGroup,
+  searchUser,
+  searchGroup,
+} from "../../request/http";
 export default {
   data() {
     return {
@@ -83,22 +89,14 @@ export default {
   created() {
     this.getWidth(); //页面创建时调用
 
-    this.$axios({
-      method: "post",
-      url: "api/friend/search",
-      data: {
-        id: localStorage.getItem("id"), // 把自己的id返回回去
-      },
+    findFriend({
+      id: localStorage.getItem("id"), // 把自己的id返回回去
     }).then((res) => {
       this.friendarr = res.data;
     });
 
-    this.$axios({
-      method: "post",
-      url: "api/group/find", // 自己在的群
-      data: {
-        id: localStorage.getItem("id"), // 把自己的id返回回去
-      },
+    findGroup({
+      id: localStorage.getItem("id"), // 把自己的id返回回去
     }).then((res) => {
       this.memberarr = res.data;
     });
@@ -124,26 +122,19 @@ export default {
     searchUser(e) {
       let arr = []; // 只有第一次点击搜索的时候才请求数据库
       // 获取用户列表
-      this.$axios({
-        method: "post",
-        url: "api/user/search",
-      }).then((res) => {
+
+      searchUser({}).then((res) => {
         arr = res.data.filter((item) => {
           // 后端返回所有的数据，在这里进行过滤
           return item._id !== localStorage.getItem("id"); // 返回id不等于自身的数组
         });
         this.findHaha("usertip", arr, e);
       });
-
-      // console.log(this.userarr);
     },
     // 寻找关键词匹配的群
     searchGroup(e) {
       let arr = [];
-      this.$axios({
-        method: "post",
-        url: "api/group/search",
-      }).then((res) => {
+      searchGroup({}).then((res) => {
         arr = res.data;
         this.findHaha("tips", res.data, e);
       });

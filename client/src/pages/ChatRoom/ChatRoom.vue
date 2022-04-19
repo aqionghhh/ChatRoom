@@ -153,6 +153,13 @@ BScroll.use(MouseWheel);
 BScroll.use(PullDown);
 let audio = new Audio(); // 把变量放在外面可以防止同时播放多个音频
 import { getHeight } from "../../mixin/getHeight";
+import {
+  clearTip,
+  sendText,
+  sendForm,
+  getTalkMessage,
+  lookPerson,
+} from "../../request/http";
 
 export default {
   data() {
@@ -304,16 +311,10 @@ export default {
     },
     // 未读消息全部设为0
     stateZero() {
-      this.$axios({
-        method: "post",
-        url: "api/chat/stateZero",
-        data: {
-          userID: this.userID,
-          friendID: this.friendID,
-          target: this.target,
-        },
-      }).then((res) => {
-        console.log(res.data);
+      clearTip({
+        userID: this.userID,
+        friendID: this.friendID,
+        target: this.target,
       });
     },
     // 点击外面的部分，关闭弹窗
@@ -337,19 +338,15 @@ export default {
       if (type === 0) {
         name = name.replace(/(&nbsp;)/g, " "); // 把$nbsp;转换成空格
         if (name.trim().length) {
-          this.$axios({
-            method: "post",
-            url: "api/chat/text",
-            data: {
-              userID: this.userID,
-              friendID: localStorage.getItem("friendID"),
-              imgurl: localStorage.getItem("imgurl"),
-              message: name,
-              types: type,
-              time: new Date(),
-              tip: 1,
-              target: this.target,
-            },
+          sendText({
+            userID: this.userID,
+            friendID: localStorage.getItem("friendID"),
+            imgurl: localStorage.getItem("imgurl"),
+            message: name,
+            types: type,
+            time: new Date(),
+            tip: 1,
+            target: this.target,
           }).then((res) => {
             let data = {
               userID: this.userID, // 用户id
@@ -435,15 +432,11 @@ export default {
     // 从数据库中获取聊天数据
     getMsg(page) {
       // 接收现在的页码，然后分段渲染聊天数据
-      this.$axios({
-        method: "post",
-        url: "api/chat/getMessage",
-        data: {
-          userID: this.userID,
-          friendID: this.friendID,
-          target: this.target,
-          page,
-        },
+      getTalkMessage({
+        userID: this.userID,
+        friendID: this.friendID,
+        target: this.target,
+        page,
       })
         .then((res) => {
           let msg = res.data;
@@ -521,13 +514,9 @@ export default {
         this.$router.push({ path });
       } else {
         // 点击的是群里的陌生人
-        this.$axios({
-          method: "post",
-          url: "api/friend/compare",
-          data: {
-            userID: this.userID,
-            friendID: this.msgs[index].userID,
-          },
+        lookPerson({
+          userID: this.userID,
+          friendID: this.msgs[index].userID,
         }).then((res) => {
           console.log(res.data);
           if (res.data.msg === "ok") {

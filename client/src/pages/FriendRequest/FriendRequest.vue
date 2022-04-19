@@ -39,7 +39,11 @@
 <script>
 import myfun from "../../commons/js/myfun.js";
 import TopBar from "../../components/TopBar/TopBar.vue";
-
+import {
+  friendRequestMsg,
+  disagreeReuest,
+  agreeReuest,
+} from "../../request/http";
 export default {
   data() {
     return {
@@ -50,12 +54,8 @@ export default {
     TopBar,
   },
   created() {
-    this.$axios({
-      method: "post",
-      url: "api/friend/show",
-      data: {
-        id: localStorage.getItem("id"),
-      },
+    friendRequestMsg({
+      id: localStorage.getItem("id"),
     }).then((res) => {
       console.log(res.data);
       for (let i = 0; i < res.data.length; i++) {
@@ -74,18 +74,11 @@ export default {
     },
     // 拒绝
     disagree(index) {
-      console.log(this.requestArr[index].id);
-      console.log(this.requestArr[index].target);
-      this.$axios({
-        method: "post",
-        url: "api/friend/disagree",
-        data: {
-          id: this.requestArr[index].id,
-          target: this.requestArr[index].target,
-          friendID: this.requestArr[index].friendID,
-        },
+      disagreeReuest({
+        id: this.requestArr[index].id,
+        target: this.requestArr[index].target,
+        friendID: this.requestArr[index].friendID,
       }).then((res) => {
-        console.log(res.data);
         if (res.data.msg === "ok") {
           this.requestArr.splice(this.requestArr[index], 1);
           this.$toast({
@@ -97,18 +90,12 @@ export default {
     },
     // 同意
     agree(index) {
-      console.log(this.requestArr[index].id);
-      this.$axios({
-        method: "post",
-        url: "api/friend/agree",
-        data: {
-          id: this.requestArr[index].id,
-          target: this.requestArr[index].target,
-          friendID: this.requestArr[index].friendID,
-          imgurl: this.requestArr[index].imgurl,
-        },
+      agreeReuest({
+        id: this.requestArr[index].id,
+        target: this.requestArr[index].target,
+        friendID: this.requestArr[index].friendID,
+        imgurl: this.requestArr[index].imgurl,
       }).then((res) => {
-        console.log(res.data);
         if (res.data.msg === "ok") {
           this.requestArr.splice(this.requestArr[index], 1);
           this.$toast({

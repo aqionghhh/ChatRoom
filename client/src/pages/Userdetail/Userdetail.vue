@@ -142,7 +142,7 @@
 <script>
 import TopBar from "../../components/TopBar/TopBar.vue";
 import { animationChange } from "../../mixin/animation";
-
+import { myMsg, updateImg, updateMsg } from "../../request/http";
 export default {
   data() {
     return {
@@ -175,12 +175,8 @@ export default {
   },
   created() {
     this.id = localStorage.getItem("id");
-    this.$axios({
-      method: "post",
-      data: {
-        id: this.$route.query.id, // 把id作为索引传给后端
-      },
-      url: "api/user/detail",
+    myMsg({
+      id: this.$route.query.id, // 把id作为索引传给后端
     }).then((res) => {
       if (res.data.sex === "asexual") {
         this.dataarr.sex = this.projectListArr[2];
@@ -232,12 +228,8 @@ export default {
           .then((res) => {
             console.log("res.data", res.data);
             if (res.data.msg === "修改成功") {
-              this.$axios({
-                method: "post",
-                data: {
-                  id: this.id, // 把id作为索引传给后端
-                },
-                url: "api/user/detail",
+              myMsg({
+                id: this.id, // 把id作为索引传给后端
               }).then((res) => {
                 this.dataarr.imgurl =
                   this.$store.state.userImg + res.data.imgurl; // 因为做了代理，不要忘记加上/api！
@@ -258,12 +250,8 @@ export default {
     //性别选择器
     changeConfirm(val, index) {
       this.dataarr.sex = val; //传值
-      this.$axios({
-        method: "post",
-        data: {
-          arr: this.dataarr,
-        },
-        url: "api/user/update",
+      updateMsg({
+        arr: this.dataarr,
       });
       this.showPicker = false;
     },
@@ -287,12 +275,8 @@ export default {
         minute = `0${minute}`;
       }
       this.dataarr.birthday = `${year}-${month}-${day}`;
-      this.$axios({
-        method: "post",
-        data: {
-          arr: this.dataarr,
-        },
-        url: "api/user/update",
+      updateMsg({
+        arr: this.dataarr,
       });
       this.timePop = false; //隐藏弹出层
     },
@@ -308,12 +292,8 @@ export default {
         this.dataarr.sign = this.data;
         console.log("sign", this.dataarr.sign);
       }
-      this.$axios({
-        method: "post",
-        data: {
-          arr: this.dataarr,
-        },
-        url: "api/user/update",
+      updateMsg({
+        arr: this.dataarr,
       });
       this.animationChange();
     },

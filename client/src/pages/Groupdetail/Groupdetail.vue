@@ -140,6 +140,13 @@ import Dialog from "../../components/Dialog/Dialog";
 import datas from "../../commons/js/datas.js";
 import myfun from "../../commons/js/myfun.js";
 import { animationChange } from "../../mixin/animation";
+import {
+  updetailGroupName,
+  updetailGroupNotice,
+  updetailGroupImg,
+  deleteGroupMember,
+  groupMsg,
+} from "../../request/http";
 
 export default {
   data() {
@@ -182,13 +189,9 @@ export default {
       // 要修改的是昵称
       if (this.modifyTitle === "群名称") {
         // 先发送请求再关闭弹窗
-        this.$axios({
-          method: "post",
-          url: "api/group/update1",
-          data: {
-            update: this.data,
-            id: localStorage.getItem("friendID"),
-          },
+        updetailGroupName({
+          update: this.data,
+          id: localStorage.getItem("friendID"),
         }).then((res) => {
           console.log(res.data);
           // this.$store.commit("setInfo", res.data);
@@ -198,13 +201,9 @@ export default {
         console.log(111);
       } else {
         // 要修改的是群公告
-        this.$axios({
-          method: "post",
-          url: "api/group/update2",
-          data: {
-            update: this.data,
-            id: localStorage.getItem("friendID"),
-          },
+        updetailGroupNotice({
+          update: this.data,
+          id: localStorage.getItem("friendID"),
         }).then((res) => {
           console.log(res.data);
           // this.$store.commit("setInfo", res.data);
@@ -253,17 +252,12 @@ export default {
     },
     // 获取群信息
     getGroup() {
-      this.$axios({
-        method: "post",
-        url: "api/group/match",
-        data: {
-          id: this.friendID,
-        },
+      groupMsg({
+        id: this.friendID,
       }).then((res) => {
         console.log(res.data);
         this.groupName = res.data.msg[0].name; // 群名
-        this.groupImgurl =
-          this.$store.state.userImg + res.data.msg[0].imgurl;
+        this.groupImgurl = this.$store.state.userImg + res.data.msg[0].imgurl;
         this.groupNotice = res.data.msg[0].notice;
         this.createTime = res.data.msg[0].time;
         this.masterID = res.data.member[0]._id;
@@ -309,13 +303,8 @@ export default {
       this.alertText = "";
       if (tip === "deleteConfrim") {
         // 确认删除群成员
-        console.log("deleteConfrim");
-        this.$axios({
-          method: "post",
-          url: "api/group/delete",
-          data: {
-            userID: this.deleteMemberID,
-          },
+        deleteGroupMember({
+          userID: this.deleteMemberID,
         }).then((res) => {
           this.member.splice(this.deleteMemberIndex, 1);
         });
@@ -327,12 +316,8 @@ export default {
             icon: require("../../static/images/Userhome/成功.jpg"),
           });
         } else {
-          this.$axios({
-            method: "post",
-            url: "api/group/delete",
-            data: {
-              userID: localStorage.getItem("id"),
-            },
+          deleteGroupMember({
+            userID: localStorage.getItem("id"),
           }).then((res) => {
             this.$router.replace("/index");
           });

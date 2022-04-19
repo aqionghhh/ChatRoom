@@ -50,6 +50,7 @@
 <script>
 import TopBar from "../../components/TopBar/TopBar.vue";
 import UserList from "../../components/UserList/UserList.vue";
+import { friendShow, inviteFriend } from "../../request/http";
 export default {
   data() {
     return {
@@ -69,21 +70,16 @@ export default {
   },
   created() {
     // 获取好友列表
-    this.$axios({
-      method: "post",
-      url: "api/group/show",
-      data: {
-        id: localStorage.getItem("id"),
-        friendID: localStorage.getItem("friendID"),
-      },
+    friendShow({
+      id: localStorage.getItem("id"),
+      friendID: localStorage.getItem("friendID"),
     }).then((res) => {
       this.user = res.data.info;
       res.data.group[0].groupImgurl =
         this.$store.state.userImg + res.data.group[0].groupImgurl;
       this.group = res.data.group[0];
       for (let i = 0; i < this.user.length; i++) {
-        this.user[i].imgurl =
-          this.$store.state.userImg + this.user[i].imgurl;
+        this.user[i].imgurl = this.$store.state.userImg + this.user[i].imgurl;
         this.$set(this.user[i], "selected", false);
       }
     });
@@ -107,14 +103,10 @@ export default {
             ids.push(this.user[i].friendID);
           }
         }
-        this.$axios({
-          method: "post",
-          url: "api/group/inviteMember",
-          data: {
-            inviteID: localStorage.getItem("id"), // 邀请人id
-            groupID: localStorage.getItem("friendID"),
-            friendID: ids,
-          },
+        inviteFriend({
+          inviteID: localStorage.getItem("id"), // 邀请人id
+          groupID: localStorage.getItem("friendID"),
+          friendID: ids,
         }).then((res) => {
           if (res.data.msg === "ok") {
             this.$router.back();

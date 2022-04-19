@@ -95,6 +95,8 @@
 
 <script>
 import myfun from "../../commons/js/myfun.js";
+import { showMsg } from "../../request/http";
+
 export default {
   data() {
     return {
@@ -192,12 +194,8 @@ export default {
     },
     //获取好友列表数据
     getFriends() {
-      this.$axios({
-        method: "post",
-        url: "api/friend/render",
-        data: {
-          id: localStorage.getItem("id"),
-        },
+      showMsg({
+        id: localStorage.getItem("id"),
       })
         .then((res) => {
           this.friends = res.data.info;

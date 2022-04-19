@@ -57,6 +57,8 @@
 <script>
 import TopBar from "../../components/TopBar/TopBar.vue";
 import UserList from "../../components/UserList/UserList.vue";
+import { findFriend, createGroup } from "../../request/http";
+
 export default {
   data() {
     return {
@@ -72,12 +74,8 @@ export default {
   },
   created() {
     // 获取好友列表
-    this.$axios({
-      method: "post",
-      url: "api/friend/search",
-      data: {
-        id: localStorage.getItem("id"),
-      },
+    findFriend({
+      id: localStorage.getItem("id"),
     }).then((res) => {
       this.user = res.data.filter((item) => {
         return (

@@ -63,14 +63,6 @@ export default {
           data: this.user,
           pwd: this.pwd,
         })
-          // this.$axios({
-          //   method: "post",
-          //   data: {
-          //     data: this.user,
-          //     pwd: this.pwd,
-          //   },
-          //   url: "api/login/match",
-          // })
           .then((res) => {
             console.log(res);
             //获取response，里面包含了表格数据
