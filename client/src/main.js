@@ -51,7 +51,7 @@ Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 
 
-new Vue({
+const vm = new Vue({
   el: '#app',
   render: h => h(App),
   router,//使用上vue-router
@@ -60,3 +60,4 @@ new Vue({
     Vue.prototype.$bus = this;  // 全局事件总线
   }
 })
+console.log(vm);

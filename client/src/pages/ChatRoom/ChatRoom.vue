@@ -178,6 +178,7 @@ export default {
       friendID: "",
       friendName: "", // 要对话的人的名字
       img: "", // 群头像
+      nowPage: 0, // 当前页码
     };
   },
   components: {
@@ -197,7 +198,7 @@ export default {
     this.target = localStorage.getItem("target");
     this.img = this.$store.state.userImg + this.$route.query.imgurl;
     this.stateZero(); // 清空未读消息
-    await this.getMsg(this.nowPage); // 把页码传进去
+    await this.getMsg(); // 把页码传进去
   },
   mounted() {
     this.$nextTick(() => {
@@ -430,13 +431,12 @@ export default {
       }
     },
     // 从数据库中获取聊天数据
-    getMsg(page) {
+    getMsg() {
       // 接收现在的页码，然后分段渲染聊天数据
       getTalkMessage({
         userID: this.userID,
         friendID: this.friendID,
         target: this.target,
-        page,
       })
         .then((res) => {
           let msg = res.data;
@@ -461,9 +461,10 @@ export default {
                   time: msg[i].time2,
                 };
               }
-              this.msgs.unshift(msg[i]); // 倒序插入
+              if (i < 10) {
+                this.msgs.unshift(msg[i]); // 倒序插入
+              }
             }
-          } else {
           }
           console.log(this.msgs);
         })
@@ -486,7 +487,7 @@ export default {
     scrollToBottom() {
       this.a = document.querySelectorAll(".chat-cont");
       // console.log(this.a[this.a.length - 1]);
-      this.scroll.scrollToElement(this.a[this.a.length - 1], 200);
+      this.scroll.scrollToElement(this.a[this.a.length - 1], 0);
     },
     imageLoad() {
       this.scroll.refresh(); // 当src资源加载完成之后调用refresh方法
@@ -549,10 +550,20 @@ export default {
         });
       } else {
         // 如果存在的话，直接刷新
+
         this.scroll.refresh();
       }
+
+      //this.scroll.y
+
+      let userScrooll = 0;
       // 触发时机：当顶部下拉的距离大于 threshold 值时，触发一次 pullingDown 钩子
       this.scroll.on("pullingDown", this.pullingDownHandler);
+      this.scroll.on("scroll", (position) => {
+        this.scroll.scrollTo(0, position.y + 0);
+        // this.scroll.y = position.y + 0;
+        //console.log(position.x, position.y);
+      });
 
       console.log("scroll", this.scroll.scrollerHeight);
     },
