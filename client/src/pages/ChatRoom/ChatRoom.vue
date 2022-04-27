@@ -46,7 +46,7 @@
           </div>
         </div>
         <!-- 聊天的内容分为两部分：一部分是事件，一部分是头像和内容 -->
-        <div class="chat-cont" v-for="(item, index) in msgs" :key="index">
+        <div class="chat-cont" v-for="(item, index) in showMsg" :key="index">
           <div class="chat-time" v-if="item.time != ''">
             {{ changeTime(item.time) }}
           </div>
@@ -68,6 +68,7 @@
                 preview="1"
                 :src="item.message"
                 class="message-img"
+                loading="lazy"
                 @load="imageLoad"
               />
             </div>
@@ -165,6 +166,7 @@ export default {
   data() {
     return {
       msgs: [], // 装聊天信息
+      showMsg: [], // 装展示的聊天数据
       height: 0,
       oldTime: new Date(), // 用户进入聊天室的时间就是现在new的时间
       a: [], // 获取聊天框的dom元素
@@ -172,13 +174,12 @@ export default {
       mainHeight: "25", // 聊天内容需要往上调的高度
       beforePullDown: true,
       isPullingDown: false,
-      nowPage: 0, // 记录当前的页码，初始值为0
       type: 0, // 判断是私聊还是群聊，私聊是0，群聊是1
       userID: "", // 本人的id
       friendID: "",
       friendName: "", // 要对话的人的名字
       img: "", // 群头像
-      nowPage: 0, // 当前页码
+      nowPage: 1, // 当前页码
     };
   },
   components: {
@@ -186,6 +187,16 @@ export default {
     TopBar,
   },
   mixins: [getHeight],
+  computed: {
+    // 可显示的列表项数
+    visibleCount() {
+      return Math.ceil(this.screenHeight / 80);
+    },
+    // 获取真实显示列表数据
+    visibleData() {
+      return this.msgs.slice(this.start, Math.min(this.end, this.msgs.length));
+    },
+  },
   async created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
     this.getHeight(50); //页面创建时调用
@@ -198,14 +209,12 @@ export default {
     this.target = localStorage.getItem("target");
     this.img = this.$store.state.userImg + this.$route.query.imgurl;
     this.stateZero(); // 清空未读消息
-    await this.getMsg(); // 把页码传进去
+    await this.getMsg();
   },
   mounted() {
     this.$nextTick(() => {
       this.init();
-      console.log(1);
     });
-    console.log("friendName", this.friendName);
   },
   updated() {
     this.$nextTick(() => {
@@ -357,7 +366,8 @@ export default {
               time: nowTime, // 发送时间
               tip: 1, // 类似消息的id
             };
-            this.msgs.push(data);
+            console.log(111111);
+            this.showMsg.push(data);
             this.sendSocket(data); // socket
 
             this.scrollBottom();
@@ -401,7 +411,7 @@ export default {
             time: nowTime, // 发送时间
             tip: 1, // 类似消息的id
           };
-          this.msgs.push(data); // 这里等把数据成功提交到后端之后再执行
+          this.showMsg.push(data); // 这里等把数据成功提交到后端之后再执行
           this.sendSocket(data);
           this.scrollBottom();
         });
@@ -462,16 +472,14 @@ export default {
                 };
               }
               if (i < 10) {
-                this.msgs.unshift(msg[i]); // 倒序插入
+                this.showMsg.unshift(msg[i]); // 倒序插入
               }
+              this.msgs.unshift(msg[i]); // 倒序插入
             }
           }
           console.log(this.msgs);
         })
         .catch((err) => {});
-      // 一次渲染十条
-
-      this.nowPage += 1;
     },
     // 听语音
     listenVoice(e) {
@@ -533,10 +541,9 @@ export default {
       if (!this.scroll) {
         this.scroll = new BScroll(this.$refs.scroll, {
           click: true, // 不添加的话会和vue-photo-preview插件发生冲突
-          tap: true, // 不添加的话会和vue-photo-preview插件发生冲突
+          tap: "tap", // 不添加的话会和vue-photo-preview插件发生冲突
           scrollY: true,
           mouseWheel: true,
-
           bounceTime: 800,
           useTransition: false,
           pullDownRefresh: {
@@ -550,24 +557,16 @@ export default {
         });
       } else {
         // 如果存在的话，直接刷新
-
         this.scroll.refresh();
       }
 
-      //this.scroll.y
-
-      let userScrooll = 0;
       // 触发时机：当顶部下拉的距离大于 threshold 值时，触发一次 pullingDown 钩子
       this.scroll.on("pullingDown", this.pullingDownHandler);
       this.scroll.on("scroll", (position) => {
-        this.scroll.scrollTo(0, position.y + 0);
-        // this.scroll.y = position.y + 0;
-        //console.log(position.x, position.y);
+        this.scroll.y = position.y + 0;
+        // console.log(position.x, position.y);
       });
-
-      console.log("scroll", this.scroll.scrollerHeight);
     },
-
     // 当下拉距离大于60时，执行该函数
     pullingDownHandler() {
       console.log("下拉刷新");
@@ -585,10 +584,41 @@ export default {
     // 请求数据
     requestData() {
       // 在这里面发送请求
-      this.getMsg(this.nowPage);
+      this.pushData();
       setTimeout(() => {
         console.log("刷新中");
       }, 1000);
+    },
+
+    pushData() {
+      let count = this.msgs.length - this.nowPage * 10;
+      if (count > 10) {
+        for (let i = 0; i < 10; i++) {
+          if (
+            (this.nowPage + 1) * 10 < this.msgs.length ||
+            this.msgs.length > this.nowPage * 10
+          ) {
+            this.showMsg.unshift(
+              this.msgs[this.msgs.length - (this.nowPage + 1) * 10 + (10 - i)]
+            );
+          }
+        }
+      } else if (count > 0 && count < 10) {
+        for (let i = 0; i < count; i++) {
+          if (
+            (this.nowPage + 1) * 10 < this.msgs.length ||
+            this.msgs.length > this.nowPage * 10
+          ) {
+            this.showMsg.unshift(
+              this.msgs[
+                this.msgs.length - (this.nowPage + 1) * 10 + (10 - count)
+              ]
+            );
+          }
+        }
+      }
+
+      this.nowPage += 1;
     },
 
     // 完成刷新
