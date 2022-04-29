@@ -6,18 +6,40 @@ const User = require('../model/User');
 const user = require('./user');
 const Group = require('../model/Group');
 const Groupmessage = require('../model/Groupmessage');
+
+const fs = require('fs');
+const path = require('path');
+
 // const upload = multer({ dest: 'uploads/userImg/' })
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    let user = req.body.user;   // 没传user，所以这里是undefined
-    // console.log('user', user);
+    console.log('user', file);
+    let user = file.originalname.split('.');
+    let path2 = 'E:\\program\\Chat\\uploads\\chatImg\\' + user[0];
 
-    cb(null, './uploads/chatImg');
+    if (fs.existsSync(path2)) { // 存在
+      console.log('存在');
+      cb(null, path2);
+
+    } else {  // 不存在
+      console.log('不存在');
+      fs.mkdirSync(path2);
+      cb(null, path2);
+
+    }
   },
   filename(req, file, cb) {
     let type = file.originalname.replace(/.+\./, '.');
-    console.log('type', type);
-    cb(null, Date.now() + type);
+    let user = file.originalname.split('.');
+    let number = user[1].split('-');
+
+    console.log('type', type, user);
+    if (number[0] === 'zip') {
+      cb(null, user[0] + '-' + number[1]);
+    } else {
+      cb(null, Date.now() + type);
+    }
+
   }
 })
 const upload = multer({ storage: storage });
@@ -137,5 +159,25 @@ module.exports = function (app) {
         res.send(result);
       })
     }
-  })
+  }),
+    app.post('/chat/file', upload.single('chunk'), (req, res) => {
+      console.log('req.file', req.file);
+      // req.body.message = req.file.filename;
+      console.log('req.body', req.body);
+
+      res.send('ok');
+      // if (req.body.target === 'friend') {
+      //   Message.create(req.body).then(created => {
+      //     res.send(created);
+      //   })
+      // } else {
+      //   Groupmessage.create(req.body).then(created => {
+      //     console.log('created', created);
+      //     res.send(created);
+      //   })
+      // }
+    }),
+    app.post('/chat/merge', (req, res) => {
+      console.log('111', req.body);
+    })
 }

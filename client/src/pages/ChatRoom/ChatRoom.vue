@@ -180,6 +180,7 @@ export default {
       friendName: "", // 要对话的人的名字
       img: "", // 群头像
       nowPage: 1, // 当前页码
+      data: [], // 保存切片
     };
   },
   components: {
@@ -187,16 +188,6 @@ export default {
     TopBar,
   },
   mixins: [getHeight],
-  computed: {
-    // 可显示的列表项数
-    visibleCount() {
-      return Math.ceil(this.screenHeight / 80);
-    },
-    // 获取真实显示列表数据
-    visibleData() {
-      return this.msgs.slice(this.start, Math.min(this.end, this.msgs.length));
-    },
-  },
   async created() {
     window.addEventListener(".bg", this.getHeight); //注册监听器
     this.getHeight(50); //页面创建时调用
@@ -336,7 +327,7 @@ export default {
       this.$store.commit("changeBlur");
     },
     // 接收内容
-    getMessage(name, type) {
+    async getMessage(name, type) {
       let nowTime = new Date();
       let t = myfun.spaceTime(this.oldTime, nowTime);
       if (t) {
@@ -373,6 +364,16 @@ export default {
             this.scrollBottom();
           });
         }
+      } else if (type === 3) {
+        console.log("收到了文件", name);
+        const fileChunkList = this.createFileChunk(name);
+
+        this.data = fileChunkList.map(({ file }, index) => ({
+          chunk: new File([file], name.name + "-" + index),
+          hash: name.name + "-" + index, // 文件名 + 数组下标
+        }));
+        console.log("this.data", this.data);
+        await this.uploadChunks(name);
       } else {
         let formData = new FormData();
         formData.append("userID", this.userID);
@@ -384,6 +385,7 @@ export default {
         formData.append("target", this.target);
         if (type === 1) {
           formData.append("file", name);
+          console.log("file", name);
         } else {
           formData.append("file", name.blob, "file.mp3"); // 转成mp3格式
           formData.append("time2", name.time);
@@ -416,6 +418,54 @@ export default {
           this.scrollBottom();
         });
       }
+    },
+
+    // 生成切片
+    createFileChunk(file, size = 5 * 1024 * 1024) {
+      const fileChunkList = [];
+      let cur = 0;
+      while (cur < file.size) {
+        fileChunkList.push({
+          file: file.slice(cur, cur + size),
+        });
+        cur += size;
+      }
+
+      console.log("fileChunkList", fileChunkList);
+      return fileChunkList;
+    },
+
+    // 上传切片
+    async uploadChunks(name) {
+      const requestList = this.data
+        .map(({ chunk, hash }) => {
+          console.log("chunk", chunk);
+          const formData = new FormData();
+          formData.append("chunk", chunk);
+          formData.append("hash", hash);
+          formData.append("filename", name.name);
+          return { formData };
+        })
+        .map(async ({ formData }) =>
+          this.$axios({
+            method: "post",
+            url: "api/chat/file",
+            data: formData,
+          })
+        );
+      await Promise.all(requestList); // 并发切片
+
+      await this.mergeRequest(name); // 合并切片请求
+    },
+    // 合并切片
+    async mergeRequest(name) {
+      this.$axios({
+        method: "post",
+        url: "api/chat/merge",
+        data: {
+          filename: name.name,
+        },
+      });
     },
 
     // socket提交 发送给后端

@@ -55,6 +55,13 @@
         <div class="more-list" @click="file">
           <img src="../../static/images/submit/文件.png" alt="" />
           <div class="more-list-title">文件</div>
+          <input
+            type="file"
+            accept="application/zip"
+            @change="handleFile2"
+            class="hiddenInput"
+            ref="hidden2"
+          />
         </div>
       </div>
     </div>
@@ -258,13 +265,19 @@ export default {
     photo() {
       this.$refs.hidden.click(); // 点击图片，时机上点击的是input按钮
     },
-    // 将头像显示，并且传到后端
+    // 传图片
     handleFile(e) {
       this.$emit("sendMsg", e.srcElement.files.item(0), 1); // 图片的类型是1
     },
     // 文件
     file() {
       console.log("file");
+      this.$refs.hidden2.click(); // 点击图片，时机上点击的是input按钮
+    },
+    // 传视频
+    handleFile2(e) {
+      console.log(e.srcElement.files.item(0));
+      this.$emit("sendMsg", e.srcElement.files.item(0), 3); // 图片的类型是3
     },
   },
 };
