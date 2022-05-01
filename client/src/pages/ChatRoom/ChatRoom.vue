@@ -204,6 +204,7 @@ export default {
         // 文件
         file: null,
       },
+      hashPercentage: 0, // 计算文件hash的进度
     };
   },
   components: {
@@ -401,11 +402,28 @@ export default {
         console.log("收到了文件", name);
         this.container.file = name;
         const fileChunkList = this.createFileChunk(name);
+        // 生成hash
+        this.container.hash = await this.calculateHash(fileChunkList);
+        // 判断是否需要文件秒传
+        const shouldUpload = await this.verifyUpload(
+          this.container.file.name,
+          this.container.hash
+        );
+        console.log("shouldUpload", shouldUpload);
+        if (!shouldUpload) {
+          console.log("进来了");
+          this.data.map((item) => {
+            item.percentage = 100;
+            console.log("this.data", this.data);
+          });
+          return;
+        }
 
         this.data = fileChunkList.map(({ file }, index) => ({
-          chunk: new File([file], name.name + "-" + index),
-          hash: name.name + "-" + index, // 文件名 + 数组下标
-          size: new File([file], name.name + "-" + index).size,
+          chunk: new File([file], this.container.hash + "-" + index),
+          hash: this.container.hash, // webworker生成的hash
+          size: new File([file], this.container.hash + "-" + index).size,
+          fileHash: this.container.hash,
           index,
           percentage: 0,
         }));
@@ -477,12 +495,13 @@ export default {
 
     // 上传切片
     async uploadChunks(name) {
+      let lastName = name.name.split(".");
       const requestList = this.data
         .map(({ chunk, hash, index }) => {
           const formData = new FormData();
           formData.append("chunk", chunk);
-          formData.append("hash", hash);
-          formData.append("filename", name.name);
+          formData.append("hash", this.container.hash + "." + lastName[1]);
+          formData.append("filename", this.container.hash);
           return { formData, index };
         })
         .map(async ({ formData, index }) =>
@@ -496,15 +515,15 @@ export default {
         );
       await Promise.all(requestList); // 并发切片
 
-      await this.mergeRequest(name); // 合并切片请求
+      await this.mergeRequest(lastName); // 合并切片请求
     },
     // 合并切片
-    async mergeRequest(name) {
+    async mergeRequest(lastName) {
       this.$axios({
         method: "post",
         url: "api/chat/merge",
         data: {
-          filename: name.name,
+          filename: this.container.hash + "." + lastName[1],
           size: this.size,
         },
       }).then((res) => {
@@ -518,6 +537,39 @@ export default {
         item.percentage = parseInt(String((e.loaded / e.total) * 100));
       };
     },
+    // 生成文件 hash（web-worker）
+    calculateHash(fileChunkList) {
+      return new Promise((resolve) => {
+        // 添加 worker 属性
+        this.container.worker = new Worker("/hash.js");
+        this.container.worker.postMessage({ fileChunkList });
+        this.container.worker.onmessage = (e) => {
+          const { percentage, hash } = e.data;
+          this.hashPercentage = percentage;
+          console.log("webworker", percentage);
+          if (hash) {
+            resolve(hash);
+          }
+        };
+      });
+    },
+    // 文件秒传
+    async verifyUpload(filename, fileHash) {
+      let result = "";
+      await this.$axios({
+        url: "api/chat/verify",
+        method: "post",
+        data: {
+          filename,
+          fileHash,
+        },
+      }).then((res) => {
+        console.log("res.data", res.data.shouldUpload);
+        result = res.data.shouldUpload;
+      });
+      return result;
+    },
+
     // 暂停
     stop() {},
     // 继续
@@ -855,6 +907,7 @@ export default {
   width: 200px;
   margin-right: 10px;
   border-radius: 5px;
+  background-color: white;
 }
 .file-top {
   padding: 10px;

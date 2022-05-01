@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
   destination(req, file, cb) {
     console.log('user', file);
     let user = file.originalname.split('-');
-    let path2 = 'E:\\program\\Chat\\uploads\\bigFile\\' + user[0];
+    let path2 = 'E:\\program\\Chat\\uploads\\chatImg\\' + user[0];
 
     if (fs.existsSync(path2)) { // 存在
       console.log('存在');
@@ -30,8 +30,7 @@ const storage = multer.diskStorage({
   },
   filename(req, file, cb) {
     let type = file.originalname.replace(/.+\./, '.');
-    let user = file.originalname.split('.');
-    let number = user[1].split('-');
+    let number = file.originalname.split('-');
 
     console.log('type', type, user);
     if (number[0] === 'mp3') {
@@ -174,22 +173,38 @@ module.exports = function (app) {
       // 合并切片
       const { filename, size } = req.body;
       const filePath = paths + filename;
-      // const filePath = path.resolve(paths, `${filename}`);
-      await mergeFileChunk(filePath, filename, size);
-      console.log(11111111111);
+
+      let firstName = filename.split('.');
+
+      await mergeFileChunk(filePath, firstName[0], size);
+
       //   Message.create(req.body).then(created => {
       res.send(
         { msg: 'ok' }
       );
       //   })
+    }),
 
-
+    // 文件秒传
+    app.post('/chat/verify', (req, res) => {
+      console.log(req.body);
+      const { fileHash, filename } = req.body;
+      const ext = extractExt(filename); // .mp3
+      const filePath = paths + `${fileHash}${ext}`;
+      console.log(filePath);
+      if (fs.existsSync(filePath)) {
+        console.log('有这个东西');
+        res.send({ shouldUpload: false });
+      } else {
+        console.log('没有这个东西');
+        res.send({ shouldUpload: true });
+      }
 
     })
 }
 // 合并切片
 const mergeFileChunk = async (filePath, filename, size) => {
-  const chunkDir = 'E:\\program\\Chat\\uploads\\bigFile\\' + filename;
+  const chunkDir = 'E:\\program\\Chat\\uploads\\chatImg\\' + filename;
   const chunkPaths = fs.readdirSync(chunkDir);
   console.log('chunkPaths', chunkPaths);
   console.log('size', size);
@@ -217,7 +232,6 @@ const mergeFileChunk = async (filePath, filename, size) => {
   console.log('deleted', deleted);
   // fs.rmdirSync(chunkDir); // 合并后删除保存切片的目录
 };
-
 const pipeStream = (path, writeStream) => {
   console.log('可读流路径', path);
   new Promise(resolve => {
@@ -228,4 +242,7 @@ const pipeStream = (path, writeStream) => {
     });
     readStream.pipe(writeStream);
   })
-}
+};
+// 判断是否需要进行文件秒传
+const extractExt = filename =>
+  filename.slice(filename.lastIndexOf("."), filename.length); // 提取后缀名
