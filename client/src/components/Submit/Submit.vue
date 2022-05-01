@@ -57,7 +57,6 @@
           <div class="more-list-title">文件</div>
           <input
             type="file"
-            accept="application/zip"
             @change="handleFile2"
             class="hiddenInput"
             ref="hidden2"

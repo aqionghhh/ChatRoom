@@ -9,23 +9,23 @@ const Groupmessage = require('../model/Groupmessage');
 
 const fs = require('fs');
 const path = require('path');
+const { log } = require('console');
+let paths = 'E:\\program\\Chat\\uploads\\chatImg\\';
 
 // const upload = multer({ dest: 'uploads/userImg/' })
 const storage = multer.diskStorage({
   destination(req, file, cb) {
     console.log('user', file);
-    let user = file.originalname.split('.');
-    let path2 = 'E:\\program\\Chat\\uploads\\chatImg\\' + user[0];
+    let user = file.originalname.split('-');
+    let path2 = 'E:\\program\\Chat\\uploads\\bigFile\\' + user[0];
 
     if (fs.existsSync(path2)) { // 存在
       console.log('存在');
       cb(null, path2);
-
     } else {  // 不存在
       console.log('不存在');
       fs.mkdirSync(path2);
       cb(null, path2);
-
     }
   },
   filename(req, file, cb) {
@@ -34,12 +34,11 @@ const storage = multer.diskStorage({
     let number = user[1].split('-');
 
     console.log('type', type, user);
-    if (number[0] === 'zip') {
-      cb(null, user[0] + '-' + number[1]);
+    if (number[0] === 'mp3') {
+      cb(null, file.originalname);
     } else {
       cb(null, Date.now() + type);
     }
-
   }
 })
 const upload = multer({ storage: storage });
@@ -162,22 +161,71 @@ module.exports = function (app) {
   }),
     app.post('/chat/file', upload.single('chunk'), (req, res) => {
       console.log('req.file', req.file);
-      // req.body.message = req.file.filename;
       console.log('req.body', req.body);
 
       res.send('ok');
-      // if (req.body.target === 'friend') {
-      //   Message.create(req.body).then(created => {
-      //     res.send(created);
-      //   })
-      // } else {
-      //   Groupmessage.create(req.body).then(created => {
-      //     console.log('created', created);
-      //     res.send(created);
-      //   })
-      // }
+
     }),
-    app.post('/chat/merge', (req, res) => {
-      console.log('111', req.body);
+    app.post('/chat/merge', async (req, res) => {
+      let user = req.body.filename.split('.');
+      console.log('111', user);
+      console.log('222', req.body);
+
+      // 合并切片
+      const { filename, size } = req.body;
+      const filePath = paths + filename;
+      // const filePath = path.resolve(paths, `${filename}`);
+      await mergeFileChunk(filePath, filename, size);
+      console.log(11111111111);
+      //   Message.create(req.body).then(created => {
+      res.send(
+        { msg: 'ok' }
+      );
+      //   })
+
+
+
     })
+}
+// 合并切片
+const mergeFileChunk = async (filePath, filename, size) => {
+  const chunkDir = 'E:\\program\\Chat\\uploads\\bigFile\\' + filename;
+  const chunkPaths = fs.readdirSync(chunkDir);
+  console.log('chunkPaths', chunkPaths);
+  console.log('size', size);
+
+  // 根据切片下标进行排序
+  // 否则直接读取目录的获得的顺序可能会错乱
+  chunkPaths.sort((a, b) => a.split("-")[1] - b.split("-")[1]);
+  await Promise.all(
+    chunkPaths.map((chunkPath, index) => {
+      console.log('切片存储文件夹：', chunkDir + '\\' + chunkPath);
+      console.log('文件写入文件夹：', filePath);
+      pipeStream(
+        chunkDir + '\\' + chunkPath,
+        // 指定位置创建可写流
+        fs.createWriteStream(filePath, {
+          start: index * size[index],
+          end: (index + 1) * size[index]
+        })
+      )
+    }
+    )
+  );
+  console.log('要删除的文件名', chunkDir);
+  const deleted = fs.readdirSync(chunkDir);
+  console.log('deleted', deleted);
+  // fs.rmdirSync(chunkDir); // 合并后删除保存切片的目录
+};
+
+const pipeStream = (path, writeStream) => {
+  console.log('可读流路径', path);
+  new Promise(resolve => {
+    const readStream = fs.createReadStream(path);
+    readStream.on("end", () => {
+      fs.unlinkSync(path);
+      resolve();
+    });
+    readStream.pipe(writeStream);
+  })
 }

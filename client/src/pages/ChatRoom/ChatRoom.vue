@@ -90,6 +90,24 @@
                 {{ item.message.time }}″
               </div>
             </div>
+            <div v-if="item.types === '3'" class="file">
+              <div class="file-top">
+                <div class="file-top-left"></div>
+                <div class="file-top-right">
+                  <div class="file-topName">文件名</div>
+                  <div class="file-topSize">4.53M</div>
+                </div>
+              </div>
+              <div
+                class="file-middle"
+                :style="{ width: uploadPercentage + '%' }"
+              ></div>
+              <div class="file-bottom">
+                <div class="file-bottomItem" @click="stop">暂停</div>
+                <div class="file-bottomItem" @click="goOn">继续</div>
+                <div class="file-bottomItem" @click="cancel">取消</div>
+              </div>
+            </div>
           </div>
           <div class="msg-m msg-left" v-else>
             <img
@@ -181,11 +199,26 @@ export default {
       img: "", // 群头像
       nowPage: 1, // 当前页码
       data: [], // 保存切片
+      size: [], // 文件的大小
+      container: {
+        // 文件
+        file: null,
+      },
     };
   },
   components: {
     Submit,
     TopBar,
+  },
+  computed: {
+    // 计算当前文件的上传进度
+    uploadPercentage() {
+      if (!this.container.file || !this.data.length) return 0;
+      const loaded = this.data
+        .map((item) => item.size * item.percentage)
+        .reduce((acc, cur) => acc + cur);
+      return parseInt((loaded / this.container.file.size).toFixed(2));
+    },
   },
   mixins: [getHeight],
   async created() {
@@ -366,13 +399,20 @@ export default {
         }
       } else if (type === 3) {
         console.log("收到了文件", name);
+        this.container.file = name;
         const fileChunkList = this.createFileChunk(name);
 
         this.data = fileChunkList.map(({ file }, index) => ({
           chunk: new File([file], name.name + "-" + index),
           hash: name.name + "-" + index, // 文件名 + 数组下标
+          size: new File([file], name.name + "-" + index).size,
+          index,
+          percentage: 0,
         }));
-        console.log("this.data", this.data);
+        for (let i = 0; i < this.data.length; i++) {
+          this.size.push(this.data[i].size);
+        }
+        console.log("this.size", this.size);
         await this.uploadChunks(name);
       } else {
         let formData = new FormData();
@@ -421,7 +461,7 @@ export default {
     },
 
     // 生成切片
-    createFileChunk(file, size = 5 * 1024 * 1024) {
+    createFileChunk(file, size = 1024 * 1024) {
       const fileChunkList = [];
       let cur = 0;
       while (cur < file.size) {
@@ -438,19 +478,20 @@ export default {
     // 上传切片
     async uploadChunks(name) {
       const requestList = this.data
-        .map(({ chunk, hash }) => {
-          console.log("chunk", chunk);
+        .map(({ chunk, hash, index }) => {
           const formData = new FormData();
           formData.append("chunk", chunk);
           formData.append("hash", hash);
           formData.append("filename", name.name);
-          return { formData };
+          return { formData, index };
         })
-        .map(async ({ formData }) =>
+        .map(async ({ formData, index }) =>
           this.$axios({
             method: "post",
             url: "api/chat/file",
             data: formData,
+            index,
+            onUploadProgress: this.createProgressHandler(this.data[index]),
           })
         );
       await Promise.all(requestList); // 并发切片
@@ -464,9 +505,25 @@ export default {
         url: "api/chat/merge",
         data: {
           filename: name.name,
+          size: this.size,
         },
+      }).then((res) => {
+        console.log("合并完了", res.data);
       });
     },
+    // 原生xhrhttprequest
+    createProgressHandler(item) {
+      return (e) => {
+        console.log("正在上传", e.loaded / e.total);
+        item.percentage = parseInt(String((e.loaded / e.total) * 100));
+      };
+    },
+    // 暂停
+    stop() {},
+    // 继续
+    goOn() {},
+    // 取消
+    cancel() {},
 
     // socket提交 发送给后端
     sendSocket(e) {
@@ -792,5 +849,52 @@ export default {
   padding-right: 8px;
   width: 18px;
   height: 20px;
+}
+.file {
+  border: 5px solid rgb(18, 183, 245);
+  width: 200px;
+  margin-right: 10px;
+  border-radius: 5px;
+}
+.file-top {
+  padding: 10px;
+  display: flex;
+}
+.file-top-left {
+  background-image: url("../../static/images/chatroom/MP3.png");
+  width: 50px;
+  height: 50px;
+  background-size: 50px 50px;
+}
+.file-top-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 5px;
+  max-width: 100px;
+}
+.file-topName {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+.file-topSize {
+  padding-top: 5px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+.file-middle {
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 2px;
+}
+.file-bottom {
+  display: flex;
+  justify-content: end;
+  padding: 10px;
+}
+.file-bottomItem {
+  padding: 0 5px 0 0;
+  color: rgb(18, 183, 245);
 }
 </style>
