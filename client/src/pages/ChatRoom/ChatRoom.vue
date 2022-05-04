@@ -171,6 +171,8 @@ import TopBar from "../../components/TopBar/TopBar.vue";
 BScroll.use(MouseWheel);
 BScroll.use(PullDown);
 let audio = new Audio(); // 把变量放在外面可以防止同时播放多个音频
+const controller = new AbortController();
+
 import { getHeight } from "../../mixin/getHeight";
 import {
   clearTip,
@@ -205,6 +207,7 @@ export default {
         file: null,
       },
       hashPercentage: 0, // 计算文件hash的进度
+      requestList: [], // 保存请求切片
     };
   },
   components: {
@@ -411,10 +414,8 @@ export default {
         );
         console.log("shouldUpload", shouldUpload);
         if (!shouldUpload) {
-          console.log("进来了");
-          this.data.map((item) => {
+          this.data.forEach((item) => {
             item.percentage = 100;
-            console.log("this.data", this.data);
           });
           return;
         }
@@ -496,7 +497,7 @@ export default {
     // 上传切片
     async uploadChunks(name) {
       let lastName = name.name.split(".");
-      const requestList = this.data
+      this.requestList = this.data
         .map(({ chunk, hash, index }) => {
           const formData = new FormData();
           formData.append("chunk", chunk);
@@ -511,10 +512,14 @@ export default {
             data: formData,
             index,
             onUploadProgress: this.createProgressHandler(this.data[index]),
+            signal: controller.signal,
           })
+            .then((res) => {})
+            .catch((err) => {
+              console.log("err", err);
+            })
         );
-      await Promise.all(requestList); // 并发切片
-
+      await Promise.all(this.requestList); // 并发切片
       await this.mergeRequest(lastName); // 合并切片请求
     },
     // 合并切片
@@ -571,7 +576,13 @@ export default {
     },
 
     // 暂停
-    stop() {},
+    stop() {
+      controller.abort();
+
+      this.requestList = [];
+      console.log("暂停");
+      console.log(this.requestList);
+    },
     // 继续
     goOn() {},
     // 取消
@@ -793,7 +804,7 @@ export default {
 
 <style scoped>
 .content {
-  height: 100%;
+  height: 100vh;
   background-color: rgb(243, 243, 243);
 }
 .top-bar {

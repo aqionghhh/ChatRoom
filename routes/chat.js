@@ -33,7 +33,7 @@ const storage = multer.diskStorage({
     let number = file.originalname.split('-');
 
     console.log('type', type, user);
-    if (number[0] === 'mp3') {
+    if (number[0] === 'mp3' || number[0] === 'pdf') {
       cb(null, file.originalname);
     } else {
       cb(null, Date.now() + type);
@@ -161,8 +161,9 @@ module.exports = function (app) {
     app.post('/chat/file', upload.single('chunk'), (req, res) => {
       console.log('req.file', req.file);
       console.log('req.body', req.body);
+      let index = req.file.originalname.split('-');
 
-      res.send('ok');
+      res.send({ index: index[1] });
 
     }),
     app.post('/chat/merge', async (req, res) => {
