@@ -1,3 +1,3 @@
-console.log(a);
-var a = 1;
-function a() { };
+let a = () => { b = 1; return b; }
+
+console.log(a());

@@ -397,4 +397,10 @@ submit组件
 解决方法
 
 1. 用vif判断是否有值，但是这样会造成有时候数据无法显示的情况
-2. 
+2. .
+
+
+
+断点续传：![image-20220504204713463](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20220504204713463.png)
+
+![image-20220504205127412](C:\Users\26671\AppData\Roaming\Typora\typora-user-images\image-20220504205127412.png)

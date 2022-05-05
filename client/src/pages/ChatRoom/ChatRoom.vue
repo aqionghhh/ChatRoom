@@ -171,7 +171,7 @@ import TopBar from "../../components/TopBar/TopBar.vue";
 BScroll.use(MouseWheel);
 BScroll.use(PullDown);
 let audio = new Audio(); // 把变量放在外面可以防止同时播放多个音频
-const controller = new AbortController();
+let controller = null;
 
 import { getHeight } from "../../mixin/getHeight";
 import {
@@ -408,11 +408,10 @@ export default {
         // 生成hash
         this.container.hash = await this.calculateHash(fileChunkList);
         // 判断是否需要文件秒传
-        const shouldUpload = await this.verifyUpload(
+        const { shouldUpload, uploadedList } = await this.verifyUpload(
           this.container.file.name,
           this.container.hash
         );
-        console.log("shouldUpload", shouldUpload);
         if (!shouldUpload) {
           this.data.forEach((item) => {
             item.percentage = 100;
@@ -422,7 +421,7 @@ export default {
 
         this.data = fileChunkList.map(({ file }, index) => ({
           chunk: new File([file], this.container.hash + "-" + index),
-          hash: this.container.hash, // webworker生成的hash
+          hash: this.container.hash + "-" + index, // webworker生成的hash
           size: new File([file], this.container.hash + "-" + index).size,
           fileHash: this.container.hash,
           index,
@@ -432,7 +431,7 @@ export default {
           this.size.push(this.data[i].size);
         }
         console.log("this.size", this.size);
-        await this.uploadChunks(name);
+        await this.uploadChunks(uploadedList);
       } else {
         let formData = new FormData();
         formData.append("userID", this.userID);
@@ -495,9 +494,14 @@ export default {
     },
 
     // 上传切片
-    async uploadChunks(name) {
-      let lastName = name.name.split(".");
+    async uploadChunks(uploadedList = []) {
+      let lastName = this.container.file.name.split(".");
+      console.log("this.data", this.data);
+      console.log(uploadedList);
+
+      controller = new AbortController();
       this.requestList = this.data
+        .filter(({ hash }) => !uploadedList.includes(hash))
         .map(({ chunk, hash, index }) => {
           const formData = new FormData();
           formData.append("chunk", chunk);
@@ -505,25 +509,31 @@ export default {
           formData.append("filename", this.container.hash);
           return { formData, index };
         })
-        .map(async ({ formData, index }) =>
-          this.$axios({
+        .map(({ formData, index }) => {
+          return this.$axios({
             method: "post",
             url: "api/chat/file",
             data: formData,
             index,
             onUploadProgress: this.createProgressHandler(this.data[index]),
             signal: controller.signal,
-          })
-            .then((res) => {})
-            .catch((err) => {
-              console.log("err", err);
-            })
-        );
-      await Promise.all(this.requestList); // 并发切片
-      await this.mergeRequest(lastName); // 合并切片请求
+          }).catch((err) => {
+            console.log(err);
+          });
+        });
+      console.log("this.requestList", this.requestList);
+      const a = await Promise.allSettled(this.requestList); // 并发切片
+      console.log("a", a);
+
+      if (uploadedList.length + this.requestList.length === this.data.length) {
+        // 合并切片请求
+        await this.mergeRequest();
+      }
     },
     // 合并切片
-    async mergeRequest(lastName) {
+    async mergeRequest() {
+      console.log("发送合并请求");
+      let lastName = this.container.file.name.split(".");
       this.$axios({
         method: "post",
         url: "api/chat/merge",
@@ -569,8 +579,8 @@ export default {
           fileHash,
         },
       }).then((res) => {
-        console.log("res.data", res.data.shouldUpload);
-        result = res.data.shouldUpload;
+        console.log("res.data", res.data);
+        result = res.data;
       });
       return result;
     },
@@ -578,15 +588,39 @@ export default {
     // 暂停
     stop() {
       controller.abort();
+      controller = null;
+      console.log("this.requestList", this.requestList);
 
       this.requestList = [];
       console.log("暂停");
-      console.log(this.requestList);
     },
     // 继续
-    goOn() {},
+    async goOn() {
+      try {
+        controller = null;
+      } catch (err) {
+        console.log(err);
+      }
+      const { uploadedList } = await this.verifyUpload(
+        this.container.file.name,
+        this.container.hash
+      );
+      console.log(1111);
+      await this.uploadChunks(uploadedList);
+    },
     // 取消
-    cancel() {},
+    cancel() {
+      controller.abort();
+      controller = null;
+      this.requestList = [];
+      this.$axios({
+        method: "post",
+        url: "api/chat/cancel",
+        data: "cancel",
+      }).then((res) => {
+        console.log(res.data);
+      });
+    },
 
     // socket提交 发送给后端
     sendSocket(e) {

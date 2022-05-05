@@ -11,7 +11,7 @@
     "@better-scroll/mouse-wheel": "^2.4.2",
     "@better-scroll/pull-down": "^2.4.2",
     "animate.css": "^3.5.1",
-    "axios": "^0.24.0",
+    "axios": "^0.27.2",
     "core-js": "^3.6.5",
     "recorder-js": "^1.0.7",
     "vant": "^2.12.37",

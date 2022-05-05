@@ -30,10 +30,10 @@ const storage = multer.diskStorage({
   },
   filename(req, file, cb) {
     let type = file.originalname.replace(/.+\./, '.');
-    let number = file.originalname.split('-');
 
-    console.log('type', type, user);
-    if (number[0] === 'mp3' || number[0] === 'pdf') {
+    console.log('file', file);
+    console.log('type', type);
+    if (file.fieldname === 'chunk') {
       cb(null, file.originalname);
     } else {
       cb(null, Date.now() + type);
@@ -195,10 +195,17 @@ module.exports = function (app) {
       console.log(filePath);
       if (fs.existsSync(filePath)) {
         console.log('有这个东西');
-        res.send({ shouldUpload: false });
+        res.send({
+          shouldUpload: false
+        });
       } else {
+        console.log(createUploadedList(fileHash));
+
         console.log('没有这个东西');
-        res.send({ shouldUpload: true });
+        res.send({
+          shouldUpload: true,
+          uploadedList: createUploadedList(fileHash)
+        });
       }
 
     })
@@ -247,3 +254,10 @@ const pipeStream = (path, writeStream) => {
 // 判断是否需要进行文件秒传
 const extractExt = filename =>
   filename.slice(filename.lastIndexOf("."), filename.length); // 提取后缀名
+
+
+// 返回已经上传切片名列表
+const createUploadedList = fileHash =>
+  fs.existsSync(paths + fileHash)
+    ? fs.readdirSync(paths + fileHash)
+    : [];
