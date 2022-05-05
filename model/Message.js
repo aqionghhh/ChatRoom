@@ -15,10 +15,10 @@ const MessageSchema = new Schema({
   message: {//内容
     type: String
   },
-  time2: {  // 如果是语音就存语音的秒数
+  time2: {  // 如果是语音就存语音的秒数；如果是文件就存文件的大小
     type: String,
   },
-  types: {//内容类型(0：文字，1：图片链接，2：音频链接)
+  types: {//内容类型(0：文字，1：图片链接，2：音频链接，3：文件)
     type: String,
   },
   time: {//发送时间

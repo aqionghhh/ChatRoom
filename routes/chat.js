@@ -178,11 +178,28 @@ module.exports = function (app) {
       let firstName = filename.split('.');
 
       await mergeFileChunk(filePath, firstName[0], size);
-
+      let totalSize = 0;
+      req.body.size.map((item, index) => {
+        totalSize += item;
+      })
+      console.log('totalSize', totalSize);
+      Message.create({
+        userID: req.body.userID,
+        friendID: req.body.friendID,
+        imgurl: req.body.imgurl,
+        message: req.body.filename,
+        time2: totalSize,
+        types: '3',
+        time: new Date(),
+        tip: 1
+      }).then(result => {
+        console.log(result);
+        res.send(
+          { msg: 'ok' }
+        );
+      })
       //   Message.create(req.body).then(created => {
-      res.send(
-        { msg: 'ok' }
-      );
+
       //   })
     }),
 
@@ -208,11 +225,29 @@ module.exports = function (app) {
         });
       }
 
+    }),
+    app.post('/chat/cancel', (req, res) => {
+      console.log(req.body);
+      let path = paths + req.body.cancel;
+      console.log('path', path);
+      let deleted = fs.readdirSync(path);
+
+      if (deleted.length < 1) {
+        fs.rmdirSync(path); // 合并后删除保存切片的目录
+      } else {
+        deleted.map((item, index) => {
+          console.log(item, index);
+          let goon = path + '\\' + item;
+          fs.unlinkSync(goon); // 合并后删除保存切片的目录
+        })
+        fs.rmdirSync(path); // 合并后删除保存切片的目录
+      }
+      res.send({ msg: 'ok' })
     })
 }
 // 合并切片
 const mergeFileChunk = async (filePath, filename, size) => {
-  const chunkDir = 'E:\\program\\Chat\\uploads\\chatImg\\' + filename;
+  const chunkDir = paths + filename;
   const chunkPaths = fs.readdirSync(chunkDir);
   console.log('chunkPaths', chunkPaths);
   console.log('size', size);
@@ -222,8 +257,6 @@ const mergeFileChunk = async (filePath, filename, size) => {
   chunkPaths.sort((a, b) => a.split("-")[1] - b.split("-")[1]);
   await Promise.all(
     chunkPaths.map((chunkPath, index) => {
-      console.log('切片存储文件夹：', chunkDir + '\\' + chunkPath);
-      console.log('文件写入文件夹：', filePath);
       pipeStream(
         chunkDir + '\\' + chunkPath,
         // 指定位置创建可写流
@@ -235,9 +268,9 @@ const mergeFileChunk = async (filePath, filename, size) => {
     }
     )
   );
-  console.log('要删除的文件名', chunkDir);
-  const deleted = fs.readdirSync(chunkDir);
-  console.log('deleted', deleted);
+  // console.log('要删除的文件名', chunkDir);
+  // const deleted = fs.readdirSync(chunkDir);
+  // console.log('deleted', deleted);
   // fs.rmdirSync(chunkDir); // 合并后删除保存切片的目录
 };
 const pipeStream = (path, writeStream) => {

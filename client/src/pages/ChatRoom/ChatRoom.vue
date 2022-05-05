@@ -94,8 +94,8 @@
               <div class="file-top">
                 <div class="file-top-left"></div>
                 <div class="file-top-right">
-                  <div class="file-topName">文件名</div>
-                  <div class="file-topSize">4.53M</div>
+                  <div class="file-topName">{{ item.message }}</div>
+                  <div class="file-topSize">{{ item.time2 }}</div>
                 </div>
               </div>
               <div
@@ -103,9 +103,15 @@
                 :style="{ width: uploadPercentage + '%' }"
               ></div>
               <div class="file-bottom">
-                <div class="file-bottomItem" @click="stop">暂停</div>
-                <div class="file-bottomItem" @click="goOn">继续</div>
-                <div class="file-bottomItem" @click="cancel">取消</div>
+                <div class="file-bottomItem" v-if="showStop" @click="stop">
+                  暂停
+                </div>
+                <div class="file-bottomItem" v-if="showGoOn" @click="goOn">
+                  继续
+                </div>
+                <div class="file-bottomItem" v-if="showCancel" @click="cancel">
+                  取消
+                </div>
               </div>
             </div>
           </div>
@@ -149,6 +155,24 @@
                 />
 
                 {{ item.message.time }}″
+              </div>
+            </div>
+            <div v-if="item.types === '3'" class="file">
+              <div class="file-top">
+                <div class="file-top-left"></div>
+                <div class="file-top-right">
+                  <div class="file-topName">{{ item.message }}</div>
+                  <div class="file-topSize">{{ item.time2 }}</div>
+                </div>
+              </div>
+              <div class="file-bottom">
+                <div
+                  class="file-bottomItem"
+                  v-if="canDownLoad"
+                  @click="downLoad"
+                >
+                  下载
+                </div>
               </div>
             </div>
           </div>
@@ -208,6 +232,10 @@ export default {
       },
       hashPercentage: 0, // 计算文件hash的进度
       requestList: [], // 保存请求切片
+      showStop: false,
+      showGoOn: false,
+      showCancel: false,
+      canDownLoad: true,
     };
   },
   components: {
@@ -279,6 +307,21 @@ export default {
             message: {
               voice: msg[0].message.voice,
               time: msg[0].message.time,
+            },
+            types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
+            time: msg[0].time, // 发送时间
+            tip: len, // 类似消息的id
+          };
+          console.log("socketdata", data);
+          this.msgs.push(data);
+        } else if (msg[0].types === "3") {
+          // 发送的是文件
+          let data = {
+            userID: msg[0].userID, // 发送方用户id
+            imgurl: msg[0].imgurl,
+            message: {
+              name: msg[0].message.voice,
+              size: msg[0].message.time,
             },
             types: msg[0].types, // 内容类型（0文字，1图片链接，2音频链接
             time: msg[0].time, // 发送时间
@@ -403,6 +446,8 @@ export default {
         }
       } else if (type === 3) {
         console.log("收到了文件", name);
+        this.showStop = true;
+        this.showCancel = true;
         this.container.file = name;
         const fileChunkList = this.createFileChunk(name);
         // 生成hash
@@ -416,6 +461,10 @@ export default {
           this.data.forEach((item) => {
             item.percentage = 100;
           });
+
+          this.showStop = false;
+          this.showGoOn = false;
+          this.showCancel = false;
           return;
         }
 
@@ -539,10 +588,19 @@ export default {
         url: "api/chat/merge",
         data: {
           filename: this.container.hash + "." + lastName[1],
+          name: this.container.file.name,
           size: this.size,
+          userID: this.userID, // 用户id
+          friendID: localStorage.getItem("friendID"),
+          imgurl: localStorage.getItem("imgurl"),
+          types: "3", // 内容类型（0文字，1图片链接，2音频链接
+          tip: 1, // 类似消息的id
         },
       }).then((res) => {
         console.log("合并完了", res.data);
+        this.showStop = false;
+        this.showGoOn = false;
+        this.showCancel = false;
       });
     },
     // 原生xhrhttprequest
@@ -590,12 +648,16 @@ export default {
       controller.abort();
       controller = null;
       console.log("this.requestList", this.requestList);
-
+      this.showStop = false;
+      this.showGoOn = true;
       this.requestList = [];
       console.log("暂停");
     },
     // 继续
     async goOn() {
+      this.showGoOn = false;
+      this.showStop = true;
+
       try {
         controller = null;
       } catch (err) {
@@ -610,16 +672,32 @@ export default {
     },
     // 取消
     cancel() {
-      controller.abort();
-      controller = null;
+      this.showStop = false;
+      this.showGoOn = false;
+      this.showCancel = false;
+
+      if (controller) {
+        controller.abort();
+
+        controller = null;
+      }
       this.requestList = [];
+      let lastName = this.container.file.name.split(".");
+
       this.$axios({
         method: "post",
         url: "api/chat/cancel",
-        data: "cancel",
+        data: {
+          cancel: this.container.hash,
+          type: lastName[1],
+        },
       }).then((res) => {
         console.log(res.data);
       });
+    },
+    // 下载
+    downLoad() {
+      this.canDownLoad = false;
     },
 
     // socket提交 发送给后端
