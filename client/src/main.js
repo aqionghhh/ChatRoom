@@ -45,7 +45,7 @@ Vue.use(new VueSocketIO({
 }))
 
 //引入axios
-import axios from 'axios';
+import axios from './request/index';
 Vue.prototype.$axios = axios
 
 Vue.config.productionTip = false
