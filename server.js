@@ -22,9 +22,9 @@ app.use(function (req, res, next) {
   }
   // 获取token值
   const authorization = req.headers['authorization'];
-  console.log(authorization);
+  console.log('authorization', authorization);
   if (authorization === "undefined") {
-    return res.status(401).send('Unauthorized')
+    return next();
   } else {
     // 验证token
     verifyToken(authorization).then((data) => {

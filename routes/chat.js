@@ -18,25 +18,26 @@ const storage = multer.diskStorage({
     console.log('user', file);
     let user = file.originalname.split('-');
     let path2 = 'E:\\program\\Chat\\uploads\\chatImg\\' + user[0];
-
-    if (fs.existsSync(path2)) { // 存在
-      console.log('存在');
-      cb(null, path2);
-    } else {  // 不存在
-      console.log('不存在');
-      fs.mkdirSync(path2);
-      cb(null, path2);
+    if (file.fieldname === 'chunk') {
+      if (fs.existsSync(path2)) { // 存在
+        console.log('存在');
+        cb(null, path2);
+      } else {  // 不存在
+        console.log('不存在');
+        fs.mkdirSync(path2);
+        cb(null, path2);
+      }
+    } else {
+      cb(null, './uploads/chatImg');
     }
   },
   filename(req, file, cb) {
-    let type = file.originalname.replace(/.+\./, '.');
+    let number = file.originalname.split('.');
 
-    console.log('file', file);
-    console.log('type', type);
     if (file.fieldname === 'chunk') {
       cb(null, file.originalname);
     } else {
-      cb(null, Date.now() + type);
+      cb(null, Date.now() + number);
     }
   }
 })

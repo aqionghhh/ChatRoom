@@ -4,6 +4,7 @@ import router from '../router/index';
 
 axios.interceptors.request.use(config => {
   //判断token是否存在
+  console.log('11111111111111111111111');
   if (localStorage.token) {
     //token存在的话设置统一的请求头header
     config.headers.Authorization = localStorage.token
