@@ -178,26 +178,20 @@ module.exports = function (app) {
       let firstName = filename.split('.');
 
       await mergeFileChunk(filePath, firstName[0], size);
-      let totalSize = 0;
-      req.body.size.map((item, index) => {
-        totalSize += item;
-      })
-      console.log('totalSize', totalSize);
-      Message.create({
+
+      Message.update({
         userID: req.body.userID,
-        friendID: req.body.friendID,
-        imgurl: req.body.imgurl,
-        message: req.body.filename,
-        time2: totalSize,
-        types: '3',
-        time: new Date(),
-        tip: 1
+        message: req.body.filename
+      }, {
+        $set: { 'uploadPercentage': 100, 'uploadSuccess': 1 }
       }).then(result => {
         console.log(result);
         res.send(
           { msg: 'ok' }
         );
       })
+
+
       //   Message.create(req.body).then(created => {
 
       //   })
@@ -242,7 +236,48 @@ module.exports = function (app) {
         })
         fs.rmdirSync(path); // 合并后删除保存切片的目录
       }
+      Message.remove({
+        message: req.body.cancel
+      })
       res.send({ msg: 'ok' })
+    }),
+
+    // 文件修改
+    app.post('/chat/revise', (req, res) => {
+      Message.update({
+        userID: req.body.userID,
+        message: req.body.filename
+      }, {
+        $set: { 'uploadPercentage': req.body.uploadPercentage }
+      }).then(result => {
+        console.log(result);
+      })
+    }),
+
+    // 创建文件
+    app.post('/chat/create', (req, res) => {
+      let totalSize = 0;
+      req.body.size.map((item, index) => {
+        totalSize += item;
+      })
+      console.log('totalSize', totalSize);
+      Message.create({
+        userID: req.body.userID,
+        friendID: req.body.friendID,
+        imgurl: req.body.imgurl,
+        message: req.body.filename,
+        time2: totalSize,
+        types: '3',
+        time: new Date(),
+        tip: 1,
+        uploadPercentage: req.body.uploadPercentage, // 上传进度为0
+        uploadSuccess: req.body.uploadSuccess, // 没上传成功
+      }).then(result => {
+        console.log(result);
+        res.send(
+          { msg: 'ok' }
+        );
+      })
     })
 }
 // 合并切片

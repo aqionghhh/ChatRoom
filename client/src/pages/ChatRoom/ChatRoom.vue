@@ -99,17 +99,29 @@
                 </div>
               </div>
               <div
-                class="file-middle"
-                :style="{ width: uploadPercentage + '%' }"
+                class="fileMiddle"
+                :style="{ width: item.uploadPercentage + '%' }"
               ></div>
               <div class="file-bottom">
-                <div class="file-bottomItem" v-if="showStop" @click="stop">
+                <div
+                  class="file-bottomItem"
+                  v-if="item.uploadSuccess !== 1 && showStop"
+                  @click="stop"
+                >
                   暂停
                 </div>
-                <div class="file-bottomItem" v-if="showGoOn" @click="goOn">
+                <div
+                  class="file-bottomItem"
+                  v-if="item.uploadSuccess !== 1 && showGoOn"
+                  @click="goOn"
+                >
                   继续
                 </div>
-                <div class="file-bottomItem" v-if="showCancel" @click="cancel">
+                <div
+                  class="file-bottomItem"
+                  v-if="item.uploadSuccess !== 1 && showCancel"
+                  @click="cancel"
+                >
                   取消
                 </div>
               </div>
@@ -449,6 +461,8 @@ export default {
         this.showStop = true;
         this.showCancel = true;
         this.container.file = name;
+        let lastName = this.container.file.name.split(".");
+
         const fileChunkList = this.createFileChunk(name);
         // 生成hash
         this.container.hash = await this.calculateHash(fileChunkList);
@@ -457,6 +471,17 @@ export default {
           this.container.file.name,
           this.container.hash
         );
+        let data = {
+          userID: this.userID, // 用户id
+          imgurl: localStorage.getItem("imgurl"),
+          message: this.container.file.name,
+          time2: this.container.file.size,
+          types: "3", // 内容类型（0文字，1图片链接，2音频链接
+          time: nowTime, // 发送时间
+          tip: 1, // 类似消息的id
+        };
+        this.showMsg.push(data);
+        this.sendSocket(data); // socket
         if (!shouldUpload) {
           this.data.forEach((item) => {
             item.percentage = 100;
@@ -465,9 +490,40 @@ export default {
           this.showStop = false;
           this.showGoOn = false;
           this.showCancel = false;
+          this.$axios({
+            method: "post",
+            url: "api/chat/create",
+            data: {
+              filename: this.container.hash + "." + lastName[1],
+              name: this.container.file.name,
+              size: this.size,
+              userID: this.userID, // 用户id
+              friendID: localStorage.getItem("friendID"),
+              imgurl: localStorage.getItem("imgurl"),
+              types: "3", // 内容类型（0文字，1图片链接，2音频链接
+              tip: 1, // 类似消息的id
+              uploadPercentage: 100, // 上传进度为100
+              uploadSuccess: 1, // 文件秒传就是上传成功
+            },
+          });
           return;
         }
-
+        this.$axios({
+          method: "post",
+          url: "api/chat/create",
+          data: {
+            filename: this.container.hash + "." + lastName[1],
+            name: this.container.file.name,
+            size: this.size,
+            userID: this.userID, // 用户id
+            friendID: localStorage.getItem("friendID"),
+            imgurl: localStorage.getItem("imgurl"),
+            types: "3", // 内容类型（0文字，1图片链接，2音频链接
+            tip: 1, // 类似消息的id
+            uploadPercentage: 0, // 上传进度为0
+            uploadSuccess: 0, // 没上传成功
+          },
+        });
         this.data = fileChunkList.map(({ file }, index) => ({
           chunk: new File([file], this.container.hash + "-" + index),
           hash: this.container.hash + "-" + index, // webworker生成的hash
@@ -648,10 +704,23 @@ export default {
       controller.abort();
       controller = null;
       console.log("this.requestList", this.requestList);
+      let lastName = this.container.file.name.split(".");
       this.showStop = false;
       this.showGoOn = true;
       this.requestList = [];
       console.log("暂停");
+      this.$axios({
+        method: "post",
+        url: "api/chat/revise",
+        data: {
+          filename: this.container.hash + "." + lastName[1],
+          name: this.container.file.name,
+          userID: this.userID, // 用户id
+          friendID: localStorage.getItem("friendID"),
+          uploadPercentage: this.uploadPercentage, // 上传进度为0
+          uploadSuccess: 0,
+        },
+      });
     },
     // 继续
     async goOn() {
@@ -1060,7 +1129,7 @@ export default {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
 }
-.file-middle {
+.fileMiddle {
   background-color: rgba(0, 0, 0, 0.2);
   height: 2px;
 }

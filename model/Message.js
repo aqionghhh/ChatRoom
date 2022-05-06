@@ -30,6 +30,12 @@ const MessageSchema = new Schema({
   tip: {  // 未读消息数
     type: Number,
     default: 0,
+  },
+  uploadPercentage: { // 上传进度
+    type: Number,
+  },
+  uploadSuccess: {  // 是否上传成功
+    type: Number, // 0是没成功，1是成功
   }
 });
 
