@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(function (req, res, next) {
   const URL = req.url
   console.log('URL', URL);
-  if (URL === '/login/match') {
+  if (URL === '/login/match' || URL === '/chatImg/*') {
     // 登录接口无需校验
     return next()
   }
